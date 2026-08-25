@@ -1,7 +1,7 @@
-# Verdict Studio & MCP Control Plane
+# Verdict Studio & Haize Sentinel MCP Control Plane ⚖️🛡️
 
 ## Vision
-An open-source unified platform that combines a **Visual Multi-Agent DAG Builder** for composing `haizelabs/verdict` debate evaluation pipelines with a **Scoped MCP Key & Permission Gateway** for governing agent tool access — all from a single web UI. Developers can design multi-model safety debates visually, generate scoped API keys for AI agents (Claude Desktop, Cursor, Devin), enforce granular tool-level permissions, and trigger real-time Verdict safety checks on every tool execution.
+An open-source unified platform that combines a **Visual Multi-Agent DAG Studio** for composing `haizelabs/verdict` debate evaluation pipelines with **Haize Sentinel**, a scoped Model Context Protocol (MCP) security gateway. Developers and security teams can design multi-model safety debates visually, generate scoped API keys for AI agents (Claude Desktop, Cursor, Devin), enforce granular tool-level permissions (AST SQL read-only, bash quarantine, SSRF whitelists), and trigger **inline test-time Verdict safety debates** on untrusted tool returns in real time.
 
 ## Core Value
 The ONE thing that must work: **A developer can visually compose a multi-agent debate DAG, generate a scoped MCP key with granular permissions, and see tool executions blocked/allowed in real-time** — proving the complete loop from evaluation design → agent governance → live enforcement.

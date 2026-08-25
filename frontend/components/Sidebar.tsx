@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Scale,
   ShieldAlert,
   KeyRound,
   Activity,
@@ -70,14 +69,16 @@ export default function Sidebar() {
       {/* Brand Header */}
       <div className="p-5 border-b border-[#4a154b]/30 flex items-center justify-between bg-[#1b081c]/50">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-2xl bg-[#4a154b] flex items-center justify-center shadow-lg shadow-[#4a154b]/40 group-hover:scale-105 transition-transform border border-[#d9bdde]/20">
-            <Scale className="w-5 h-5 text-white stroke-[2.5]" />
-          </div>
+          <img
+            src="/logo.svg"
+            alt="Verdict Studio & Haize Sentinel Logo"
+            className="h-8 w-auto flex-shrink-0 group-hover:scale-105 transition-transform"
+          />
           <div>
             <span className="font-bold text-sm tracking-tight text-white flex items-center gap-1.5 font-sans">
               VERDICT <span className="text-[#d9bdde] font-mono font-semibold">STUDIO</span>
             </span>
-            <span className="text-[10px] tracking-micro-cap uppercase font-mono text-[#d9bdde]/70 block -mt-0.5 font-semibold">
+            <span className="text-xs font-mono text-slate-400 block -mt-0.5 font-semibold">
               & Haize Sentinel
             </span>
           </div>

@@ -42,19 +42,23 @@
 **Requirements:** R3, R4, R5, R6, R7
 
 - [ ] Create `Canvas.tsx` with React Flow provider, background grid, minimap, controls
-- [ ] Build `InputNode` custom node — text input for candidate/context/query
-- [ ] Build `ProsecutorUnit` custom node — adversarial debater with model/prompt config
-- [ ] Build `DefenseUnit` custom node — constructive debater with model/prompt config
-- [ ] Build `FactCheckerUnit` custom node — claim verification with model/prompt config
-- [ ] Build `ChiefJusticeUnit` custom node — final adjudicator with verdict scale config
-- [ ] Build `AggregatorNode` custom node — MaxPool/MeanPool/WeightedSum selection
+- [ ] Build `InputNode` custom node — text input for candidate/context/query fields (maps to `Schema.of(...)`)
+- [ ] Build `ProsecutorUnit` custom node — adversarial debater (maps to `Unit` subclass with `ResponseSchema(argument: str)`)
+- [ ] Build `DefenseUnit` custom node — constructive debater (maps to `Unit` subclass with `ResponseSchema(argument: str)`)
+- [ ] Build `FactCheckerUnit` custom node — claim verification (maps to `Unit` subclass with `ResponseSchema(findings: str)`)
+- [ ] Build `ChiefJusticeUnit` custom node — final adjudicator (maps to `CategoricalJudgeUnit(categories=DiscreteScale([...]))`)
+- [ ] Build `CoTUnit` custom node — chain-of-thought reasoning (maps to `verdict.common.cot.CoTUnit`)
+- [ ] Build `AggregatorNode` custom node — MaxPool (majority vote via `statistics.mode`), MeanPool, MapUnit selection
 - [ ] Create draggable node palette sidebar with all node types
 - [ ] Implement typed handles (input/output) with connection validation rules
 - [ ] Build node configuration sidebar panel (appears on node click)
-  - Model selector dropdown (gpt-4o, claude-3-5-sonnet, gpt-4o-mini, etc.)
-  - Prompt template editor (textarea with `{source.*}`, `{previous.*}` hints)
-  - Temperature slider, max tokens input
-  - Verdict scale selector (for ChiefJustice: Discrete, Boolean, Continuous)
+  - Model selector dropdown for `.via()` (gpt-4o, claude-3-5-sonnet, gpt-4o-mini, etc.)
+  - Prompt template editor (textarea with `{source.*}`, `{previous.*}`, `{input.*}` autocomplete hints)
+  - Temperature slider, max tokens input (passed as inference_parameters)
+  - Scale selector for Judge nodes: DiscreteScale (custom values or range), BooleanScale, ContinuousScale, LikertScale
+  - Extractor selector: StructuredOutput (default), Raw, Regex, PostHoc, ArgmaxScore, WeightedSummedScore
+  - Layer mode selectors: inner (none/chain), outer (dense/broadcast/cumulative/last), repeat count
+  - `explanation: bool` toggle for Judge nodes
 - [ ] Implement DAG state serialization to JSON (nodes + edges + configs)
 - [ ] Implement DAG state deserialization / load from JSON
 - [ ] Add undo/redo support for canvas operations
@@ -69,14 +73,16 @@
 **Requirements:** R8, R9, R10
 
 - [ ] Build `verdict_runner.py` — converts DAG JSON to `verdict` Pipeline/Unit/Layer objects
-  - Map `InputNode` → pipeline input data
-  - Map `ProsecutorUnit` → `Unit(name="Prosecutor").prompt(...).via(model)`
-  - Map `DefenseUnit` → `Unit(name="Defense").prompt(...).via(model)`
-  - Map `FactCheckerUnit` → `Unit(name="FactChecker").prompt(...).via(model)`
-  - Map `ChiefJusticeUnit` → `CategoricalJudgeUnit(name="ChiefJustice", categories=scale).prompt(...).extract(...).via(model)`
-  - Map `AggregatorNode` → `MaxPoolUnit()` / `MeanPoolUnit()`
-  - Map edges → `>>` operator / `Layer([...])` grouping
-- [ ] Create `/api/dag/execute` POST endpoint — accepts DAG JSON, runs verdict pipeline
+  - Map `InputNode` → `Schema.of(**fields)` for pipeline input data
+  - Map `ProsecutorUnit` → Generate `class ProsecutorUnit(Unit): class ResponseSchema(Schema): argument: str` subclass, then `.prompt(...).via(model)`
+  - Map `DefenseUnit` → Generate `class DefenseUnit(Unit): class ResponseSchema(Schema): argument: str` subclass, then `.prompt(...).via(model)`
+  - Map `FactCheckerUnit` → Generate `class FactCheckerUnit(Unit): class ResponseSchema(Schema): findings: str` subclass, then `.prompt(...).via(model)`
+  - Map `ChiefJusticeUnit` → `CategoricalJudgeUnit(name="ChiefJustice", categories=DiscreteScale([...]))` with `.prompt(...).via(model)`
+  - Map `CoTUnit` → `CoTUnit(name=...).prompt(...).via(model)`
+  - Map `AggregatorNode` → `MaxPoolUnit()` (majority vote) / `MeanPoolUnit()` / `MapUnit(fn)`
+  - Map parallel edges → `Layer([unit1, unit2], repeat=N, inner="none"|"chain", outer="dense"|"broadcast")`
+  - Map sequential edges → `>>` operator chaining
+- [ ] Create `/api/dag/execute` POST endpoint — accepts DAG JSON, runs `pipeline.run(input_data=Schema.of(...), max_workers=128)`
 - [ ] Implement WebSocket streaming of pipeline execution progress
   - Stream each unit's prompt → model → response in real-time
   - Include unit name, role, model used, and token-by-token response text
@@ -86,9 +92,13 @@
   - ChiefJustice final ruling (gold) panel
   - Auto-scroll with timestamp per message
 - [ ] Build Python Code Exporter (`codeExporter.ts`)
-  - Traverse DAG graph → generate `verdict` import statements
-  - Generate Unit definitions with `.prompt()`, `.via()`, `.extract()` chains
-  - Generate `Pipeline("name") >> Layer([...]) >> ...` composition
+  - Generate correct imports: `from verdict import Pipeline, Layer, Unit`, `from verdict.common.judge import CategoricalJudgeUnit`, `from verdict.scale import DiscreteScale`, `from verdict.transform import MaxPoolUnit`, `from verdict.schema import Schema`
+  - Generate Unit subclasses with `class ResponseSchema(Schema): field: str` for custom debate nodes
+  - Generate unit instances with `.prompt()`, `.via()`, `.extract()` chains
+  - Generate `Pipeline("name") >> Layer([...], repeat=N, inner="...", outer="...") >> ...` composition
+  - Use `Schema.of(...)` for pipeline input, NOT raw dicts
+  - Preserve `{source.*}` / `{previous.*}` template syntax without escaping (verdict uses custom `auto_format`, not Python f-strings)
+  - Add comment `# MaxPoolUnit uses statistics.mode (majority voting)` where applicable
   - Copy-to-clipboard button with syntax-highlighted preview modal
 - [ ] Create `/api/dag/export-code` POST endpoint as backend alternative
 - [ ] Add "Run Debate" and "Export Code" buttons to DAG Studio toolbar

@@ -11,13 +11,13 @@ These are table stakes. The platform doesn't deliver value without them.
 | R1 | **Next.js 14 project scaffold** with App Router, TypeScript, Tailwind CSS, Shadcn UI | 1 | Planned |
 | R2 | **FastAPI backend scaffold** with project structure, Pydantic models, CORS, WebSocket support | 1 | Planned |
 | R3 | **React Flow DAG Canvas** with zoom/pan, grid background, minimap, controls | 2 | Planned |
-| R4 | **Custom draggable nodes**: InputNode, ProsecutorUnit, DefenseUnit, FactCheckerUnit, ChiefJusticeUnit, AggregatorNode | 2 | Planned |
-| R5 | **Node configuration sidebar**: model selection, prompt template editor, temperature/params | 2 | Planned |
-| R6 | **Edge connection validation** with typed handles (input/output schemas) | 2 | Planned |
-| R7 | **DAG serialization/deserialization** (save/load DAG state as JSON) | 2 | Planned |
-| R8 | **1-Click Python Code Exporter** generating valid `verdict` Pipeline code from DAG | 3 | Planned |
+| R4 | **Custom draggable nodes**: InputNode, ProsecutorUnit (Unit subclass w/ ResponseSchema), DefenseUnit, FactCheckerUnit, ChiefJusticeUnit (CategoricalJudgeUnit), CoTUnit, AggregatorNode (MaxPool=majority vote, MeanPool, MapUnit) | 2 | Planned |
+| R5 | **Node configuration sidebar**: model selection via `.via()`, prompt template editor with `{source.*}`/`{previous.*}` autocomplete, temperature/params, Scale selector, Extractor selector | 2 | Planned |
+| R6 | **Edge connection validation** with typed handles mapping to verdict Schema conformance rules | 2 | Planned |
+| R7 | **DAG serialization/deserialization** (save/load DAG state as JSON including node configs, edges, Layer inner/outer modes) | 2 | Planned |
+| R8 | **1-Click Python Code Exporter** generating valid `verdict` Pipeline code: proper Unit subclasses with ResponseSchema, `Layer(repeat=N)` not `n=N`, correct import paths, `Schema.of()` inputs, `{source.*}`/`{previous.*}` prompt templates | 3 | Planned |
 | R9 | **Live streaming WebSocket debate viewer** showing sub-models arguing token-by-token | 3 | Planned |
-| R10 | **Verdict pipeline executor** in FastAPI using `verdict` library with streaming output | 3 | Planned |
+| R10 | **Verdict pipeline executor** in FastAPI: converts DAG JSON → verdict Pipeline/Unit/Layer objects, uses `pipeline.run(input_data=Schema.of(...), max_workers=128)` | 3 | Planned |
 | R11 | **MCP Key Generator API** — create scoped keys with names, store hashed (SHA-256) | 4 | Planned |
 | R12 | **Granular tool-level permission toggles** per key (allow/deny list) | 4 | Planned |
 | R13 | **SQL read-only guardrail** — block DROP/DELETE/UPDATE/INSERT on read-only keys | 4 | Planned |

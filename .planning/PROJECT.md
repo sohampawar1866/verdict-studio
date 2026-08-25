@@ -25,13 +25,15 @@ The ONE thing that must work: **A developer can visually compose a multi-agent d
 | Protocols | JSON-RPC 2.0 (stdio/SSE), WebSockets | User-specified |
 | Icons | Lucide React | User-specified |
 
-### Key Dependencies (AI-researched & verified)
+### Key Dependencies (AI-researched & source-code-verified)
 | Dependency | Version | Confidence |
 |-----------|---------|------------|
-| `verdict` (PyPI) | 0.2.7 | HIGH — verified on PyPI/GitHub |
+| `verdict` (PyPI) | 0.2.7 | HIGH — source code cloned and read |
 | `@modelcontextprotocol/sdk` (npm) | 1.30.0 | HIGH — verified on npm |
 | `@xyflow/react` (npm) | 12.x | HIGH — verified |
 | `zod` (npm) | 3.23+ | HIGH — MCP SDK peer dep |
+| `instructor` (verdict dep) | 1.7.2 (pinned) | HIGH — from pyproject.toml |
+| `litellm` (verdict dep) | latest | HIGH — LLM provider interface |
 
 ## Requirements
 
@@ -69,9 +71,13 @@ The ONE thing that must work: **A developer can visually compose a multi-agent d
 |----------|--------|-----------|---------|
 | Monorepo structure (`frontend/` + `backend/`) | User | Matches spec file tree | Decided |
 | In-memory store for v1, migrate to Prisma/SQLite later | AI-suggested | Faster iteration, spec shows in-memory pattern | Pending user approval |
-| Use `verdict` Pipeline/Unit/Layer API directly in backend | AI-researched | Verified API: `Pipeline >> Layer([units]) >> aggregator` pattern | Decided |
+| Use `verdict` Pipeline/Unit/Layer API directly in backend | AI-researched | Verified API: `Pipeline >> Layer([units], repeat=N) >> aggregator` pattern | Decided |
 | MCP Gateway as separate TypeScript process | User | Spec requires `@modelcontextprotocol/sdk` TS gateway | Decided |
 | WebSocket for live debate + audit streaming | User | Spec requires real-time token-by-token streaming | Decided |
+| Custom Unit subclasses for debate nodes (NOT plain `Unit(name="...")`) | AI-researched (source code) | verdict's `UnitRegistry` metaclass requires `ResponseSchema` on all custom units | Decided |
+| `Layer(repeat=N)` NOT `Layer(n=N)` | AI-researched (source code) | Verified actual constructor parameter name in `primitive.py:522` | Decided |
+| MaxPoolUnit labeled as "Majority Vote" in UI | AI-researched (source code) | Uses `statistics.mode`, not `max()` — name is misleading | Decided |
+| `Schema.of(...)` for pipeline input, NOT raw dicts | AI-researched (source code) | `pipeline.run(input_data=Schema.of(...))` per `pipeline.py:113` | Decided |
 
 ---
 *Last updated: 2026-08-25 after initialization*

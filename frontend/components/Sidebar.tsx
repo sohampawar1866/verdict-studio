@@ -129,7 +129,7 @@ export default function Sidebar() {
               <Terminal className="w-3.5 h-3.5 text-slate-400" />
               <span>haizelabs/verdict</span>
             </span>
-            <ExternalLink className="w-3 h-3 text-slate-500" />
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
           </a>
 
           <a
@@ -142,7 +142,7 @@ export default function Sidebar() {
               <Github className="w-3.5 h-3.5 text-slate-400" />
               <span>sohampawar1866/verdict-studio</span>
             </span>
-            <ExternalLink className="w-3 h-3 text-slate-500" />
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
           </a>
         </div>
 
@@ -161,7 +161,7 @@ export default function Sidebar() {
               <Github className="w-3.5 h-3.5 text-slate-400" />
               <span>sohampawar1866</span>
             </span>
-            <ExternalLink className="w-3 h-3 text-slate-500" />
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
           </a>
 
           <a
@@ -174,7 +174,7 @@ export default function Sidebar() {
               <Linkedin className="w-3.5 h-3.5 text-slate-400" />
               <span>sohampawar1866</span>
             </span>
-            <ExternalLink className="w-3 h-3 text-slate-500" />
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
           </a>
 
           <a
@@ -187,7 +187,7 @@ export default function Sidebar() {
               <Globe className="w-3.5 h-3.5 text-slate-400" />
               <span>@sohampawar1866</span>
             </span>
-            <ExternalLink className="w-3 h-3 text-slate-500" />
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
           </a>
         </div>
       </nav>

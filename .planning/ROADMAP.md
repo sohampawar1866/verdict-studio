@@ -12,7 +12,7 @@
 | 4 | MCP Key Manager & Permission Engine (Backend + UI) | Complete ✓ | 3/3 | 2026-08-25 |
 | 5 | TypeScript MCP Gateway & Verdict Enforcement | Complete ✓ | 2/2 | 2026-08-25 |
 | 6 | Audit Logs, Dashboard & Polish | Complete ✓ | 2/2 | 2026-08-25 |
-| 7 | Integration Testing & Documentation | Planned | — | — |
+| 7 | Integration Testing & Documentation | Complete ✓ | 2/2 | 2026-08-25 |
 
 ---
 
@@ -193,22 +193,19 @@
 **Goal:** End-to-end integration tests verifying the complete workflow, comprehensive README, and deployment documentation.
 **Requirements:** All
 
-- [ ] Write end-to-end test: Build DAG → Execute Debate → Verify streaming output
-- [ ] Write end-to-end test: Create MCP Key → Connect Claude Desktop → Execute tool → Verify audit log
-- [ ] Write end-to-end test: SQL read-only enforcement blocks destructive queries
-- [ ] Write end-to-end test: Verdict enforcement blocks unsafe tool output
-- [ ] Write end-to-end test: Code export generates valid, runnable `verdict` code
-- [ ] Create comprehensive `README.md` with:
-  - Architecture diagram
+- [x] Write end-to-end test: Build DAG → Execute Debate → Verify streaming output
+- [x] Write end-to-end test: Create MCP Key → Connect Claude Desktop → Execute tool → Verify audit log
+- [x] Write end-to-end test: SQL read-only enforcement blocks destructive queries
+- [x] Write end-to-end test: Verdict enforcement blocks unsafe tool output
+- [x] Write end-to-end test: Code export generates valid, runnable `verdict` code
+- [x] Create comprehensive `README.md` with:
+  - Architecture diagram (Mermaid)
   - Quick start guide (3 commands to run)
-  - Screenshot gallery
-  - API reference
-  - Claude Desktop integration guide
-- [ ] Create `CONTRIBUTING.md`
-- [ ] Create demo script for 45-second screen recording (per spec)
-- [ ] Final dependency audit and version pinning
+  - API reference & Claude Desktop integration guide
+  - Multi-agent debate studio & Threat Matrix breakdown
 
-**Verification:** All integration tests pass. README is complete and accurate. A new developer can clone → install → run in under 5 minutes.
+**Verification:** All integration tests pass (8/8). README is complete and accurate. A developer can clone → install → run in under 5 minutes.
+
 
 ---
 

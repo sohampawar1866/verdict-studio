@@ -6,7 +6,7 @@
 
 | Phase | Name | Status | Plans | Date |
 |-------|------|--------|-------|------|
-| 1 | Project Scaffolding & Foundation | Planned | — | — |
+| 1 | Project Scaffolding & Foundation | Complete ✓ | 3/3 | 2026-08-25 |
 | 2 | Visual DAG Builder (React Flow Canvas) | Planned | — | — |
 | 3 | Verdict Pipeline Executor & Live Debate Streaming | Planned | — | — |
 | 4 | MCP Key Manager & Permission Engine (Backend + UI) | Planned | — | — |
@@ -22,16 +22,17 @@
 **Goal:** Set up both frontend and backend projects with proper tooling, dependencies, and shared types. Establish the monorepo structure, development workflow, and inter-process communication patterns.
 **Requirements:** R1, R2
 
-- [ ] Initialize Next.js 14 project in `frontend/` with App Router, TypeScript, Tailwind CSS
-- [ ] Install and configure Shadcn UI component library
-- [ ] Install `@xyflow/react`, `lucide-react`, and WebSocket client dependencies
-- [ ] Create app layout with sidebar navigation skeleton (DAG Studio, MCP Keys, Audit Logs)
-- [ ] Initialize FastAPI project in `backend/` with project structure (`app/main.py`, `mcp_gateway/`, `engine/`, `models/`)
-- [ ] Install `verdict`, `fastapi`, `uvicorn`, `pydantic`, `websockets` dependencies
-- [ ] Configure CORS middleware for frontend ↔ backend communication
-- [ ] Set up WebSocket endpoint skeleton in FastAPI
-- [ ] Create shared TypeScript types (`types/dag.ts`, `types/mcp.ts`, `types/audit.ts`)
-- [ ] Verify both servers start and frontend can reach backend API
+- [x] Initialize Next.js 14 project in `frontend/` with App Router, TypeScript, Tailwind CSS
+- [x] Install and configure Shadcn UI / Lucide component primitives
+- [x] Install `@xyflow/react`, `lucide-react`, and WebSocket client dependencies
+- [x] Create app layout with sidebar navigation skeleton (DAG Studio, MCP Keys, Audit Logs)
+- [x] Initialize FastAPI project in `backend/` with project structure (`app/main.py`, `mcp_gateway/`, `engine/`, `models/`)
+- [x] Install `verdict`, `fastapi`, `uvicorn`, `pydantic`, `websockets`, `sqlparse` dependencies
+- [x] Configure CORS middleware for frontend ↔ backend communication
+- [x] Set up WebSocket endpoint skeleton in FastAPI
+- [x] Initialize TypeScript MCP Gateway in `mcp-gateway/` with `@modelcontextprotocol/sdk`, `zod`, `tsx`
+- [x] Create shared TypeScript types (`frontend/lib/types.ts` & `mcp-gateway/src/types.ts`)
+- [x] Verify all servers start and frontend can reach backend API
 
 **Verification:** `npm run dev` serves frontend on :3000, `uvicorn` serves backend on :8000, CORS-enabled fetch succeeds from frontend.
 

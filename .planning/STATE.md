@@ -1,9 +1,9 @@
 # Project State — Verdict Studio & MCP Control Plane
 
 ## Current Position
-**Phase:** 1 — Project Scaffolding & Foundation
+**Phase:** 2 — Visual DAG Builder (React Flow Canvas)
 **Status:** Ready to plan
-**Last activity:** 2026-08-25 — Deep research complete. Verdict v0.2.7 source code cloned, read, and verified. All planning docs updated with authoritative API reference.
+**Last activity:** 2026-08-25 — Phase 1 executed & verified (FastAPI backend, TypeScript MCP Gateway, Next.js 14 frontend, dark theme, navigation sidebar, and shared data models).
 
 ## Key Decisions
 

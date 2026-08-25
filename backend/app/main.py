@@ -2,7 +2,7 @@ import time
 import json
 import logging
 from typing import Dict, List, Set, Any, Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Header, Depends, BackgroundTasks
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Header, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -20,6 +20,13 @@ from app.models import (
     DAGExecutionResponse,
 )
 from app.engine.verdict_runner import compile_and_run_dag
+from app.mcp_gateway import (
+    generate_mcp_key,
+    hash_mcp_key,
+    verify_mcp_key,
+    extract_key_from_header,
+    evaluate_tool_policy,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("verdict_sentinel")
@@ -30,8 +37,8 @@ AUDIT_LOGS_DB: List[AuditLogEntry] = []
 DAG_STORE_DB: Dict[str, DAGGraph] = {}
 
 
-def seed_default_dags():
-    """Seeds canonical Verdict debate DAG presets into the datastore."""
+def seed_default_dags_and_keys():
+    """Seeds canonical Verdict debate DAG presets and sample MCP keys."""
     preset_1 = DAGGraph(
         id="preset-adversarial-safety",
         name="Adversarial Safety & Prompt Injection Court",
@@ -53,6 +60,23 @@ def seed_default_dags():
         ],
     )
     DAG_STORE_DB[preset_1.id] = preset_1
+
+    # Seed demo MCP Key for quick testing
+    raw_key = "haize_mcp_live_demo1234567890abcdef12345678"
+    hashed = hash_mcp_key(raw_key)
+    demo_key = MCPKeyRecord(
+        id="key-demo-claude",
+        name="Claude Desktop Support (Demo)",
+        key_prefix="haize_mcp_live_demo",
+        hashed_key=hashed,
+        allowed_tools=["db_query", "fetch_web"],
+        prohibited_tools=["bash", "file_delete"],
+        enforce_verdict_eval=True,
+        sql_read_only=True,
+        allowed_domains=["*.company.com", "api.github.com"],
+        max_rpm=60,
+    )
+    MCP_KEYS_DB[demo_key.id] = demo_key
 
 
 class ConnectionManager:
@@ -87,8 +111,8 @@ ws_manager = ConnectionManager()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("🚀 Verdict Studio & Haize Sentinel API Server starting up...")
-    seed_default_dags()
-    logger.info(f"🌱 Seeded {len(DAG_STORE_DB)} default DAG presets.")
+    seed_default_dags_and_keys()
+    logger.info(f"🌱 Seeded default DAG presets and sample MCP keys.")
     yield
     logger.info("🛑 Shutting down server...")
 
@@ -120,12 +144,168 @@ async def health_check():
         "status": "ok",
         "service": "verdict-studio-backend",
         "version": "1.0.0",
-        "active_keys": len(MCP_KEYS_DB),
+        "active_keys": len([k for k in MCP_KEYS_DB.values() if k.is_active]),
         "audit_logs_count": len(AUDIT_LOGS_DB),
         "saved_dags_count": len(DAG_STORE_DB),
         "ws_subscribers": len(ws_manager.active_connections),
         "timestamp": time.time(),
     }
+
+
+# ============================================================================
+# Scoped MCP Key Management Endpoints
+# ============================================================================
+
+@app.get("/api/mcp/keys")
+async def list_mcp_keys():
+    """Returns list of all scoped MCP Keys (with secrets securely masked)."""
+    return list(MCP_KEYS_DB.values())
+
+
+@app.post("/api/mcp/keys")
+async def create_mcp_key_endpoint(req: MCPKeyCreateRequest):
+    """
+    Generates a new scoped MCP API Key and returns the raw secret key ONCE.
+    """
+    raw_key, key_prefix, hashed_key = generate_mcp_key()
+
+    record = MCPKeyRecord(
+        name=req.name,
+        key_prefix=key_prefix,
+        hashed_key=hashed_key,
+        allowed_tools=req.allowed_tools,
+        prohibited_tools=req.prohibited_tools,
+        enforce_verdict_eval=req.enforce_verdict_eval,
+        verdict_token_threshold=req.verdict_token_threshold,
+        sql_read_only=req.sql_read_only,
+        allowed_domains=req.allowed_domains,
+        max_rpm=req.max_requests_per_minute,
+        created_at=time.time(),
+        is_active=True,
+    )
+
+    MCP_KEYS_DB[record.id] = record
+    logger.info(f"Created scoped MCP Key '{record.name}' (id: {record.id}, prefix: {key_prefix})")
+
+    claude_config_snippet = {
+        "mcpServers": {
+          "haize-sentinel": {
+            "command": "npx",
+            "args": ["-y", "@haizelabs/sentinel-mcp", "--key", raw_key, "--backend-url", "http://localhost:8000"]
+          }
+        }
+    }
+
+    return {
+        "id": record.id,
+        "name": record.name,
+        "raw_key": raw_key,
+        "key_prefix": key_prefix,
+        "allowed_tools": record.allowed_tools,
+        "prohibited_tools": record.prohibited_tools,
+        "sql_read_only": record.sql_read_only,
+        "enforce_verdict_eval": record.enforce_verdict_eval,
+        "claude_config_snippet": claude_config_snippet,
+    }
+
+
+@app.delete("/api/mcp/keys/{key_id}")
+async def revoke_mcp_key(key_id: str):
+    """Revokes / disables an MCP key."""
+    if key_id not in MCP_KEYS_DB:
+        raise HTTPException(status_code=404, detail="MCP Key not found.")
+    MCP_KEYS_DB[key_id].is_active = False
+    logger.info(f"Revoked MCP Key '{MCP_KEYS_DB[key_id].name}' (id: {key_id})")
+    return {"status": "SUCCESS", "message": f"MCP Key '{key_id}' revoked."}
+
+
+# ============================================================================
+# Secure Tool Execution & Policy Gateway
+# ============================================================================
+
+@app.post("/api/mcp/execute-tool", response_model=ToolExecutionResponse)
+async def execute_mcp_tool_safe(
+    req: ToolExecutionRequest,
+    x_haize_mcp_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
+):
+    """
+    Intercepts MCP tool execution, validates key permissions, applies AST SQL guardrails,
+    and logs real-time audit telemetry.
+    """
+    start_time = time.time()
+    raw_key = extract_key_from_header(x_haize_mcp_key or authorization)
+
+    if not raw_key:
+        raise HTTPException(status_code=401, detail="Missing X-Haize-MCP-Key or Authorization header.")
+
+    # Locate key record by SHA-256 match
+    target_record: Optional[MCPKeyRecord] = None
+    for record in MCP_KEYS_DB.values():
+        if verify_mcp_key(raw_key, record.hashed_key):
+            target_record = record
+            break
+
+    if not target_record:
+        raise HTTPException(status_code=403, detail="Invalid or revoked MCP API Key.")
+
+    # Evaluate Policy Engine
+    is_allowed, status_code, violation_reason = evaluate_tool_policy(
+        key_record=target_record,
+        tool_name=req.tool_name,
+        parameters=req.parameters,
+    )
+
+    execution_time_ms = (time.time() - start_time) * 1000
+
+    # Create Audit Log
+    log_status = AuditLogStatus.ALLOWED if is_allowed else AuditLogStatus.BLOCKED
+    log_entry = AuditLogEntry(
+        key_name=target_record.name,
+        tool_name=req.tool_name,
+        status=log_status,
+        parameters=req.parameters,
+        reason=violation_reason or "Permissions validated successfully against policy.",
+        execution_time_ms=execution_time_ms,
+    )
+    AUDIT_LOGS_DB.append(log_entry)
+
+    # Broadcast real-time telemetry over WebSockets
+    await ws_manager.broadcast({
+        "type": "TOOL_INVOCATION",
+        "log_id": log_entry.id,
+        "key_name": target_record.name,
+        "tool_name": req.tool_name,
+        "status": log_status.value,
+        "reason": log_entry.reason,
+        "parameters": req.parameters,
+        "execution_time_ms": execution_time_ms,
+        "timestamp": time.time(),
+    })
+
+    if not is_allowed:
+        raise HTTPException(
+            status_code=403,
+            detail=f"[HAIZE SENTINEL SECURITY VIOLATION] {violation_reason}",
+        )
+
+    # Simulated successful tool result
+    return ToolExecutionResponse(
+        status="ALLOWED",
+        message=f"Executed '{req.tool_name}' safely.",
+        data={"result": f"Mock execution of {req.tool_name} completed safely under policy {target_record.name}."},
+        execution_time_ms=execution_time_ms,
+    )
+
+
+# ============================================================================
+# Audit Logs Endpoints
+# ============================================================================
+
+@app.get("/api/audit/logs", response_model=List[AuditLogEntry])
+async def list_audit_logs():
+    """Returns historical list of all tool executions and blocked attacks."""
+    return list(reversed(AUDIT_LOGS_DB))
 
 
 # ============================================================================
@@ -165,15 +345,9 @@ async def delete_dag(dag_id: str):
     return {"status": "SUCCESS", "message": f"DAG '{dag_id}' deleted."}
 
 
-# ============================================================================
-# DAG Execution & Streaming Endpoints
-# ============================================================================
-
 @app.post("/api/dag/execute", response_model=DAGExecutionResponse)
 async def execute_dag_pipeline(req: DAGExecutionRequest):
-    """
-    Executes a visual Verdict DAG pipeline with real-time WebSocket token streaming.
-    """
+    """Executes a visual Verdict DAG pipeline with real-time WebSocket token streaming."""
     logger.info(f"Received execution request for DAG: '{req.dag.name}' ({len(req.dag.nodes)} nodes)")
     response = await compile_and_run_dag(
         dag=req.dag,

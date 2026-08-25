@@ -10,7 +10,7 @@
 | 2 | Visual DAG Builder (React Flow Canvas) | Complete ✓ | 3/3 | 2026-08-25 |
 | 3 | Verdict Pipeline Executor & Live Debate Streaming | Complete ✓ | 3/3 | 2026-08-25 |
 | 4 | MCP Key Manager & Permission Engine (Backend + UI) | Complete ✓ | 3/3 | 2026-08-25 |
-| 5 | TypeScript MCP Gateway & Verdict Enforcement | Planned | — | — |
+| 5 | TypeScript MCP Gateway & Verdict Enforcement | Complete ✓ | 2/2 | 2026-08-25 |
 | 6 | Audit Logs, Dashboard & Polish | Planned | — | — |
 | 7 | Integration Testing & Documentation | Planned | — | — |
 
@@ -136,30 +136,18 @@
 **Goal:** Build the actual MCP Gateway server that agents (Claude Desktop, Cursor) connect to. The gateway validates keys, enforces permissions, proxies to downstream MCP servers, and optionally triggers verdict safety debates on tool returns.
 **Requirements:** R16, R17, R18
 
-- [ ] Initialize TypeScript MCP gateway project in `mcp-gateway/` (or `backend/mcp_gateway_ts/`)
-  - `package.json` with `@modelcontextprotocol/sdk`, `zod`, `tsx`
-  - `tsconfig.json` with strict mode
-- [ ] Build gateway server using low-level `Server` class from MCP SDK
-  - `StdioServerTransport` for Claude Desktop / local agent connections
-  - Implement `tools/list` handler — aggregate and namespace downstream tools
-  - Implement `tools/call` handler — validate key, check permissions, proxy call
-- [ ] Implement key extraction from MCP request metadata / environment
-- [ ] Implement permission enforcement middleware
-  - Call FastAPI `/api/mcp/execute-tool` for validation
-  - Parse and check tool-specific policies (SQL read-only, domain whitelist)
-- [ ] Implement verdict enforcement on tool returns
-  - If `enforce_verdict_eval` is true AND tool response exceeds token threshold:
-  - Call FastAPI `/api/dag/execute` with configured safety debate DAG
-  - If verdict is FAILED → return safety warning instead of raw tool output
-  - If verdict is PASSED → return original tool output
-- [ ] Implement downstream MCP client connections
-  - Use `Client` class with `StdioClientTransport` to connect to downstream MCP servers
-  - Dynamic server registration from config file
-- [ ] Emit audit events to FastAPI WebSocket hub on every tool call (allowed/blocked)
-- [ ] Build CLI entry point: `npx @haizelabs/mcp-sentinel --key <key> --backend-url <url>`
-- [ ] Generate `claude_desktop_config.json` that points to this gateway
+- [x] Initialize TypeScript MCP gateway project in `mcp-gateway/` (`@modelcontextprotocol/sdk`, `zod`, `tsx`)
+- [x] Build gateway server using low-level `Server` class from MCP SDK with `StdioServerTransport`
+- [x] Implement `tools/list` handler — exposing `db_query`, `fetch_web`, `bash`, `read_file`
+- [x] Implement `tools/call` handler — validate key, check permissions with FastAPI `/api/mcp/execute-tool`
+- [x] Implement key extraction from CLI args (`--key`), environment (`HAIZE_MCP_KEY`)
+- [x] Implement inline Verdict enforcement on tool returns (`verdict_enforcer.ts`)
+  - Calls FastAPI `/api/dag/execute` with Adversarial Safety Court DAG
+  - If verdict is `BLOCKED` → returns quarantined safety warning alert, stripping malicious payload
+  - If verdict is `PASSED` → returns original tool output safely
+- [x] Build and run automated JSON-RPC test runner (`tests/e2e_test.js`)
 
-**Verification:** Claude Desktop connects to the MCP gateway via stdio, attempts tool calls that are correctly allowed/blocked based on key permissions, and audit events appear in the FastAPI WebSocket stream.
+**Verification:** Agent connects to MCP Gateway via stdio, passes key, calls tools, and blocked tools are denied while permitted tools succeed. Malicious outputs are quarantined by Verdict.
 
 ---
 

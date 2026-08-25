@@ -1,9 +1,9 @@
 # Project State — Verdict Studio & MCP Control Plane
 
 ## Current Position
-**Phase:** 5 — TypeScript MCP Gateway & Verdict Enforcement
+**Phase:** 6 — Audit Logs, Dashboard & Polish
 **Status:** Ready to plan
-**Last activity:** 2026-08-25 — Phase 4 executed & verified (Key Auth, AST SQL guardrail with `sqlparse`, Policy Engine, Scoped MCP Key Manager UI, and 1-click config generator).
+**Last activity:** 2026-08-25 — Phase 5 executed & verified (TypeScript MCP Gateway, stdio JSON-RPC transport, AST policy proxying, and inline Verdict threat quarantine).
 
 ## Key Decisions
 

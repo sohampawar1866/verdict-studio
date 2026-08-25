@@ -34,20 +34,16 @@ async function runE2EBrowserAudit() {
     const titleText = await page.locator("h1").innerText();
     console.log(`  ✓ Page Title: "${titleText}"`);
 
-    // Verify KPI Cards
-    const kpiCards = await page.locator(".bg-slate-900\\/60").count();
-    console.log(`  ✓ Rendered KPI & Feature Cards: ${kpiCards}`);
-
-    // Verify Threat Matrix exists
-    const threatMatrixHeader = await page.getByText("Haize Sentinel Security & Threat Matrix").isVisible();
-    console.log(`  ✓ Threat Matrix Visible: ${threatMatrixHeader}`);
+    // Verify Template Gallery
+    const templateCards = await page.locator("a[href='/dag-studio'], a[href='/mcp-keys']").count();
+    console.log(`  ✓ Rendered Linear-Style Quick-Start Templates: ${templateCards}`);
 
     // Verify Sidebar navigation links
     const sidebarDagLink = page.getByRole("link", { name: "Visual DAG Studio" });
     const isSidebarVisible = await sidebarDagLink.isVisible();
     console.log(`  ✓ Sidebar Navigation Visible: ${isSidebarVisible}`);
 
-    results.push({ flow: "Executive Dashboard", status: "PASSED", details: "KPI cards, Threat Matrix, and navigation links verified." });
+    results.push({ flow: "Executive Dashboard", status: "PASSED", details: "Clean Linear template gallery and navigation links verified." });
 
     // =========================================================================
     // FLOW 2: Visual DAG Studio (/dag-studio)
@@ -76,7 +72,7 @@ async function runE2EBrowserAudit() {
     await exportPythonBtn.click();
     await page.waitForTimeout(500);
 
-    const isCodeModalOpen = await page.getByText("1-Click Python Code Exporter").isVisible();
+    const isCodeModalOpen = await page.getByText("Export Python Code").isVisible();
     console.log(`  ✓ Python Code Export Modal Opened: ${isCodeModalOpen}`);
 
     // Test Copy button in code modal
@@ -142,7 +138,7 @@ async function runE2EBrowserAudit() {
     await keyNameInput.fill("Automated Browser E2E Key");
 
     // Toggle bash tool checkbox
-    const bashLabel = page.getByText("Allow Bash Terminal");
+    const bashLabel = page.getByText("Allow Terminal Execution");
     if (await bashLabel.isVisible()) {
       await bashLabel.click();
     }
@@ -152,7 +148,7 @@ async function runE2EBrowserAudit() {
     await submitKeyBtn.click();
     await page.waitForTimeout(1200);
 
-    const isKeyCreatedSuccess = await page.getByText("Scoped MCP Key Generated Successfully!").isVisible();
+    const isKeyCreatedSuccess = await page.getByText("Scoped MCP Key Generated Successfully").isVisible();
     console.log(`  ✓ Key Generated with SHA-256 Hash & One-Time Secret: ${isKeyCreatedSuccess}`);
 
     // Close Key Modal

@@ -2,19 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  ShieldAlert,
-  Download,
   Search,
   Filter,
   CheckCircle2,
   AlertTriangle,
-  Radio,
   FileJson,
   FileSpreadsheet,
-  Clock,
-  Key,
   X,
-  ExternalLink,
 } from "lucide-react";
 import { AuditLogEntry } from "@/lib/types";
 
@@ -161,9 +155,8 @@ export default function AuditLogsPage() {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[#4a154b]/30 pb-8">
         <div className="space-y-2 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#4a154b]/30 border border-[#d9bdde]/30 text-[#d9bdde] text-xs font-mono font-bold tracking-micro-cap uppercase">
-            <Radio className="w-3.5 h-3.5 text-[#d9bdde] animate-pulse" />
-            <span>REAL-TIME WEBSOCKET THREAT TELEMETRY</span>
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#4a154b]/30 border border-[#d9bdde]/30 text-[#d9bdde] text-xs font-mono font-medium tracking-wide">
+            <span>Security Forensics • Real-Time Stream</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight-xl leading-tight">
             Security Interception & Audit Logs
@@ -177,13 +170,13 @@ export default function AuditLogsPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#230c25] border border-[#4a154b]/40 text-xs font-mono">
             <div
-              className={`w-2.5 h-2.5 rounded-full ${
+              className={`w-2 h-2 rounded-full ${
                 wsConnected
                   ? "bg-[#007a5a] shadow-sm shadow-[#007a5a] animate-pulse"
                   : "bg-amber-400"
               }`}
             />
-            <span className="text-white font-bold">{wsConnected ? "LIVE STREAM ACTIVE" : "CONNECTING WS..."}</span>
+            <span className="text-white font-semibold">{wsConnected ? "STREAM ONLINE" : "CONNECTING..."}</span>
           </div>
 
           <button
@@ -207,7 +200,7 @@ export default function AuditLogsPage() {
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#170718] border border-[#4a154b]/40 rounded-2xl p-4 shadow-md">
         <div className="flex-1 flex items-center gap-3 bg-[#100311] border border-[#4a154b]/50 rounded-full px-4 py-2 w-full">
-          <Search className="w-4 h-4 text-[#d9bdde]" />
+          <Search className="w-4 h-4 text-[#d9bdde] flex-shrink-0" />
           <input
             type="text"
             placeholder="Search by tool name, key prefix, or security reason..."
@@ -218,7 +211,7 @@ export default function AuditLogsPage() {
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Filter className="w-4 h-4 text-[#d9bdde]" />
+          <Filter className="w-4 h-4 text-[#d9bdde] flex-shrink-0" />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -307,18 +300,13 @@ export default function AuditLogsPage() {
           <div className="bg-[#170718] border border-[#4a154b]/40 rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden font-sans">
             {/* Header */}
             <div className="p-5 border-b border-[#4a154b]/30 flex items-center justify-between bg-[#230c25]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#4a154b] border border-[#d9bdde]/30 flex items-center justify-center text-white shadow-sm">
-                  <ShieldAlert className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-white tracking-tight">
-                    Audit Event Details
-                  </h2>
-                  <p className="text-xs text-[#d9bdde]/80 mt-0.5 font-mono">
-                    ID: {selectedEvent.id}
-                  </p>
-                </div>
+              <div>
+                <h2 className="text-base font-bold text-white tracking-tight">
+                  Audit Event Details
+                </h2>
+                <p className="text-xs text-[#d9bdde]/80 mt-0.5 font-mono">
+                  ID: {selectedEvent.id}
+                </p>
               </div>
               <button
                 onClick={() => setSelectedEvent(null)}

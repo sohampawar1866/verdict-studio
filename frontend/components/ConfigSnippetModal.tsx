@@ -80,18 +80,13 @@ npx -y @haizelabs/sentinel-mcp --key $HAIZE_MCP_KEY
       <div className="bg-[#170718] border border-[#4a154b]/40 rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden font-sans">
         {/* Header */}
         <div className="p-5 border-b border-[#4a154b]/30 flex items-center justify-between bg-[#230c25]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#4a154b] border border-[#d9bdde]/30 flex items-center justify-center text-white shadow-sm">
-              <Laptop className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight">
-                Agent Integration Snippets
-              </h2>
-              <p className="text-xs text-[#d9bdde]/80 mt-0.5">
-                Target configuration for <strong className="text-white">{keyData.name}</strong>
-              </p>
-            </div>
+          <div>
+            <h2 className="text-base font-bold text-white tracking-tight">
+              Agent Integration Snippets
+            </h2>
+            <p className="text-xs text-[#d9bdde]/80 mt-0.5">
+              Target configuration for <strong className="text-white">{keyData.name}</strong>
+            </p>
           </div>
           <button
             onClick={onClose}

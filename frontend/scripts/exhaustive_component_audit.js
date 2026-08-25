@@ -40,23 +40,20 @@ async function runExhaustiveComponentAudit() {
     const isSidebarVisible = await sidebar.isVisible();
     matrix.push({ component: "Sidebar Navigation", status: isSidebarVisible ? "PASSED" : "FAILED", category: "Navigation", notes: "Aubergine brand header, active pill badges, FastAPI health indicator" });
 
-    // Test KPI Metric Cards
-    const kpiCards = await page.locator(".grid.grid-cols-1.sm\\:grid-cols-2 > div").count();
-    matrix.push({ component: "Dashboard KPI Cards", status: kpiCards >= 4 ? "PASSED" : "FAILED", category: "Data Display", notes: `${kpiCards} metric cards rendered with bold display numerals` });
-
-    // Test ThreatMatrix Component
-    const threatPillars = await page.locator("text=AST SQL Guardrails").isVisible();
-    matrix.push({ component: "ThreatMatrix (4 Pillars)", status: threatPillars ? "PASSED" : "FAILED", category: "Security Telemetry", notes: "SQL AST, Prompt Injection Quarantine, SSRF & Privileged RBAC cards" });
-
     // Test Hero Banner Pill CTA Buttons
-    const launchDagBtn = page.getByRole("link", { name: "Launch DAG Studio" });
-    const generateKeyBtn = page.getByRole("link", { name: "Generate Scoped Key" });
+    const launchDagBtn = page.getByRole("link", { name: "New Visual DAG" });
+    const generateKeyBtn = page.getByRole("link", { name: "Manage MCP Keys" });
     const ctasReady = (await launchDagBtn.isVisible()) && (await generateKeyBtn.isVisible());
     matrix.push({ component: "Hero CTA Pill Buttons", status: ctasReady ? "PASSED" : "FAILED", category: "Interactive Controls", notes: "Pill radius 90px, aubergine and secondary variant styling" });
 
-    // Test Quick Launch Tiles
-    const quickLaunchTiles = await page.locator("a[href='/dag-studio'], a[href='/mcp-keys'], a[href='/audit-logs']").count();
-    matrix.push({ component: "Quick Action Feature Cards", status: quickLaunchTiles >= 3 ? "PASSED" : "FAILED", category: "Navigation", notes: "3 feature cards with hover transitions and arrow animations" });
+    // Test Quick-Start Template Gallery (Linear Style)
+    const templateCards = await page.locator("a[href='/dag-studio'], a[href='/mcp-keys']").count();
+    const isSafetyCourtReady = await page.locator("text=Adversarial Safety Court").isVisible();
+    matrix.push({ component: "Quick-Start Template Gallery", status: isSafetyCourtReady && templateCards >= 3 ? "PASSED" : "FAILED", category: "Template Gallery", notes: "3 minimalist cards (Adversarial Safety, Tool Firewall, Factuality)" });
+
+    // Test Recent Tool Interceptions Table
+    const recentTable = await page.locator("text=Recent Tool Interceptions").isVisible();
+    matrix.push({ component: "Recent Interceptions Feed", status: recentTable ? "PASSED" : "FAILED", category: "Security Telemetry", notes: "Clean, quiet real-time tool execution feed without vanity stat bloat" });
 
     // =========================================================================
     // SECTION 2: VISUAL MULTI-AGENT DAG STUDIO & CANVAS
@@ -124,7 +121,7 @@ async function runExhaustiveComponentAudit() {
     await exportPythonBtn.click();
     await page.waitForTimeout(500);
 
-    const codeModal = page.locator("text=1-Click Python Code Exporter");
+    const codeModal = page.locator("text=Export Python Code");
     const isCodeModalOpen = await codeModal.isVisible();
     const copyCodeBtn = page.getByRole("button", { name: /Copy Code/i });
     if (await copyCodeBtn.isVisible()) {
@@ -192,7 +189,7 @@ async function runExhaustiveComponentAudit() {
     const keyNameField = page.getByPlaceholder("e.g. Claude Desktop Production, Cursor Agent Dev, Devin");
     await keyNameField.fill("Full Component Audit Test Key");
 
-    const allowBashCheckbox = page.getByText("Allow Bash Terminal");
+    const allowBashCheckbox = page.getByText("Allow Terminal Execution");
     if (await allowBashCheckbox.isVisible()) {
       await allowBashCheckbox.click();
     }
@@ -201,7 +198,7 @@ async function runExhaustiveComponentAudit() {
     await submitKeyCreate.click();
     await page.waitForTimeout(1200);
 
-    const keySuccessCard = page.locator("text=Scoped MCP Key Generated Successfully!");
+    const keySuccessCard = page.locator("text=Scoped MCP Key Generated Successfully");
     const isSuccessVisible = await keySuccessCard.isVisible();
     matrix.push({ component: "Scoped KeyModal & RBAC Form", status: isKeyModalOpen && isSuccessVisible ? "PASSED" : "FAILED", category: "Modals & Drawers", notes: "Granular tool toggles, AST SQL enforcement, SHA-256 secret generation" });
 
@@ -244,7 +241,7 @@ async function runExhaustiveComponentAudit() {
     await page.waitForTimeout(1000);
 
     // Test Live Stream Status Indicator
-    const liveStreamPill = page.locator("text=LIVE STREAM ACTIVE");
+    const liveStreamPill = page.locator("text=STREAM ONLINE");
     matrix.push({ component: "WebSocket Telemetry Status Pill", status: (await liveStreamPill.isVisible()) ? "PASSED" : "FAILED", category: "Live Telemetry", notes: "Real-time connection heartbeats to ws://localhost:8000/ws/telemetry" });
 
     // Test Status Multi-Filter Dropdown

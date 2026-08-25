@@ -1,17 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Key,
-  X,
-  Shield,
-  Check,
-  Copy,
-  Terminal,
-  Database,
-  Globe,
-  Sparkles,
-} from "lucide-react";
+import { X, Check, Copy } from "lucide-react";
 
 interface KeyModalProps {
   isOpen: boolean;
@@ -112,18 +102,13 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
       <div className="bg-[#170718] border border-[#4a154b]/40 rounded-2xl max-w-xl w-full flex flex-col shadow-2xl overflow-hidden font-sans">
         {/* Header */}
         <div className="p-5 border-b border-[#4a154b]/30 flex items-center justify-between bg-[#230c25]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#4a154b] border border-[#d9bdde]/30 flex items-center justify-center text-white shadow-sm">
-              <Key className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight">
-                Generate Scoped MCP Key
-              </h2>
-              <p className="text-xs text-[#d9bdde]/80 mt-0.5">
-                Grant fine-grained tool permissions and active Verdict safety guardrails
-              </p>
-            </div>
+          <div>
+            <h2 className="text-base font-bold text-white tracking-tight">
+              Create Scoped MCP Key
+            </h2>
+            <p className="text-xs text-[#d9bdde]/80 mt-0.5">
+              Grant fine-grained tool permissions and active Verdict safety guardrails
+            </p>
           </div>
           <button
             onClick={handleModalClose}
@@ -161,30 +146,29 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
 
                 {/* Database / SQL Tools */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer">
+                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={allowDb}
                       onChange={(e) => setAllowDb(e.target.checked)}
                       className="rounded bg-[#100311] border-[#4a154b] text-[#4a154b] focus:ring-[#4a154b]"
                     />
-                    <Database className="w-4 h-4 text-[#1264a3]" />
-                    <span className="font-semibold">Allow Database Tools (<code className="text-[#d9bdde] font-mono">db_query</code>)</span>
+                    <span className="font-semibold">Allow Database Tools (<code className="text-[#d9bdde] font-mono font-normal">db_query</code>)</span>
                   </label>
 
                   {allowDb && (
                     <div className="ml-6 pl-3 border-l-2 border-[#4a154b]/40 space-y-1">
-                      <label className="flex items-center gap-2 text-xs text-[#d9bdde] cursor-pointer">
+                      <label className="flex items-center gap-2 text-xs text-[#d9bdde] cursor-pointer select-none">
                         <input
                           type="checkbox"
                           checked={sqlReadOnly}
                           onChange={(e) => setSqlReadOnly(e.target.checked)}
                           className="rounded bg-[#100311] border-[#4a154b] text-[#4a154b]"
                         />
-                        <span>Enforce Strict AST Read-Only (Blocks DROP, DELETE, UPDATE, ALTER)</span>
+                        <span>Enforce Strict Read-Only SQL (Blocks DROP, DELETE, UPDATE, ALTER)</span>
                       </label>
                       <p className="text-[10px] text-[#d9bdde]/60">
-                        Deep inspection via <code className="text-[#d9bdde] font-mono">sqlparse</code> blocks multi-statement attacks.
+                        Deep inspection via <code className="text-[#d9bdde] font-mono">sqlparse</code> blocks multi-statement injection.
                       </p>
                     </div>
                   )}
@@ -192,15 +176,14 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
 
                 {/* Web Fetch Tools */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer">
+                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={allowWeb}
                       onChange={(e) => setAllowWeb(e.target.checked)}
                       className="rounded bg-[#100311] border-[#4a154b] text-[#4a154b]"
                     />
-                    <Globe className="w-4 h-4 text-[#38bdf8]" />
-                    <span className="font-semibold">Allow Web Tools (<code className="text-[#d9bdde] font-mono">fetch_web</code>)</span>
+                    <span className="font-semibold">Allow Web Requests (<code className="text-[#d9bdde] font-mono font-normal">fetch_web</code>)</span>
                   </label>
 
                   {allowWeb && (
@@ -221,15 +204,14 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
 
                 {/* Terminal / Bash Tools */}
                 <div>
-                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer">
+                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={allowBash}
                       onChange={(e) => setAllowBash(e.target.checked)}
                       className="rounded bg-[#100311] border-[#4a154b] text-[#cc4117]"
                     />
-                    <Terminal className="w-4 h-4 text-[#ff6b4a]" />
-                    <span className="font-semibold">Allow Bash Terminal (<code className="text-[#ff8e75] font-mono">bash</code>)</span>
+                    <span className="font-semibold">Allow Terminal Execution (<code className="text-[#ff8e75] font-mono font-normal">bash</code>)</span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#cc4117]/20 text-[#ff8e75] border border-[#cc4117]/40 font-bold">
                       High Risk
                     </span>
@@ -238,20 +220,19 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
 
                 {/* Verdict Multi-Agent Defense Toggle */}
                 <div className="pt-2 border-t border-[#4a154b]/30 space-y-1">
-                  <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                  <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={enforceVerdict}
                       onChange={(e) => setEnforceVerdict(e.target.checked)}
                       className="rounded bg-[#100311] border-[#4a154b] text-[#007a5a]"
                     />
-                    <Sparkles className="w-4 h-4 text-[#2ecc71]" />
-                    <span className="text-[#2ecc71]">
+                    <span className="text-white">
                       Enforce Inline Verdict Safety Debate on Tool Returns
                     </span>
                   </label>
                   <p className="text-[10px] text-[#d9bdde]/70 ml-6">
-                    Automatically triggers a fast Prosecutor ⚔️ Defense debate on unverified payloads before agent context ingests them.
+                    Automatically triggers a fast Prosecutor vs Defense debate on unverified payloads before agent context ingests them.
                   </p>
                 </div>
               </div>
@@ -260,7 +241,7 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
               <button
                 onClick={handleGenerate}
                 disabled={isLoading}
-                className="w-full btn-primary-pill flex items-center justify-center gap-2"
+                className="w-full btn-primary-pill"
               >
                 {isLoading ? "Generating Secure Key..." : "Create Scoped MCP Key"}
               </button>
@@ -272,7 +253,7 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-[#2ecc71] flex items-center gap-1.5">
                     <Check className="w-4 h-4" />
-                    Scoped MCP Key Generated Successfully!
+                    Scoped MCP Key Generated Successfully
                   </span>
                   <span className="text-[10px] font-mono text-[#2ecc71] bg-[#007a5a]/30 px-2.5 py-0.5 rounded-full border border-[#007a5a]/40 font-bold">
                     SHA-256 HASHED
@@ -299,14 +280,14 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-[#d9bdde]">
-                    1-Click Claude Desktop Configuration Snippet
+                    Claude Desktop Configuration Snippet
                   </label>
                   <button
                     onClick={handleCopyConfig}
                     className="text-[11px] text-[#38bdf8] hover:underline font-mono flex items-center gap-1 font-semibold"
                   >
                     {copiedConfig ? <Check className="w-3 h-3 text-[#2ecc71]" /> : <Copy className="w-3 h-3" />}
-                    <span>{copiedConfig ? "Copied!" : "Copy JSON"}</span>
+                    <span>{copiedConfig ? "Copied" : "Copy JSON"}</span>
                   </button>
                 </div>
                 <pre className="p-3.5 rounded-2xl bg-[#0d030e] border border-[#4a154b]/40 text-[11px] font-mono text-slate-200 overflow-x-auto">

@@ -56,7 +56,7 @@ export default function DashboardPage() {
       {/* Top Hero Banner */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#4a154b]/30 pb-10">
         <div className="space-y-3.5 max-w-2xl">
-          <div className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#4a154b]/30 border border-[#d9bdde]/30 text-[#d9bdde] text-xs font-mono font-medium tracking-wide">
+          <div className="font-mono text-xs text-slate-300 inline-flex items-center px-3.5 py-1 rounded-full bg-[#4a154b]/30 border border-[#d9bdde]/30 font-medium tracking-wide">
             <span>Verdict Studio • v0.2.x Open Source</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight-xl leading-tight">
@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
       {/* 3 Quick-Start Cards (Linear Style Template Gallery) */}
       <div className="space-y-4">
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
+        <div className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400">
           Quick-Start Templates
         </div>
 
@@ -97,9 +97,9 @@ export default function DashboardPage() {
             className="group bg-[#170718] border border-[#4a154b]/40 hover:border-[#d9bdde]/50 p-6 rounded-2xl space-y-3.5 transition-all hover:bg-[#200a22] flex flex-col justify-between"
           >
             <div className="space-y-2.5">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                Multi-Agent Debate
-              </div>
+              <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                // MULTI-AGENT DEBATE
+              </span>
               <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-[#d9bdde] transition-colors">
                 Adversarial Safety Court
               </h3>
@@ -119,9 +119,9 @@ export default function DashboardPage() {
             className="group bg-[#170718] border border-[#4a154b]/40 hover:border-[#1264a3]/50 p-6 rounded-2xl space-y-3.5 transition-all hover:bg-[#200a22] flex flex-col justify-between"
           >
             <div className="space-y-2.5">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                MCP Security
-              </div>
+              <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                // MCP SECURITY
+              </span>
               <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-[#38bdf8] transition-colors">
                 Database & Tool Firewall
               </h3>
@@ -141,9 +141,9 @@ export default function DashboardPage() {
             className="group bg-[#170718] border border-[#4a154b]/40 hover:border-[#a855f7]/50 p-6 rounded-2xl space-y-3.5 transition-all hover:bg-[#200a22] flex flex-col justify-between"
           >
             <div className="space-y-2.5">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                Consensus & Aggregation
-              </div>
+              <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                // CONSENSUS & AGGREGATION
+              </span>
               <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-[#c084fc] transition-colors">
                 Factuality & Hallucination Check
               </h3>
@@ -162,7 +162,7 @@ export default function DashboardPage() {
       {/* System Status & Recent Activity */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
+          <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400">
             Recent Tool Interceptions
           </span>
           <Link
@@ -194,7 +194,7 @@ export default function DashboardPage() {
               ) : (
                 recentEvents.map((evt) => (
                   <tr key={evt.id} className="hover:bg-[#230c25]/40 transition-colors">
-                    <td className="py-4 px-6 text-slate-300 text-xs whitespace-nowrap">
+                    <td className="py-4 px-6 text-slate-300 font-mono text-xs whitespace-nowrap">
                       {new Date(evt.timestamp * 1000).toLocaleTimeString()}
                     </td>
                     <td className="py-4 px-5">
@@ -215,7 +215,7 @@ export default function DashboardPage() {
                         <span>{evt.status}</span>
                       </span>
                     </td>
-                    <td className="py-4 px-5 font-semibold text-white font-mono text-sm">
+                    <td className="py-4 px-5 font-bold text-white font-mono text-sm">
                       {evt.tool_name}
                     </td>
                     <td className="py-4 px-6 text-slate-200 font-sans text-sm max-w-md truncate">

@@ -253,7 +253,7 @@ export default function AuditLogsPage() {
                     onClick={() => setSelectedEvent(log)}
                     className="hover:bg-[#230c25]/50 transition-colors cursor-pointer group"
                   >
-                    <td className="py-4 px-6 text-slate-300 text-xs whitespace-nowrap">
+                    <td className="py-4 px-6 text-slate-300 font-mono text-xs whitespace-nowrap">
                       {new Date(log.timestamp * 1000).toLocaleTimeString()}
                     </td>
                     <td className="py-4 px-5">
@@ -274,13 +274,13 @@ export default function AuditLogsPage() {
                         <span>{log.status}</span>
                       </span>
                     </td>
-                    <td className="py-4 px-5 font-bold text-white text-sm group-hover:text-[#38bdf8] transition-colors">
+                    <td className="py-4 px-5 font-mono font-bold text-white text-sm group-hover:text-[#38bdf8] transition-colors">
                       {log.tool_name}
                     </td>
-                    <td className="py-4 px-5 text-[#38bdf8] text-xs">
+                    <td className="py-4 px-5 font-mono text-[#38bdf8] text-xs">
                       {log.key_id}
                     </td>
-                    <td className="py-4 px-5 text-slate-300 text-xs">
+                    <td className="py-4 px-5 font-mono text-slate-300 text-xs">
                       {log.latency_ms} ms
                     </td>
                     <td className="py-4 px-6 text-slate-200 max-w-md truncate font-sans text-sm">

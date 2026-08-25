@@ -25,26 +25,26 @@ function InputNodeComponent({ data, selected }: NodeProps) {
           </div>
           <div>
             <span className="text-xs font-bold text-white tracking-tight block">Input Schema</span>
-            <span className="text-[10px] text-[#d9bdde]/80 block font-mono">verdict.schema.Schema</span>
+            <span className="font-mono text-[11px] text-[#d9bdde]/80 block font-semibold">verdict.schema.Schema</span>
           </div>
         </div>
-        <span className="text-[10px] font-bold tracking-wider uppercase font-mono px-2 py-0.5 rounded-full bg-[#4a154b]/60 text-[#d9bdde] border border-[#d9bdde]/20">
+        <span className="font-mono text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#4a154b]/60 text-[#d9bdde] border border-[#d9bdde]/20">
           Source
         </span>
       </div>
 
       {/* Node Body */}
       <div className="p-3.5 space-y-2.5">
-        <p className="text-[11px] text-[#d9bdde]/90 leading-relaxed font-sans">
-          Pipeline input fields passed into downstream units via <code className="text-[#38bdf8] font-mono">{"{source.*}"}</code>
+        <p className="text-xs text-[#d9bdde]/90 leading-relaxed font-sans">
+          Pipeline input fields passed into downstream units via <code className="text-[#38bdf8] font-mono font-semibold">{"{source.*}"}</code>
         </p>
         <div className="flex flex-wrap gap-1.5 pt-1">
           {fields.map((f, i) => (
             <span
               key={i}
-              className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-[#120613] border border-[#4a154b]/50 text-slate-200 flex items-center gap-1.5"
+              className="font-mono text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#120613] border border-[#4a154b]/50 text-slate-200 flex items-center gap-1.5"
             >
-              <Database className="w-2.5 h-2.5 text-[#1264a3]" />
+              <Database className="w-3 h-3 text-[#1264a3]" />
               <span>{f}</span>
             </span>
           ))}

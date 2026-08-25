@@ -34,10 +34,10 @@ function CoTNodeComponent({ data, selected }: NodeProps) {
             <span className="text-xs font-bold text-white tracking-tight block">
               {nodeData.name || "CoTUnit"}
             </span>
-            <span className="text-[10px] text-[#d9bdde]/80 block font-mono">Chain-of-Thought Reasoning</span>
+            <span className="font-mono text-[11px] text-[#d9bdde]/80 block font-semibold">Chain-of-Thought Reasoning</span>
           </div>
         </div>
-        <span className="text-[10px] font-bold tracking-wider uppercase font-mono px-2 py-0.5 rounded-full bg-[#a855f7]/20 text-[#c084fc] border border-[#a855f7]/30">
+        <span className="font-mono text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#a855f7]/20 text-[#c084fc] border border-[#a855f7]/30">
           Reasoning
         </span>
       </div>
@@ -45,26 +45,26 @@ function CoTNodeComponent({ data, selected }: NodeProps) {
       {/* Node Body */}
       <div className="p-3.5 space-y-2.5">
         {/* Model Badge */}
-        <div className="flex items-center justify-between text-[11px]">
+        <div className="flex items-center justify-between font-mono text-[11px] font-semibold">
           <span className="text-[#d9bdde] flex items-center gap-1.5 font-mono">
-            <Cpu className="w-3 h-3 text-[#c084fc]" />
+            <Cpu className="w-3.5 h-3.5 text-[#c084fc]" />
             <span>{nodeData.model || "gpt-4o"}</span>
           </span>
-          <span className="text-[10px] font-mono text-[#d9bdde]/60">
+          <span className="font-mono text-[11px] text-[#d9bdde]/70 font-semibold">
             T={nodeData.temperature !== undefined ? nodeData.temperature : 0.7}
           </span>
         </div>
 
         {/* Prompt Preview */}
-        <div className="bg-[#120613] rounded-xl p-2.5 border border-[#4a154b]/40 text-[11px] font-mono text-slate-300 line-clamp-2 leading-relaxed">
+        <div className="bg-[#120613] rounded-xl p-2.5 border border-[#4a154b]/40 text-xs font-mono text-slate-300 line-clamp-2 leading-relaxed">
           {nodeData.prompt || "Deconstruct the premise step-by-step before making a claim..."}
         </div>
 
         {/* Live Streaming Token Preview if active */}
         {nodeData.streamingTokens && (
-          <div className="p-2.5 rounded-xl bg-[#230d2d] border border-[#a855f7]/40 text-[10px] font-mono text-[#c084fc] animate-fade-in">
+          <div className="p-2.5 rounded-xl bg-[#230d2d] border border-[#a855f7]/40 font-mono text-[11px] text-[#c084fc] animate-fade-in">
             <span className="flex items-center gap-1 text-[#c084fc] font-bold mb-0.5">
-              <Sparkles className="w-2.5 h-2.5 animate-spin" />
+              <Sparkles className="w-3 h-3 animate-spin" />
               Thinking:
             </span>
             <div className="line-clamp-2">{nodeData.streamingTokens}</div>

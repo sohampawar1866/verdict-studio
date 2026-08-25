@@ -35,10 +35,10 @@ function ChiefJusticeNodeComponent({ data, selected }: NodeProps) {
             <span className="text-xs font-bold text-white tracking-tight block">
               {nodeData.name || "ChiefJustice"}
             </span>
-            <span className="text-[10px] text-[#d9bdde]/80 block font-mono">CategoricalJudgeUnit</span>
+            <span className="font-mono text-[11px] text-[#d9bdde]/80 block font-semibold">CategoricalJudgeUnit</span>
           </div>
         </div>
-        <span className="text-[10px] font-bold tracking-wider uppercase font-mono px-2 py-0.5 rounded-full bg-[#f59e0b]/20 text-[#f59e0b] border border-[#f59e0b]/30">
+        <span className="font-mono text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#f59e0b]/20 text-[#f59e0b] border border-[#f59e0b]/30">
           Judge
         </span>
       </div>
@@ -46,26 +46,26 @@ function ChiefJusticeNodeComponent({ data, selected }: NodeProps) {
       {/* Node Body */}
       <div className="p-3.5 space-y-2.5">
         {/* Model & Scale */}
-        <div className="flex items-center justify-between text-[11px]">
+        <div className="flex items-center justify-between font-mono text-[11px] font-semibold">
           <span className="text-[#d9bdde] flex items-center gap-1.5 font-mono">
-            <Cpu className="w-3 h-3 text-[#f59e0b]" />
+            <Cpu className="w-3.5 h-3.5 text-[#f59e0b]" />
             <span>{nodeData.model || "gpt-4o"}</span>
           </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#120613] text-[#f59e0b] border border-[#f59e0b]/30">
+          <span className="font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#120613] text-[#f59e0b] border border-[#f59e0b]/30">
             Scale: {nodeData.scaleType || "discrete"}
           </span>
         </div>
 
         {/* Prompt Preview */}
-        <div className="bg-[#120613] rounded-xl p-2.5 border border-[#4a154b]/40 text-[11px] font-mono text-slate-300 line-clamp-2 leading-relaxed">
+        <div className="bg-[#120613] rounded-xl p-2.5 border border-[#4a154b]/40 text-xs font-mono text-slate-300 line-clamp-2 leading-relaxed">
           {nodeData.prompt || "Weigh arguments from Prosecution and Defense. Render final ruling..."}
         </div>
 
         {/* Live Streaming Token Preview if active */}
         {nodeData.streamingTokens && (
-          <div className="p-2.5 rounded-xl bg-[#2a1a0c] border border-[#f59e0b]/40 text-[10px] font-mono text-[#f59e0b] animate-fade-in">
+          <div className="p-2.5 rounded-xl bg-[#2a1a0c] border border-[#f59e0b]/40 font-mono text-[11px] text-[#f59e0b] animate-fade-in">
             <span className="flex items-center gap-1 text-[#f59e0b] font-bold mb-0.5">
-              <Sparkles className="w-2.5 h-2.5 animate-spin" />
+              <Sparkles className="w-3 h-3 animate-spin" />
               Adjudicating:
             </span>
             <div className="line-clamp-2">{nodeData.streamingTokens}</div>

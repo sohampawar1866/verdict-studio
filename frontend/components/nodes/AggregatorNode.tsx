@@ -2,7 +2,7 @@
 
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
-import { Layers, CheckCircle2 } from "lucide-react";
+import { Layers } from "lucide-react";
 import { NodeData } from "@/lib/types";
 
 function AggregatorNodeComponent({ data, selected }: NodeProps) {
@@ -35,27 +35,27 @@ function AggregatorNodeComponent({ data, selected }: NodeProps) {
             <span className="text-xs font-bold text-white tracking-tight block">
               {nodeData.name || (aggType === "maxpool" ? "MaxPoolUnit" : "MeanPoolUnit")}
             </span>
-            <span className="text-[10px] text-[#d9bdde]/80 block font-mono">Transform / Aggregator</span>
+            <span className="font-mono text-[11px] text-[#d9bdde]/80 block font-semibold">Transform / Aggregator</span>
           </div>
         </div>
-        <span className="text-[10px] font-bold tracking-wider uppercase font-mono px-2 py-0.5 rounded-full bg-[#4a154b]/40 text-[#d9bdde] border border-[#d9bdde]/30">
+        <span className="font-mono text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#4a154b]/40 text-[#d9bdde] border border-[#d9bdde]/30">
           Transform
         </span>
       </div>
 
       {/* Node Body */}
       <div className="p-3.5 space-y-2.5">
-        <div className="text-[11px] text-[#d9bdde]/90 font-mono">
+        <div className="text-xs text-[#d9bdde]/90 font-mono">
           {aggType === "maxpool" ? (
-            <span className="text-emerald-400 font-semibold">● Majority Voting (statistics.mode)</span>
+            <span className="text-emerald-400 font-semibold font-mono">● Majority Voting (statistics.mode)</span>
           ) : aggType === "meanpool" ? (
-            <span className="text-sky-400 font-semibold">● Numerical Average (statistics.mean)</span>
+            <span className="text-sky-400 font-semibold font-mono">● Numerical Average (statistics.mean)</span>
           ) : (
-            <span className="text-purple-400 font-semibold">● Custom Transformation Map</span>
+            <span className="text-purple-400 font-semibold font-mono">● Custom Transformation Map</span>
           )}
         </div>
 
-        <div className="bg-[#120613] rounded-xl p-2.5 border border-[#4a154b]/40 text-[11px] font-mono text-slate-300">
+        <div className="bg-[#120613] rounded-xl p-2.5 border border-[#4a154b]/40 text-xs font-mono text-slate-300">
           Aggregates outputs from upstream parallel layer units into a unified consensus verdict.
         </div>
       </div>

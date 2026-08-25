@@ -10,8 +10,9 @@ import {
   GitBranch,
   Terminal,
   ExternalLink,
-  CheckCircle2,
-  AlertCircle,
+  Github,
+  Linkedin,
+  Globe,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -65,7 +66,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-[#140615] border-r border-[#4a154b]/30 flex flex-col h-screen sticky top-0 select-none z-30">
+    <aside className="w-64 bg-[#140615] border-r border-[#4a154b]/30 flex flex-col h-screen sticky top-0 select-none z-30 font-sans">
       {/* Brand Header */}
       <div className="p-5 border-b border-[#4a154b]/30 flex items-center justify-between bg-[#1b081c]/50">
         <Link href="/" className="flex items-center gap-3 group">
@@ -113,21 +114,82 @@ export default function Sidebar() {
           );
         })}
 
-        <div className="pt-6 px-3 py-2 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
+        {/* ECOSYSTEM SECTION */}
+        <div className="pt-5 px-3 py-2 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
           Ecosystem
         </div>
-        <a
-          href="https://github.com/haizelabs/verdict"
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center justify-between px-3.5 py-2.5 rounded-full text-sm font-medium text-slate-300 hover:text-white hover:bg-[#260c28] transition-colors"
-        >
-          <span className="flex items-center gap-2.5">
-            <Terminal className="w-4 h-4 text-slate-400" />
-            <span className="font-mono text-xs">haizelabs/verdict</span>
-          </span>
-          <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-        </a>
+        <div className="space-y-1">
+          <a
+            href="https://github.com/haizelabs/verdict"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+          >
+            <span className="flex items-center gap-2.5">
+              <Terminal className="w-3.5 h-3.5 text-slate-400" />
+              <span>haizelabs/verdict</span>
+            </span>
+            <ExternalLink className="w-3 h-3 text-slate-500" />
+          </a>
+
+          <a
+            href="https://github.com/sohampawar1866/verdict-studio"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+          >
+            <span className="flex items-center gap-2.5">
+              <Github className="w-3.5 h-3.5 text-slate-400" />
+              <span>sohampawar1866/verdict-studio</span>
+            </span>
+            <ExternalLink className="w-3 h-3 text-slate-500" />
+          </a>
+        </div>
+
+        {/* BUILDER SECTION */}
+        <div className="pt-5 px-3 py-2 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
+          Builder
+        </div>
+        <div className="space-y-1">
+          <a
+            href="https://github.com/sohampawar1866"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+          >
+            <span className="flex items-center gap-2.5">
+              <Github className="w-3.5 h-3.5 text-slate-400" />
+              <span>sohampawar1866</span>
+            </span>
+            <ExternalLink className="w-3 h-3 text-slate-500" />
+          </a>
+
+          <a
+            href="https://www.linkedin.com/in/sohampawar1866/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+          >
+            <span className="flex items-center gap-2.5">
+              <Linkedin className="w-3.5 h-3.5 text-slate-400" />
+              <span>sohampawar1866</span>
+            </span>
+            <ExternalLink className="w-3 h-3 text-slate-500" />
+          </a>
+
+          <a
+            href="https://devfolio.co/@sohampawar1866"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+          >
+            <span className="flex items-center gap-2.5">
+              <Globe className="w-3.5 h-3.5 text-slate-400" />
+              <span>@sohampawar1866</span>
+            </span>
+            <ExternalLink className="w-3 h-3 text-slate-500" />
+          </a>
+        </div>
       </nav>
 
       {/* Backend Health Footer */}

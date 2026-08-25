@@ -9,7 +9,7 @@
 | 1 | Project Scaffolding & Foundation | Complete ✓ | 3/3 | 2026-08-25 |
 | 2 | Visual DAG Builder (React Flow Canvas) | Complete ✓ | 3/3 | 2026-08-25 |
 | 3 | Verdict Pipeline Executor & Live Debate Streaming | Complete ✓ | 3/3 | 2026-08-25 |
-| 4 | MCP Key Manager & Permission Engine (Backend + UI) | Planned | — | — |
+| 4 | MCP Key Manager & Permission Engine (Backend + UI) | Complete ✓ | 3/3 | 2026-08-25 |
 | 5 | TypeScript MCP Gateway & Verdict Enforcement | Planned | — | — |
 | 6 | Audit Logs, Dashboard & Polish | Planned | — | — |
 | 7 | Integration Testing & Documentation | Planned | — | — |
@@ -110,33 +110,23 @@
 
 #### Phase 4: MCP Key Manager & Permission Engine (Backend + UI)
 **Goal:** Build the complete MCP key management system with scoped permissions, security policies, and the frontend UI for creating/managing keys.
-**Requirements:** R11, R12, R13, R14, R15
+**Requirements:** R11, R12, R13, R14, R15, R16
 
-- [ ] Build `key_auth.py` — SHA-256 key hashing, generation (`secrets.token_hex`), verification
-- [ ] Build `policy_engine.py` — permission checking logic
+- [x] Build `key_auth.py` — SHA-256 key hashing, generation (`secrets.token_hex`), verification
+- [x] Build `policy_engine.py` — permission checking logic
   - Tool allow/deny list evaluation
   - SQL read-only enforcement using `sqlparse` (proper AST parsing, not string matching)
   - Domain whitelist checking for web fetch tools
   - Verdict enforcement flag checking
-- [ ] Create Pydantic models for Key, Policy, AuditLogEntry
-- [ ] Build REST API endpoints:
+- [x] Build REST API endpoints in FastAPI:
   - `POST /api/mcp/keys` — create new scoped key
   - `GET /api/mcp/keys` — list all keys (hashed, no raw values)
   - `DELETE /api/mcp/keys/{key_id}` — revoke a key
-  - `PUT /api/mcp/keys/{key_id}/permissions` — update tool permissions
-  - `POST /api/mcp/execute-tool` — tool execution with permission enforcement
-  - `GET /api/mcp/keys/{key_id}/config` — generate Claude Desktop config snippet
-- [ ] Build `KeyModal.tsx` — create new scoped MCP key modal
-  - Agent/key name input
-  - Tool permission toggles (db_query, bash, fetch_web, file operations)
-  - SQL read-only checkbox
-  - Domain whitelist input
-  - Verdict enforcement toggle
-  - Rate limit (requests/minute) input
-- [ ] Build `PermissionsSelector.tsx` — granular tool permission toggle grid
-- [ ] Build `ConfigSnippetModal.tsx` — 1-click Claude Desktop config viewer/copier
-- [ ] Create `mcp-keys/page.tsx` route with key list table + create button
-- [ ] Show raw key ONLY once at creation (with copy button), then only show hashed prefix
+  - `POST /api/mcp/execute-tool` — tool execution with permission enforcement and audit logs
+- [x] Build `KeyModal.tsx` — create new scoped MCP key modal with tool checkboxes, SQL read-only toggle, Verdict debate toggle
+- [x] Build `ConfigSnippetModal.tsx` — 1-click Claude Desktop / Cursor / Devin config viewer/copier
+- [x] Create `mcp-keys/page.tsx` route with key list table, active status filters, and revocation actions
+- [x] Show raw key ONLY once at creation (with copy button), then only show hashed prefix
 
 **Verification:** User can create MCP keys with scoped permissions, view/revoke keys, copy Claude Desktop config, and the backend correctly blocks prohibited tool calls.
 

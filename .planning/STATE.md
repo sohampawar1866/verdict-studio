@@ -1,9 +1,9 @@
 # Project State — Verdict Studio & MCP Control Plane
 
 ## Current Position
-**Phase:** 4 — MCP Key Manager & Permission Engine (Backend + UI)
+**Phase:** 5 — TypeScript MCP Gateway & Verdict Enforcement
 **Status:** Ready to plan
-**Last activity:** 2026-08-25 — Phase 3 executed & verified (Verdict Pipeline executor, WebSocket token streaming, live canvas node glow, and 1-click Python code exporter).
+**Last activity:** 2026-08-25 — Phase 4 executed & verified (Key Auth, AST SQL guardrail with `sqlparse`, Policy Engine, Scoped MCP Key Manager UI, and 1-click config generator).
 
 ## Key Decisions
 

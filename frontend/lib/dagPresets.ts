@@ -11,7 +11,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-1",
         type: "input",
-        position: { x: 300, y: 50 },
+        position: { x: 480, y: 40 },
         data: {
           label: "Input Schema",
           fields: ["query", "document", "tool_output"],
@@ -20,7 +20,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-2",
         type: "prosecutor",
-        position: { x: 80, y: 220 },
+        position: { x: 60, y: 280 },
         data: {
           name: "ProsecutorUnit",
           model: "claude-3-5-sonnet",
@@ -31,7 +31,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-3",
         type: "defense",
-        position: { x: 420, y: 220 },
+        position: { x: 480, y: 280 },
         data: {
           name: "DefenseUnit",
           model: "gpt-4o",
@@ -42,7 +42,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-4",
         type: "factchecker",
-        position: { x: 760, y: 220 },
+        position: { x: 900, y: 280 },
         data: {
           name: "FactCheckerUnit",
           model: "gpt-4o-mini",
@@ -53,7 +53,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-5",
         type: "chiefjustice",
-        position: { x: 420, y: 440 },
+        position: { x: 480, y: 560 },
         data: {
           name: "ChiefJustice",
           model: "gpt-4o",
@@ -84,7 +84,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-1",
         type: "input",
-        position: { x: 300, y: 50 },
+        position: { x: 400, y: 40 },
         data: {
           label: "Input Schema",
           fields: ["document", "summary"],
@@ -93,7 +93,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-2",
         type: "cot",
-        position: { x: 300, y: 200 },
+        position: { x: 400, y: 270 },
         data: {
           name: "GEval-CoT",
           model: "gpt-4o",
@@ -104,7 +104,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-3",
         type: "chiefjustice",
-        position: { x: 300, y: 390 },
+        position: { x: 400, y: 520 },
         data: {
           name: "GEval-Judge",
           model: "gpt-4o-mini",
@@ -131,7 +131,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-1",
         type: "input",
-        position: { x: 300, y: 50 },
+        position: { x: 440, y: 40 },
         data: {
           label: "Input Schema",
           fields: ["doc", "claim"],
@@ -140,7 +140,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-2",
         type: "prosecutor",
-        position: { x: 120, y: 220 },
+        position: { x: 140, y: 280 },
         data: {
           name: "Judge_Panel",
           model: "gpt-4o",
@@ -152,7 +152,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-3",
         type: "defense",
-        position: { x: 480, y: 220 },
+        position: { x: 740, y: 280 },
         data: {
           name: "Verify_Panel",
           model: "gpt-4o",
@@ -164,7 +164,7 @@ export const SAMPLE_DAG_PRESETS: Record<string, DAGGraph> = {
       {
         id: "node-4",
         type: "aggregator",
-        position: { x: 300, y: 420 },
+        position: { x: 440, y: 550 },
         data: {
           name: "MaxPoolUnit",
           aggregatorType: "maxpool",

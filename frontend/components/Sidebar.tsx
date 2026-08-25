@@ -66,7 +66,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-[#140615] border-r border-[#4a154b]/30 flex flex-col h-screen sticky top-0 select-none z-30 font-sans">
+    <aside className="w-64 bg-[#140615] border-r border-[#4a154b]/30 flex flex-col h-screen sticky top-0 select-none z-30 font-sans flex-shrink-0">
       {/* Brand Header */}
       <div className="p-5 border-b border-[#4a154b]/30 flex items-center justify-between bg-[#1b081c]/50">
         <Link href="/" className="flex items-center gap-3 group">
@@ -86,109 +86,115 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-3.5 space-y-1.5 overflow-y-auto">
-        <div className="px-3 py-2 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
-          Navigation
-        </div>
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium transition-all group ${
-                isActive
-                  ? "bg-[#4a154b] text-white shadow-md shadow-[#4a154b]/30 border border-[#d9bdde]/30"
-                  : "text-slate-300 hover:text-white hover:bg-[#260c28]"
-              }`}
-            >
-              <Icon
-                className={`w-4 h-4 transition-colors ${
-                  isActive ? "text-white" : "text-slate-400 group-hover:text-white"
+      {/* Navigation & Links */}
+      <nav className="flex-1 p-4 space-y-6 overflow-y-auto flex flex-col justify-between">
+        {/* Primary Navigation */}
+        <div className="space-y-1.5">
+          <div className="px-3 pb-1 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
+            Navigation
+          </div>
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium transition-all group ${
+                  isActive
+                    ? "bg-[#4a154b] text-white shadow-md shadow-[#4a154b]/30 border border-[#d9bdde]/30"
+                    : "text-slate-300 hover:text-white hover:bg-[#260c28]"
                 }`}
-              />
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
-
-        {/* ECOSYSTEM SECTION */}
-        <div className="pt-5 px-3 py-2 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
-          Ecosystem
-        </div>
-        <div className="space-y-1">
-          <a
-            href="https://github.com/haizelabs/verdict"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
-          >
-            <span className="flex items-center gap-2.5">
-              <Terminal className="w-3.5 h-3.5 text-slate-400" />
-              <span>haizelabs/verdict</span>
-            </span>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-          </a>
-
-          <a
-            href="https://github.com/sohampawar1866/verdict-studio"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
-          >
-            <span className="flex items-center gap-2.5">
-              <Github className="w-3.5 h-3.5 text-slate-400" />
-              <span>sohampawar1866/verdict-studio</span>
-            </span>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-          </a>
+              >
+                <Icon
+                  className={`w-4 h-4 transition-colors ${
+                    isActive ? "text-white" : "text-slate-400 group-hover:text-white"
+                  }`}
+                />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
         </div>
 
-        {/* BUILDER SECTION */}
-        <div className="pt-5 px-3 py-2 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
-          Builder
-        </div>
-        <div className="space-y-1">
-          <a
-            href="https://github.com/sohampawar1866"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
-          >
-            <span className="flex items-center gap-2.5">
-              <Github className="w-3.5 h-3.5 text-slate-400" />
-              <span>sohampawar1866</span>
-            </span>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-          </a>
+        {/* Footer Sub-Sections: Ecosystem & Builder */}
+        <div className="space-y-4 pt-4 border-t border-[#4a154b]/20">
+          {/* ECOSYSTEM SECTION */}
+          <div className="space-y-1">
+            <div className="px-3 text-[11px] font-mono text-slate-400 uppercase tracking-wider font-bold">
+              Ecosystem
+            </div>
+            <a
+              href="https://github.com/haizelabs/verdict"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-3 py-1.5 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Terminal className="w-3.5 h-3.5 text-slate-400" />
+                <span>haizelabs/verdict</span>
+              </span>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+            </a>
 
-          <a
-            href="https://www.linkedin.com/in/sohampawar1866/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
-          >
-            <span className="flex items-center gap-2.5">
-              <Linkedin className="w-3.5 h-3.5 text-slate-400" />
-              <span>sohampawar1866</span>
-            </span>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-          </a>
+            <a
+              href="https://github.com/sohampawar1866/verdict-studio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-3 py-1.5 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Github className="w-3.5 h-3.5 text-slate-400" />
+                <span>verdict-studio</span>
+              </span>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+            </a>
+          </div>
 
-          <a
-            href="https://devfolio.co/@sohampawar1866"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
-          >
-            <span className="flex items-center gap-2.5">
-              <Globe className="w-3.5 h-3.5 text-slate-400" />
-              <span>@sohampawar1866</span>
-            </span>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-          </a>
+          {/* BUILDER SECTION */}
+          <div className="space-y-1">
+            <div className="px-3 text-[11px] font-mono text-slate-400 uppercase tracking-wider font-bold">
+              Builder
+            </div>
+            <a
+              href="https://github.com/sohampawar1866"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-3 py-1.5 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Github className="w-3.5 h-3.5 text-slate-400" />
+                <span>sohampawar1866</span>
+              </span>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+            </a>
+
+            <a
+              href="https://www.linkedin.com/in/sohampawar1866/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-3 py-1.5 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Linkedin className="w-3.5 h-3.5 text-slate-400" />
+                <span>LinkedIn</span>
+              </span>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+            </a>
+
+            <a
+              href="https://devfolio.co/@sohampawar1866"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-3 py-1.5 rounded-full text-xs font-mono text-slate-400 hover:text-slate-100 hover:bg-[#260c28] transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Globe className="w-3.5 h-3.5 text-slate-400" />
+                <span>@sohampawar1866</span>
+              </span>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+            </a>
+          </div>
         </div>
       </nav>
 

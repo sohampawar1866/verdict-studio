@@ -98,23 +98,23 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
   };
 
   return (
-    <div className="w-64 bg-[#140615] border-r border-[#4a154b]/30 flex flex-col h-full overflow-y-auto select-none p-4 space-y-5">
+    <div className="w-56 bg-[#140615] border-r border-[#4a154b]/30 flex flex-col h-full overflow-y-auto select-none p-3.5 space-y-4 font-sans flex-shrink-0 z-10">
       <div>
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
           Verdict Node Palette
         </h3>
-        <p className="text-xs text-slate-400 mt-0.5">
-          Drag nodes to canvas or click to add
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          Drag to canvas or click +
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {categories.map((cat, idx) => (
-          <div key={idx} className="space-y-2">
-            <span className="text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
+          <div key={idx} className="space-y-1.5">
+            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold block">
               {cat.title}
             </span>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {cat.nodes.map((node) => {
                 const Icon = node.icon;
                 return (
@@ -123,28 +123,28 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
                     draggable
                     onDragStart={(e) => handleDragStart(e, node.type)}
                     onClick={() => onAddNode && onAddNode(node.type)}
-                    className={`p-2.5 rounded-2xl bg-[#1d0a1f] border ${node.border} cursor-grab active:cursor-grabbing hover:bg-[#280e2a] transition-all group flex items-center justify-between shadow-sm`}
+                    className={`p-2 rounded-xl bg-[#1d0a1f] border ${node.border} cursor-grab active:cursor-grabbing hover:bg-[#280e2a] transition-all group flex items-center justify-between shadow-sm`}
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0">
                       <div
-                        className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 ${node.iconColor}`}
+                        className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${node.iconColor}`}
                       >
-                        <Icon className="w-3.5 h-3.5" />
+                        <Icon className="w-3 h-3" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-white truncate group-hover:text-[#d9bdde]">
+                        <div className="text-xs font-semibold text-white truncate group-hover:text-[#d9bdde]">
                           {node.name}
                         </div>
-                        <div className="text-xs text-slate-400 truncate">
+                        <div className="text-[10px] text-slate-400 truncate font-mono">
                           {node.desc}
                         </div>
                       </div>
                     </div>
                     <button
                       type="button"
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#4a154b] rounded-full text-[#d9bdde] hover:text-white transition-all"
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#4a154b] rounded-full text-[#d9bdde] hover:text-white transition-all flex-shrink-0"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-3 h-3" />
                     </button>
                   </div>
                 );

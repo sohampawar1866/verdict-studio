@@ -1,0 +1,36 @@
+{
+  "name": "@haizelabs/sentinel-mcp",
+  "version": "1.0.0",
+  "description": "Haize Sentinel: Scoped MCP API Key Gateway & Inline Verdict Debate Firewall",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "haize-sentinel": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "anthropic",
+    "haize-labs",
+    "verdict",
+    "security",
+    "gateway",
+    "firewall"
+  ],
+  "author": "Haize Labs Contributors",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  }
+}

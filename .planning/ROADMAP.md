@@ -7,7 +7,7 @@
 | Phase | Name | Status | Plans | Date |
 |-------|------|--------|-------|------|
 | 1 | Project Scaffolding & Foundation | Complete ✓ | 3/3 | 2026-08-25 |
-| 2 | Visual DAG Builder (React Flow Canvas) | Planned | — | — |
+| 2 | Visual DAG Builder (React Flow Canvas) | Complete ✓ | 3/3 | 2026-08-25 |
 | 3 | Verdict Pipeline Executor & Live Debate Streaming | Planned | — | — |
 | 4 | MCP Key Manager & Permission Engine (Backend + UI) | Planned | — | — |
 | 5 | TypeScript MCP Gateway & Verdict Enforcement | Planned | — | — |
@@ -39,20 +39,20 @@
 ---
 
 #### Phase 2: Visual DAG Builder (React Flow Canvas)
-**Goal:** Build the full visual DAG canvas with custom verdict-specific nodes, edge connections, node configuration, and DAG serialization. This is the visual heart of the platform.
+**Goal:** Build the complete interactive DAG canvas with custom nodes matching `verdict` primitives, edge connection validation, node configuration panels, and DAG serialization.
 **Requirements:** R3, R4, R5, R6, R7
 
-- [ ] Create `Canvas.tsx` with React Flow provider, background grid, minimap, controls
-- [ ] Build `InputNode` custom node — text input for candidate/context/query fields (maps to `Schema.of(...)`)
-- [ ] Build `ProsecutorUnit` custom node — adversarial debater (maps to `Unit` subclass with `ResponseSchema(argument: str)`)
-- [ ] Build `DefenseUnit` custom node — constructive debater (maps to `Unit` subclass with `ResponseSchema(argument: str)`)
-- [ ] Build `FactCheckerUnit` custom node — claim verification (maps to `Unit` subclass with `ResponseSchema(findings: str)`)
-- [ ] Build `ChiefJusticeUnit` custom node — final adjudicator (maps to `CategoricalJudgeUnit(categories=DiscreteScale([...]))`)
-- [ ] Build `CoTUnit` custom node — chain-of-thought reasoning (maps to `verdict.common.cot.CoTUnit`)
-- [ ] Build `AggregatorNode` custom node — MaxPool (majority vote via `statistics.mode`), MeanPool, MapUnit selection
-- [ ] Create draggable node palette sidebar with all node types
-- [ ] Implement typed handles (input/output) with connection validation rules
-- [ ] Build node configuration sidebar panel (appears on node click)
+- [x] Create `Canvas.tsx` with React Flow provider, background grid, minimap, controls
+- [x] Build `InputNode` custom node — text input for candidate/context/query fields (maps to `Schema.of(...)`)
+- [x] Build `ProsecutorUnit` custom node — adversarial debater (maps to `Unit` subclass with `ResponseSchema(argument: str)`)
+- [x] Build `DefenseUnit` custom node — constructive debater (maps to `Unit` subclass with `ResponseSchema(argument: str)`)
+- [x] Build `FactCheckerUnit` custom node — claim verification (maps to `Unit` subclass with `ResponseSchema(findings: str)`)
+- [x] Build `ChiefJusticeUnit` custom node — final adjudicator (maps to `CategoricalJudgeUnit(categories=DiscreteScale([...]))`)
+- [x] Build `CoTUnit` custom node — chain-of-thought reasoning (maps to `verdict.common.cot.CoTUnit`)
+- [x] Build `AggregatorNode` custom node — MaxPool (majority vote via `statistics.mode`), MeanPool, MapUnit selection
+- [x] Create draggable node palette sidebar with all node types (`NodePalette.tsx`)
+- [x] Implement typed handles (input/output) with connection validation rules
+- [x] Build node configuration sidebar panel (`NodeConfigDrawer.tsx`)
   - Model selector dropdown for `.via()` (gpt-4o, claude-3-5-sonnet, gpt-4o-mini, etc.)
   - Prompt template editor (textarea with `{source.*}`, `{previous.*}`, `{input.*}` autocomplete hints)
   - Temperature slider, max tokens input (passed as inference_parameters)
@@ -60,10 +60,10 @@
   - Extractor selector: StructuredOutput (default), Raw, Regex, PostHoc, ArgmaxScore, WeightedSummedScore
   - Layer mode selectors: inner (none/chain), outer (dense/broadcast/cumulative/last), repeat count
   - `explanation: bool` toggle for Judge nodes
-- [ ] Implement DAG state serialization to JSON (nodes + edges + configs)
-- [ ] Implement DAG state deserialization / load from JSON
-- [ ] Add undo/redo support for canvas operations
-- [ ] Create `dag-studio/page.tsx` route with canvas and toolbars
+- [x] Implement DAG state serialization to JSON (nodes + edges + configs)
+- [x] Implement DAG state deserialization / load from JSON & pre-built presets (`dagPresets.ts`)
+- [x] Add clear canvas and backend DAG persistence (`/api/dags`) Add undo/redo support for canvas operations
+- [x] Create `dag-studio/page.tsx` route with canvas and toolbars
 
 **Verification:** User can drag all 6 node types onto canvas, connect them with edges, configure each node's model/prompt, and save/load the DAG as JSON.
 

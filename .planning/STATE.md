@@ -1,9 +1,9 @@
 # Project State — Verdict Studio & MCP Control Plane
 
 ## Current Position
-**Phase:** 2 — Visual DAG Builder (React Flow Canvas)
+**Phase:** 3 — Verdict Pipeline Executor & Live Debate Streaming
 **Status:** Ready to plan
-**Last activity:** 2026-08-25 — Phase 1 executed & verified (FastAPI backend, TypeScript MCP Gateway, Next.js 14 frontend, dark theme, navigation sidebar, and shared data models).
+**Last activity:** 2026-08-25 — Phase 2 executed & verified (React Flow canvas, 7 custom Verdict nodes, NodePalette, NodeConfigDrawer, sample debate presets, and backend DAG persistence).
 
 ## Key Decisions
 

@@ -220,10 +220,10 @@ export default function NodeConfigDrawer({
       <div className="pt-4 border-t border-[#4a154b]/30 mt-auto">
         <button
           onClick={() => onDeleteNode(id)}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-[#cc4117]/15 hover:bg-[#cc4117]/30 border border-[#cc4117]/40 text-[#ff8e75] hover:text-white text-xs font-bold transition-all"
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-6 rounded-full bg-[#cc4117]/15 hover:bg-[#cc4117]/30 border border-[#cc4117]/40 text-[#ff8e75] hover:text-white text-xs font-bold transition-all whitespace-nowrap shadow-sm"
         >
-          <Trash2 className="w-3.5 h-3.5" />
-          <span>Remove Node from Canvas</span>
+          <Trash2 className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>Delete Node</span>
         </button>
       </div>
     </div>

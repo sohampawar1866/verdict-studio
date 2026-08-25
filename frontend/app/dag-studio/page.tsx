@@ -459,22 +459,22 @@ export default function DAGStudioPage() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0c030d] text-[#fcfaff] font-sans">
       {/* Top Toolbar */}
-      <header className="h-16 bg-[#160617] border-b border-[#4a154b]/30 px-6 flex items-center justify-between z-20 select-none">
+      <header className="h-14 bg-[#160617] border-b border-[#4a154b]/30 px-5 flex items-center justify-between z-20 select-none flex-shrink-0">
         {/* Title & Preset Dropdown */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <input
             type="text"
             value={dagTitle}
             onChange={(e) => setDagTitle(e.target.value)}
-            className="bg-transparent font-bold text-sm text-white hover:bg-[#280c2a] px-3 py-1.5 rounded-full focus:outline-none focus:ring-2 focus:ring-[#4a154b] font-sans tracking-tight border border-transparent hover:border-[#d9bdde]/20 transition-all"
+            className="bg-transparent font-bold text-xs text-white hover:bg-[#280c2a] px-3 h-8 rounded-full focus:outline-none focus:ring-2 focus:ring-[#4a154b] font-sans tracking-tight border border-transparent hover:border-[#d9bdde]/20 transition-all whitespace-nowrap"
           />
 
-          <div className="flex items-center gap-2 text-xs text-[#d9bdde] bg-[#230c25] border border-[#4a154b]/40 rounded-full px-3.5 py-1.5 shadow-sm">
-            <Layers className="w-3.5 h-3.5 text-[#d9bdde]" />
+          <div className="flex items-center gap-1.5 text-xs text-[#d9bdde] bg-[#230c25] border border-[#4a154b]/40 rounded-full px-3 h-8 shadow-sm">
+            <Layers className="w-3.5 h-3.5 text-[#d9bdde] flex-shrink-0" />
             <select
               onChange={(e) => handleLoadPreset(e.target.value)}
               defaultValue="adversarial_safety"
-              className="bg-transparent text-white text-xs focus:outline-none cursor-pointer font-medium"
+              className="bg-transparent text-white text-xs focus:outline-none cursor-pointer font-medium whitespace-nowrap"
             >
               <option value="adversarial_safety" className="bg-[#170718] text-white">Preset: Adversarial Safety Court</option>
               <option value="geval_coherence" className="bg-[#170718] text-white">Preset: G-Eval Coherence</option>
@@ -484,60 +484,60 @@ export default function DAGStudioPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={handleRunDebate}
             disabled={isExecuting}
-            className="btn-primary-pill flex items-center gap-2"
+            className="btn-toolbar-primary"
           >
             {isExecuting ? (
-              <Sparkles className="w-4 h-4 animate-spin" />
+              <Sparkles className="w-3.5 h-3.5 animate-spin flex-shrink-0" />
             ) : (
-              <Play className="w-4 h-4 fill-current" />
+              <Play className="w-3.5 h-3.5 fill-current flex-shrink-0" />
             )}
             <span>{isExecuting ? "Debating..." : "Run Debate Simulation"}</span>
           </button>
 
           <button
             onClick={() => setIsCodeModalOpen(true)}
-            className="btn-secondary-pill flex items-center gap-2"
+            className="btn-toolbar-secondary"
           >
-            <Code2 className="w-4 h-4 text-[#d9bdde]" />
+            <Code2 className="w-3.5 h-3.5 text-[#d9bdde] flex-shrink-0" />
             <span>Export Python</span>
           </button>
 
-          <div className="h-6 w-px bg-[#4a154b]/30" />
+          <div className="h-5 w-px bg-[#4a154b]/30" />
 
           <button
             onClick={handleClearCanvas}
             title="Clear canvas"
-            className="p-2 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white transition-colors"
+            className="w-8 h-8 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white flex items-center justify-center transition-colors flex-shrink-0"
           >
-            <Trash className="w-4 h-4" />
+            <Trash className="w-3.5 h-3.5" />
           </button>
 
-          <label className="p-2 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white cursor-pointer transition-colors">
-            <Upload className="w-4 h-4" />
+          <label className="w-8 h-8 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white flex items-center justify-center cursor-pointer transition-colors flex-shrink-0">
+            <Upload className="w-3.5 h-3.5" />
             <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
           </label>
 
           <button
             onClick={handleExportJSON}
             title="Export DAG as JSON"
-            className="p-2 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white transition-colors"
+            className="w-8 h-8 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white flex items-center justify-center transition-colors flex-shrink-0"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-3.5 h-3.5" />
           </button>
 
           <button
             onClick={handleSaveDAG}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all ${
+            className={`btn-toolbar-secondary ${
               isSaved
-                ? "bg-[#007a5a] text-white shadow-md shadow-[#007a5a]/30"
-                : "bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-white"
+                ? "!bg-[#007a5a] !text-white !border-[#007a5a] shadow-sm shadow-[#007a5a]/30"
+                : ""
             }`}
           >
-            {isSaved ? <Check className="w-4 h-4 text-[#2ecc71]" /> : <Save className="w-4 h-4 text-[#d9bdde]" />}
+            {isSaved ? <Check className="w-3.5 h-3.5 text-[#2ecc71] flex-shrink-0" /> : <Save className="w-3.5 h-3.5 text-[#d9bdde] flex-shrink-0" />}
             <span>{isSaved ? "Saved!" : "Save"}</span>
           </button>
         </div>

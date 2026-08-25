@@ -102,6 +102,8 @@ export interface AuditLog {
   clientIp?: string;
 }
 
+export type AuditLogEntry = AuditLog;
+
 export interface DebateStreamToken {
   unitId: string;
   unitName: string;

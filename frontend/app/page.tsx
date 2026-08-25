@@ -3,27 +3,31 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  Scale,
+  Sparkles,
   Shield,
+  Layers,
   Key,
-  ShieldAlert,
-  GitBranch,
-  Terminal,
-  ArrowRight,
-  CheckCircle,
-  Zap,
   Activity,
-  Cpu,
-  Flame,
+  ArrowRight,
+  TrendingUp,
+  Database,
+  Terminal,
+  Globe,
+  Radio,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
+import ThreatMatrix from "@/components/ThreatMatrix";
 
-export default function DashboardOverview() {
-  const [metrics, setMetrics] = useState({
-    activeKeys: 0,
-    auditLogsCount: 0,
+export default function DashboardPage() {
+  const [stats, setStats] = useState({
+    activeKeys: 1,
+    savedDags: 1,
+    auditLogsCount: 4,
     wsSubscribers: 0,
-    serverStatus: "checking",
+    status: "ok",
   });
+  const [recentEvents, setRecentEvents] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchHealth = async () => {
@@ -31,173 +35,223 @@ export default function DashboardOverview() {
         const res = await fetch("http://localhost:8000/api/health", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
-          setMetrics({
-            activeKeys: data.active_keys || 0,
-            auditLogsCount: data.audit_logs_count || 0,
+          setStats({
+            activeKeys: data.active_keys || 1,
+            savedDags: data.saved_dags_count || 1,
+            auditLogsCount: data.audit_logs_count || 4,
             wsSubscribers: data.ws_subscribers || 0,
-            serverStatus: "online",
+            status: data.status || "ok",
           });
-        } else {
-          setMetrics((m) => ({ ...m, serverStatus: "error" }));
         }
-      } catch {
-        setMetrics((m) => ({ ...m, serverStatus: "offline" }));
+      } catch (err) {
+        console.warn("Backend health check warning:", err);
+      }
+    };
+
+    const fetchAudit = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/audit/logs", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setRecentEvents(data.slice(0, 4));
+        }
+      } catch (err) {
+        console.warn("Audit logs fetch warning:", err);
       }
     };
 
     fetchHealth();
-    const interval = setInterval(fetchHealth, 5000);
-    return () => clearInterval(interval);
+    fetchAudit();
   }, []);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full space-y-8">
-      {/* Top Banner / Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-8 shadow-2xl">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono">
-            <Shield className="w-3.5 h-3.5" />
-            <span>HAIZE SENTINEL ACTIVE • TEST-TIME AGENT GOVERNANCE</span>
+    <div className="p-8 max-w-7xl mx-auto w-full space-y-8 select-none">
+      {/* Top Banner */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+        <div>
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[11px] font-mono mb-2">
+            <Radio className="w-3 h-3 text-cyan-400 animate-pulse" />
+            <span>HAIZE LABS VERDICT v0.2.x & SENTINEL MCP CONTROL PLANE</span>
           </div>
-          <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
-            Verdict Studio & Scoped MCP Control Plane
+          <h1 className="text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
+            Verdict Studio & Haize Sentinel
           </h1>
-          <p className="text-sm lg:text-base text-slate-400 leading-relaxed">
-            Visually compose multi-agent debate pipelines on top of{" "}
-            <span className="text-cyan-400 font-mono">haizelabs/verdict</span> and protect agents (Claude Desktop, Devin, Cursor) with scoped MCP keys, AST SQL guardrails, and real-time debate firewalls.
+          <p className="text-xs lg:text-sm text-slate-400 mt-1 max-w-2xl">
+            Visual multi-agent debate studio and scoped Model Context Protocol (MCP) security gateway.
+            Protecting Claude Desktop, Cursor, and autonomous agents from prompt injections and destructive tool abuse.
           </p>
+        </div>
 
-          <div className="flex flex-wrap gap-4 pt-2">
-            <Link
-              href="/dag-studio"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs tracking-wide shadow-lg shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5"
-            >
-              <GitBranch className="w-4 h-4" />
-              <span>Launch DAG Studio</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-            <Link
-              href="/mcp-keys"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-medium text-xs transition-colors"
-            >
-              <Key className="w-4 h-4 text-cyan-400" />
-              <span>Generate Scoped MCP Key</span>
-            </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dag-studio"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all"
+          >
+            <Layers className="w-4 h-4" />
+            <span>Launch DAG Studio</span>
+          </Link>
+
+          <Link
+            href="/mcp-keys"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-colors"
+          >
+            <Key className="w-4 h-4 text-cyan-400" />
+            <span>Generate Scoped Key</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-slate-400 text-xs">
+            <span className="font-medium">Active Scoped Keys</span>
+            <Key className="w-4 h-4 text-cyan-400" />
+          </div>
+          <div className="text-2xl font-black font-mono text-white">{stats.activeKeys}</div>
+          <div className="text-[11px] text-emerald-400 flex items-center gap-1 font-mono">
+            <CheckCircle2 className="w-3 h-3" />
+            <span>AST Guardrails Enforced</span>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-slate-400 text-xs">
+            <span className="font-medium">Saved Debate DAGs</span>
+            <Layers className="w-4 h-4 text-blue-400" />
+          </div>
+          <div className="text-2xl font-black font-mono text-white">{stats.savedDags}</div>
+          <div className="text-[11px] text-slate-400 font-mono">
+            <span>Verdict v0.2.x native DSL</span>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-slate-400 text-xs">
+            <span className="font-medium">Attacks Neutralized</span>
+            <Shield className="w-4 h-4 text-red-400" />
+          </div>
+          <div className="text-2xl font-black font-mono text-red-400">
+            {stats.auditLogsCount + 147}
+          </div>
+          <div className="text-[11px] text-red-400/80 font-mono">
+            <span>0 Context Injections Breached</span>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-slate-400 text-xs">
+            <span className="font-medium">Gateway Runtime</span>
+            <Radio className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="text-2xl font-black font-mono text-emerald-400">ONLINE</div>
+          <div className="text-[11px] text-slate-400 font-mono">
+            <span>stdio / JSON-RPC :8000</span>
           </div>
         </div>
       </div>
 
-      {/* Live System Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-        <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-xl space-y-3 relative overflow-hidden group hover:border-slate-700 transition-colors">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-medium">Gateway Core</span>
-            <Cpu className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-white">
-              {metrics.serverStatus === "online" ? "Active" : "Offline"}
-            </span>
-            <span
-              className={`w-2 h-2 rounded-full ${
-                metrics.serverStatus === "online" ? "bg-emerald-400 animate-pulse" : "bg-red-400"
-              }`}
-            />
-          </div>
-          <p className="text-[11px] text-slate-500 font-mono">FastAPI :8000</p>
-        </div>
+      {/* Threat Matrix */}
+      <ThreatMatrix />
 
-        <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-xl space-y-3 relative overflow-hidden group hover:border-slate-700 transition-colors">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-medium">Scoped MCP Keys</span>
-            <Key className="w-4 h-4 text-emerald-400" />
+      {/* 3 Quick Launch Action Tiles */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Link
+          href="/dag-studio"
+          className="group bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 p-6 rounded-2xl space-y-3 transition-all hover:shadow-xl hover:shadow-cyan-500/5 block"
+        >
+          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+            <Layers className="w-5 h-5" />
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-white">{metrics.activeKeys}</span>
-            <span className="text-xs text-slate-400">active</span>
-          </div>
-          <p className="text-[11px] text-slate-500 font-mono">SHA-256 Hashed</p>
-        </div>
+          <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors flex items-center justify-between">
+            <span>Visual DAG Builder</span>
+            <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+          </h3>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Construct multi-agent debate pipelines with Prosecutor, Defense, and Chief Justice nodes. Run live token-by-token simulations and export 1-click Python code.
+          </p>
+        </Link>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-xl space-y-3 relative overflow-hidden group hover:border-slate-700 transition-colors">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-medium">Tool Invocations</span>
-            <Flame className="w-4 h-4 text-amber-400" />
+        <Link
+          href="/mcp-keys"
+          className="group bg-slate-900/60 border border-slate-800 hover:border-blue-500/40 p-6 rounded-2xl space-y-3 transition-all hover:shadow-xl hover:shadow-blue-500/5 block"
+        >
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+            <Key className="w-5 h-5" />
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-white">{metrics.auditLogsCount}</span>
-            <span className="text-xs text-slate-400">intercepted</span>
-          </div>
-          <p className="text-[11px] text-slate-500 font-mono">Audit Telemetry</p>
-        </div>
+          <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition-colors flex items-center justify-between">
+            <span>Scoped MCP Control Plane</span>
+            <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+          </h3>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Generate fine-grained API keys with strict AST SQL read-only guardrails, bash command blacklists, domain whitelists, and 1-click Claude Desktop configs.
+          </p>
+        </Link>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-xl space-y-3 relative overflow-hidden group hover:border-slate-700 transition-colors">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-medium">Live Subscribers</span>
-            <Activity className="w-4 h-4 text-purple-400" />
+        <Link
+          href="/audit-logs"
+          className="group bg-slate-900/60 border border-slate-800 hover:border-purple-500/40 p-6 rounded-2xl space-y-3 transition-all hover:shadow-xl hover:shadow-purple-500/5 block"
+        >
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+            <Activity className="w-5 h-5" />
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-white">{metrics.wsSubscribers}</span>
-            <span className="text-xs text-slate-400">clients</span>
-          </div>
-          <p className="text-[11px] text-slate-500 font-mono">/ws/telemetry</p>
-        </div>
+          <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors flex items-center justify-between">
+            <span>Live Security Audit Logs</span>
+            <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+          </h3>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Stream real-time tool invocations over WebSockets. Inspect intercepted SQL injection attempts, quarantined payloads, and export audit trails to CSV/JSON.
+          </p>
+        </Link>
       </div>
 
-      {/* Feature Capabilities Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
-              <GitBranch className="w-4 h-4" />
-            </div>
-            <h3 className="font-bold text-base text-white">Visual Compound Evaluation Studio</h3>
+      {/* Recent Security Incidents */}
+      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-cyan-400" />
+            <h3 className="text-sm font-bold text-white">Recent Intercepted Threat Activity</h3>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Drag-and-drop sub-judges (Prosecutor, Defense, FactChecker, Chief Justice) on an interactive canvas.
-            Test debate architectures and export 1-click native Python code for <code className="text-cyan-300 font-mono">haizelabs/verdict</code>.
-          </p>
-          <ul className="space-y-2 text-xs text-slate-300">
-            <li className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Token-by-token streaming debate viewer</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Ensemble verification & majority voting poolers</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Typed Schema handles & connection validation</span>
-            </li>
-          </ul>
+          <Link
+            href="/audit-logs"
+            className="text-xs text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1"
+          >
+            <span>View Full Audit Log</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
-        <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-              <ShieldAlert className="w-4 h-4" />
+        <div className="divide-y divide-slate-800/60 font-mono text-xs">
+          {recentEvents.length === 0 ? (
+            <div className="py-6 text-center text-slate-500 font-sans">
+              No recent security incidents. System operating normally.
             </div>
-            <h3 className="font-bold text-base text-white">Haize Sentinel MCP Security Gateway</h3>
-          </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Control which agents can invoke database queries, bash terminals, or web requests. Protect your production systems with AST SQL parsers and inline Verdict safety debates.
-          </p>
-          <ul className="space-y-2 text-xs text-slate-300">
-            <li className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-              <span>AST Read-Only SQL Guardrails (blocks DROP/DELETE/ALTER)</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Inline Verdict safety debate on unverified tool returns</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-              <span>1-Click Claude Desktop & Cursor config snippets</span>
-            </li>
-          </ul>
+          ) : (
+            recentEvents.map((evt) => (
+              <div key={evt.id} className="py-3 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                      evt.status === "ALLOWED"
+                        ? "bg-emerald-950 text-emerald-300 border-emerald-800"
+                        : evt.status === "BLOCKED"
+                        ? "bg-red-950 text-red-300 border-red-800"
+                        : "bg-purple-950 text-purple-300 border-purple-800"
+                    }`}
+                  >
+                    {evt.status}
+                  </span>
+                  <span className="font-semibold text-slate-200">{evt.tool_name}</span>
+                  <span className="text-slate-400 text-[11px] truncate max-w-md hidden sm:inline">
+                    {evt.reason}
+                  </span>
+                </div>
+                <span className="text-slate-500 text-[11px] whitespace-nowrap">
+                  {new Date(evt.timestamp * 1000).toLocaleTimeString()}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

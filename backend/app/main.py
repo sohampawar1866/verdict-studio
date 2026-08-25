@@ -78,6 +78,51 @@ def seed_default_dags_and_keys():
     )
     MCP_KEYS_DB[demo_key.id] = demo_key
 
+    # Seed realistic historical audit events
+    cur_time = time.time()
+    AUDIT_LOGS_DB.extend([
+        AuditLogEntry(
+            id="log-seed-1",
+            key_name="Claude Desktop Support (Demo)",
+            tool_name="db_query",
+            status=AuditLogStatus.BLOCKED,
+            parameters={"query": "DROP TABLE enterprise_users; -- malicious wipe attempt"},
+            reason="Destructive SQL statement 'DROP' rejected on Read-Only key by AST parser.",
+            execution_time_ms=1.42,
+            timestamp=cur_time - 180,
+        ),
+        AuditLogEntry(
+            id="log-seed-2",
+            key_name="Claude Desktop Support (Demo)",
+            tool_name="fetch_web",
+            status=AuditLogStatus.BLOCKED,
+            parameters={"url": "http://169.254.169.254/latest/meta-data/iam/security-credentials"},
+            reason="Domain '169.254.169.254' is not permitted by key whitelist policy (*.company.com, api.github.com).",
+            execution_time_ms=2.15,
+            timestamp=cur_time - 120,
+        ),
+        AuditLogEntry(
+            id="log-seed-3",
+            key_name="Claude Desktop Support (Demo)",
+            tool_name="fetch_web",
+            status=AuditLogStatus.VERDICT_REVIEW,
+            parameters={"url": "https://api.github.com/repos/sample/payload"},
+            reason="Tool output quarantined by Verdict Court: Active Indirect Prompt Injection detected in payload metadata.",
+            execution_time_ms=245.8,
+            timestamp=cur_time - 60,
+        ),
+        AuditLogEntry(
+            id="log-seed-4",
+            key_name="Claude Desktop Support (Demo)",
+            tool_name="db_query",
+            status=AuditLogStatus.ALLOWED,
+            parameters={"query": "SELECT id, full_name, plan_type FROM customers WHERE active = true LIMIT 50;"},
+            reason="Permissions validated successfully against policy.",
+            execution_time_ms=4.85,
+            timestamp=cur_time - 15,
+        ),
+    ])
+
 
 class ConnectionManager:
     """Manages real-time WebSocket clients for debate token streaming & audit logs."""

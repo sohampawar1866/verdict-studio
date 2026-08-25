@@ -2,7 +2,7 @@ import time
 import json
 import logging
 from typing import Dict, List, Set, Any, Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Header, Depends
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Header, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -19,6 +19,7 @@ from app.models import (
     DAGExecutionRequest,
     DAGExecutionResponse,
 )
+from app.engine.verdict_runner import compile_and_run_dag
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("verdict_sentinel")
@@ -71,7 +72,7 @@ class ConnectionManager:
     async def broadcast(self, message: Dict[str, Any]):
         dead_connections = []
         payload = json.dumps(message)
-        for connection in self.active_connections:
+        for connection in list(self.active_connections):
             try:
                 await connection.send_text(payload)
             except Exception:
@@ -162,6 +163,24 @@ async def delete_dag(dag_id: str):
         raise HTTPException(status_code=404, detail="DAG not found.")
     del DAG_STORE_DB[dag_id]
     return {"status": "SUCCESS", "message": f"DAG '{dag_id}' deleted."}
+
+
+# ============================================================================
+# DAG Execution & Streaming Endpoints
+# ============================================================================
+
+@app.post("/api/dag/execute", response_model=DAGExecutionResponse)
+async def execute_dag_pipeline(req: DAGExecutionRequest):
+    """
+    Executes a visual Verdict DAG pipeline with real-time WebSocket token streaming.
+    """
+    logger.info(f"Received execution request for DAG: '{req.dag.name}' ({len(req.dag.nodes)} nodes)")
+    response = await compile_and_run_dag(
+        dag=req.dag,
+        inputs=req.inputs,
+        broadcast_callback=ws_manager.broadcast,
+    )
+    return response
 
 
 # ============================================================================

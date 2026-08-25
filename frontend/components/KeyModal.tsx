@@ -106,13 +106,13 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
             <h2 className="text-base font-bold text-white tracking-tight">
               Create Scoped MCP Key
             </h2>
-            <p className="text-xs text-[#d9bdde]/80 mt-0.5">
+            <p className="text-sm text-slate-300 mt-0.5 font-normal">
               Grant fine-grained tool permissions and active Verdict safety guardrails
             </p>
           </div>
           <button
             onClick={handleModalClose}
-            className="p-1.5 rounded-full text-[#d9bdde]/70 hover:text-white hover:bg-[#4a154b] transition-colors"
+            className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-[#4a154b] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -123,8 +123,8 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
           {!createdKeyData ? (
             <>
               {/* Key Name Input */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#d9bdde] block">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-200 block">
                   Agent / Key Identifier
                 </label>
                 <input
@@ -132,33 +132,33 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
                   placeholder="e.g. Claude Desktop Production, Cursor Agent Dev, Devin"
                   value={keyName}
                   onChange={(e) => setKeyName(e.target.value)}
-                  className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#d9bdde] font-mono"
+                  className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#d9bdde] font-mono"
                 />
               </div>
 
               {/* Scoped Permissions Box */}
-              <div className="p-4 rounded-2xl bg-[#1f0a21] border border-[#4a154b]/40 space-y-4">
+              <div className="p-5 rounded-2xl bg-[#1f0a21] border border-[#4a154b]/40 space-y-4">
                 <div className="flex items-center justify-between border-b border-[#4a154b]/30 pb-2">
-                  <span className="text-xs font-bold text-[#d9bdde] uppercase tracking-micro-cap font-mono">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">
                     Tool Access Permissions & Guardrails
                   </span>
                 </div>
 
                 {/* Database / SQL Tools */}
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2.5 text-sm text-slate-200 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={allowDb}
                       onChange={(e) => setAllowDb(e.target.checked)}
                       className="rounded bg-[#100311] border-[#4a154b] text-[#4a154b] focus:ring-[#4a154b]"
                     />
-                    <span className="font-semibold">Allow Database Tools (<code className="text-[#d9bdde] font-mono font-normal">db_query</code>)</span>
+                    <span className="font-semibold text-white">Allow Database Tools (<code className="text-[#38bdf8] font-mono font-normal text-xs">db_query</code>)</span>
                   </label>
 
                   {allowDb && (
-                    <div className="ml-6 pl-3 border-l-2 border-[#4a154b]/40 space-y-1">
-                      <label className="flex items-center gap-2 text-xs text-[#d9bdde] cursor-pointer select-none">
+                    <div className="ml-6 pl-3 border-l-2 border-[#4a154b]/40 space-y-1.5">
+                      <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
                         <input
                           type="checkbox"
                           checked={sqlReadOnly}
@@ -167,7 +167,7 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
                         />
                         <span>Enforce Strict Read-Only SQL (Blocks DROP, DELETE, UPDATE, ALTER)</span>
                       </label>
-                      <p className="text-[10px] text-[#d9bdde]/60">
+                      <p className="text-xs text-slate-400">
                         Deep inspection via <code className="text-[#d9bdde] font-mono">sqlparse</code> blocks multi-statement injection.
                       </p>
                     </div>
@@ -175,20 +175,20 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
                 </div>
 
                 {/* Web Fetch Tools */}
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2.5 text-sm text-slate-200 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={allowWeb}
                       onChange={(e) => setAllowWeb(e.target.checked)}
                       className="rounded bg-[#100311] border-[#4a154b] text-[#4a154b]"
                     />
-                    <span className="font-semibold">Allow Web Requests (<code className="text-[#d9bdde] font-mono font-normal">fetch_web</code>)</span>
+                    <span className="font-semibold text-white">Allow Web Requests (<code className="text-[#38bdf8] font-mono font-normal text-xs">fetch_web</code>)</span>
                   </label>
 
                   {allowWeb && (
-                    <div className="ml-6 pl-3 border-l-2 border-[#4a154b]/40 space-y-1">
-                      <label className="text-[11px] text-[#d9bdde] block font-medium">
+                    <div className="ml-6 pl-3 border-l-2 border-[#4a154b]/40 space-y-1.5">
+                      <label className="text-xs text-slate-300 block font-medium">
                         Domain Whitelist (comma-separated wildcards)
                       </label>
                       <input
@@ -196,7 +196,7 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
                         value={domains}
                         onChange={(e) => setDomains(e.target.value)}
                         placeholder="*.company.com, api.github.com"
-                        className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3 py-1.5 text-[11px] font-mono text-white focus:outline-none focus:border-[#d9bdde]"
+                        className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#d9bdde]"
                       />
                     </div>
                   )}
@@ -204,23 +204,23 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
 
                 {/* Terminal / Bash Tools */}
                 <div>
-                  <label className="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
+                  <label className="flex items-center gap-2.5 text-sm text-slate-200 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={allowBash}
                       onChange={(e) => setAllowBash(e.target.checked)}
                       className="rounded bg-[#100311] border-[#4a154b] text-[#cc4117]"
                     />
-                    <span className="font-semibold">Allow Terminal Execution (<code className="text-[#ff8e75] font-mono font-normal">bash</code>)</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#cc4117]/20 text-[#ff8e75] border border-[#cc4117]/40 font-bold">
+                    <span className="font-semibold text-white">Allow Terminal Execution (<code className="text-[#ff8e75] font-mono font-normal text-xs">bash</code>)</span>
+                    <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#cc4117]/20 text-[#ff8e75] border border-[#cc4117]/40 font-bold">
                       High Risk
                     </span>
                   </label>
                 </div>
 
                 {/* Verdict Multi-Agent Defense Toggle */}
-                <div className="pt-2 border-t border-[#4a154b]/30 space-y-1">
-                  <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer select-none">
+                <div className="pt-3 border-t border-[#4a154b]/30 space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={enforceVerdict}
@@ -231,7 +231,7 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
                       Enforce Inline Verdict Safety Debate on Tool Returns
                     </span>
                   </label>
-                  <p className="text-[10px] text-[#d9bdde]/70 ml-6">
+                  <p className="text-xs text-slate-400 ml-6">
                     Automatically triggers a fast Prosecutor vs Defense debate on unverified payloads before agent context ingests them.
                   </p>
                 </div>
@@ -249,29 +249,29 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
           ) : (
             /* Post-Creation Success Screen */
             <div className="space-y-5 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-[#081f14] border border-[#007a5a]/50 space-y-2">
+              <div className="p-5 rounded-2xl bg-[#081f14] border border-[#007a5a]/50 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#2ecc71] flex items-center gap-1.5">
+                  <span className="text-sm font-bold text-[#2ecc71] flex items-center gap-1.5">
                     <Check className="w-4 h-4" />
                     Scoped MCP Key Generated Successfully
                   </span>
-                  <span className="text-[10px] font-mono text-[#2ecc71] bg-[#007a5a]/30 px-2.5 py-0.5 rounded-full border border-[#007a5a]/40 font-bold">
+                  <span className="text-xs font-mono text-[#2ecc71] bg-[#007a5a]/30 px-2.5 py-0.5 rounded-full border border-[#007a5a]/40 font-bold">
                     SHA-256 HASHED
                   </span>
                 </div>
-                <p className="text-[11px] text-[#d9bdde]">
+                <p className="text-sm text-slate-300">
                   Please copy and store this raw secret key now. It will <strong>never be shown again</strong>.
                 </p>
 
-                <div className="flex items-center justify-between bg-[#100311] p-3 rounded-xl border border-[#4a154b]/50 mt-2">
-                  <code className="text-xs font-mono text-[#38bdf8] break-all">
+                <div className="flex items-center justify-between bg-[#100311] p-3.5 rounded-xl border border-[#4a154b]/50 mt-2">
+                  <code className="text-sm font-mono text-[#38bdf8] break-all">
                     {createdKeyData.raw_key}
                   </code>
                   <button
                     onClick={handleCopyRawKey}
-                    className="p-1.5 ml-2 rounded-full bg-[#4a154b] hover:bg-[#611f69] text-white transition-colors"
+                    className="p-2 ml-2 rounded-full bg-[#4a154b] hover:bg-[#611f69] text-white transition-colors"
                   >
-                    {copiedKey ? <Check className="w-3.5 h-3.5 text-[#2ecc71]" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedKey ? <Check className="w-4 h-4 text-[#2ecc71]" /> : <Copy className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -279,18 +279,18 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
               {/* 1-Click Claude Config */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-[#d9bdde]">
+                  <label className="text-sm font-semibold text-slate-200">
                     Claude Desktop Configuration Snippet
                   </label>
                   <button
                     onClick={handleCopyConfig}
-                    className="text-[11px] text-[#38bdf8] hover:underline font-mono flex items-center gap-1 font-semibold"
+                    className="text-xs text-[#38bdf8] hover:underline font-mono flex items-center gap-1 font-semibold"
                   >
-                    {copiedConfig ? <Check className="w-3 h-3 text-[#2ecc71]" /> : <Copy className="w-3 h-3" />}
+                    {copiedConfig ? <Check className="w-3.5 h-3.5 text-[#2ecc71]" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedConfig ? "Copied" : "Copy JSON"}</span>
                   </button>
                 </div>
-                <pre className="p-3.5 rounded-2xl bg-[#0d030e] border border-[#4a154b]/40 text-[11px] font-mono text-slate-200 overflow-x-auto">
+                <pre className="p-4 rounded-2xl bg-[#0d030e] border border-[#4a154b]/40 text-xs font-mono text-slate-200 overflow-x-auto">
                   {JSON.stringify(createdKeyData.claude_config_snippet, null, 2)}
                 </pre>
               </div>

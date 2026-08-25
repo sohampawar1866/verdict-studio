@@ -100,10 +100,10 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
   return (
     <div className="w-64 bg-[#140615] border-r border-[#4a154b]/30 flex flex-col h-full overflow-y-auto select-none p-4 space-y-5">
       <div>
-        <h3 className="text-xs font-bold uppercase tracking-micro-cap text-[#d9bdde] font-mono">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
           Verdict Node Palette
         </h3>
-        <p className="text-[11px] text-[#d9bdde]/60 mt-0.5">
+        <p className="text-xs text-slate-400 mt-0.5">
           Drag nodes to canvas or click to add
         </p>
       </div>
@@ -111,7 +111,7 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
       <div className="space-y-4">
         {categories.map((cat, idx) => (
           <div key={idx} className="space-y-2">
-            <span className="text-[10px] font-mono tracking-micro-cap text-[#d9bdde]/50 uppercase font-bold">
+            <span className="text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
               {cat.title}
             </span>
             <div className="space-y-2">
@@ -132,10 +132,10 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
                         <Icon className="w-3.5 h-3.5" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs font-bold text-white truncate group-hover:text-[#d9bdde]">
+                        <div className="text-sm font-semibold text-white truncate group-hover:text-[#d9bdde]">
                           {node.name}
                         </div>
-                        <div className="text-[10px] text-[#d9bdde]/60 truncate">
+                        <div className="text-xs text-slate-400 truncate">
                           {node.desc}
                         </div>
                       </div>

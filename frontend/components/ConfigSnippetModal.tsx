@@ -84,13 +84,13 @@ npx -y @haizelabs/sentinel-mcp --key $HAIZE_MCP_KEY
             <h2 className="text-base font-bold text-white tracking-tight">
               Agent Integration Snippets
             </h2>
-            <p className="text-xs text-[#d9bdde]/80 mt-0.5">
+            <p className="text-sm text-slate-300 mt-0.5">
               Target configuration for <strong className="text-white">{keyData.name}</strong>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#d9bdde]/70 hover:text-white hover:bg-[#4a154b] transition-colors"
+            className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-[#4a154b] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -100,30 +100,30 @@ npx -y @haizelabs/sentinel-mcp --key $HAIZE_MCP_KEY
         <div className="flex items-center gap-2 p-3 bg-[#1e0a20] border-b border-[#4a154b]/30">
           <button
             onClick={() => setActiveTab("claude")}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
               activeTab === "claude"
                 ? "bg-[#4a154b] text-white shadow-sm border border-[#d9bdde]/30"
-                : "text-[#d9bdde]/70 hover:text-white hover:bg-[#2e1030]"
+                : "text-slate-400 hover:text-white hover:bg-[#2e1030]"
             }`}
           >
             Claude Desktop
           </button>
           <button
             onClick={() => setActiveTab("cursor")}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
               activeTab === "cursor"
                 ? "bg-[#4a154b] text-white shadow-sm border border-[#d9bdde]/30"
-                : "text-[#d9bdde]/70 hover:text-white hover:bg-[#2e1030]"
+                : "text-slate-400 hover:text-white hover:bg-[#2e1030]"
             }`}
           >
             Cursor IDE
           </button>
           <button
             onClick={() => setActiveTab("devin")}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
               activeTab === "devin"
                 ? "bg-[#4a154b] text-white shadow-sm border border-[#d9bdde]/30"
-                : "text-[#d9bdde]/70 hover:text-white hover:bg-[#2e1030]"
+                : "text-slate-400 hover:text-white hover:bg-[#2e1030]"
             }`}
           >
             Devin / Bash

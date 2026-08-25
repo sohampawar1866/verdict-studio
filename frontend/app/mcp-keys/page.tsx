@@ -176,7 +176,7 @@ export default function MCPKeysPage() {
       <div className="bg-[#170718] border border-[#4a154b]/40 rounded-2xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#230c25] border-b border-[#4a154b]/30 text-[11px] font-mono text-[#d9bdde] uppercase tracking-micro-cap font-bold">
+            <thead className="bg-[#230c25] border-b border-[#4a154b]/30 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
               <tr>
                 <th className="py-4 px-6">Agent / Key Identifier</th>
                 <th className="py-4 px-5">Display Prefix</th>
@@ -189,7 +189,7 @@ export default function MCPKeysPage() {
             <tbody className="divide-y divide-[#4a154b]/30 font-mono">
               {filteredKeys.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-14 text-center text-[#d9bdde]/60 font-sans text-sm">
+                  <td colSpan={6} className="py-14 text-center text-slate-400 font-sans text-sm">
                     No scoped MCP keys found. Click <strong className="text-white font-bold">"Generate Scoped Key"</strong> to create one.
                   </td>
                 </tr>
@@ -199,39 +199,39 @@ export default function MCPKeysPage() {
                     <td className="py-4 px-6 font-sans font-bold text-white text-sm">
                       {key.name}
                     </td>
-                    <td className="py-4 px-5 text-[#38bdf8] text-[11px]">
+                    <td className="py-4 px-5 text-[#38bdf8] text-xs">
                       {key.keyPrefix}...
                     </td>
                     <td className="py-4 px-5">
                       <div className="flex flex-wrap gap-1.5">
                         {key.sqlReadOnly && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-[#1264a3]/20 border border-[#1264a3]/40 text-[#38bdf8] text-[10px] font-mono font-semibold">
+                          <span className="px-3 py-1 rounded-full bg-[#1264a3]/20 border border-[#1264a3]/40 text-[#38bdf8] text-xs font-mono font-semibold">
                             SQL Read-Only
                           </span>
                         )}
                         {key.enforceVerdictEval && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-[#4a154b]/40 border border-[#d9bdde]/30 text-[#d9bdde] text-[10px] font-mono font-semibold">
+                          <span className="px-3 py-1 rounded-full bg-[#4a154b]/40 border border-[#d9bdde]/30 text-[#d9bdde] text-xs font-mono font-semibold">
                             Verdict Review
                           </span>
                         )}
                         {key.prohibitedTools.includes("bash") && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-[#cc4117]/20 border border-[#cc4117]/40 text-[#ff8e75] text-[10px] font-mono font-semibold">
+                          <span className="px-3 py-1 rounded-full bg-[#cc4117]/20 border border-[#cc4117]/40 text-[#ff8e75] text-xs font-mono font-semibold">
                             Bash Blocked
                           </span>
                         )}
                         {key.allowedDomains && key.allowedDomains[0] !== "*" && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-[#007a5a]/20 border border-[#007a5a]/40 text-[#2ecc71] text-[10px] font-mono font-semibold">
+                          <span className="px-3 py-1 rounded-full bg-[#007a5a]/20 border border-[#007a5a]/40 text-[#2ecc71] text-xs font-mono font-semibold">
                             Scoped Whitelist
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-5 text-[#d9bdde]/70 text-[11px]">
+                    <td className="py-4 px-5 text-slate-300 text-xs">
                       {new Date(key.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-4 px-5">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-bold uppercase border ${
                           key.isActive
                             ? "bg-[#007a5a]/20 text-[#2ecc71] border-[#007a5a]/40"
                             : "bg-[#cc4117]/20 text-[#ff8e75] border-[#cc4117]/40"
@@ -245,7 +245,7 @@ export default function MCPKeysPage() {
                         <button
                           onClick={() => setSelectedKeyForSnippet(key)}
                           title="View Client Config Snippets"
-                          className="btn-secondary-pill !px-3 !py-1.5 !text-[11px] inline-flex items-center gap-1.5"
+                          className="btn-secondary-pill !px-3.5 !py-1.5 !text-xs inline-flex items-center gap-1.5"
                         >
                           <Laptop className="w-3.5 h-3.5 text-[#d9bdde]" />
                           <span>Config</span>

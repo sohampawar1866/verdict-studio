@@ -466,11 +466,11 @@ export default function DAGStudioPage() {
             type="text"
             value={dagTitle}
             onChange={(e) => setDagTitle(e.target.value)}
-            className="bg-transparent font-bold text-xs text-white hover:bg-[#280c2a] px-3 h-8 rounded-full focus:outline-none focus:ring-2 focus:ring-[#4a154b] font-sans tracking-tight border border-transparent hover:border-[#d9bdde]/20 transition-all whitespace-nowrap"
+            className="bg-transparent font-bold text-sm text-white hover:bg-[#280c2a] px-3.5 h-9 rounded-full focus:outline-none focus:ring-2 focus:ring-[#4a154b] font-sans tracking-tight border border-transparent hover:border-[#d9bdde]/20 transition-all whitespace-nowrap"
           />
 
-          <div className="flex items-center gap-1.5 text-xs text-[#d9bdde] bg-[#230c25] border border-[#4a154b]/40 rounded-full px-3 h-8 shadow-sm">
-            <Layers className="w-3.5 h-3.5 text-[#d9bdde] flex-shrink-0" />
+          <div className="flex items-center gap-2 text-xs text-slate-300 bg-[#230c25] border border-[#4a154b]/40 rounded-full px-3.5 h-9 shadow-sm">
+            <Layers className="w-4 h-4 text-slate-400 flex-shrink-0" />
             <select
               onChange={(e) => handleLoadPreset(e.target.value)}
               defaultValue="adversarial_safety"

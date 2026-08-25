@@ -58,7 +58,7 @@ export default function NodeConfigDrawer({
       {/* Basic Node Info */}
       <div className="space-y-4">
         <div>
-          <label className="text-[11px] font-semibold text-[#d9bdde] block mb-1.5">
+          <label className="text-sm font-semibold text-slate-200 block mb-1.5">
             Unit Name / Identifier
           </label>
           <input
@@ -66,23 +66,23 @@ export default function NodeConfigDrawer({
             value={data.name || ""}
             onChange={(e) => onUpdateNode(id, { name: e.target.value })}
             placeholder="e.g. ProsecutorUnit"
-            className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-[#d9bdde] font-mono"
+            className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#d9bdde] font-mono"
           />
         </div>
 
         {/* Model Selection (.via()) for LLM Units */}
         {type !== "input" && type !== "aggregator" && (
           <div>
-            <label className="text-[11px] font-semibold text-[#d9bdde] flex items-center justify-between mb-1.5">
+            <label className="text-sm font-semibold text-slate-200 flex items-center justify-between mb-1.5">
               <span className="flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-[#1264a3]" />
-                Backend Model (<code className="text-[#d9bdde] font-mono">.via()</code>)
+                <Cpu className="w-4 h-4 text-[#1264a3]" />
+                Backend Model (<code className="text-[#38bdf8] font-mono text-xs">.via()</code>)
               </span>
             </label>
             <select
               value={data.model || "gpt-4o"}
               onChange={(e) => onUpdateNode(id, { model: e.target.value })}
-              className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#d9bdde] font-mono cursor-pointer"
+              className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#d9bdde] font-mono cursor-pointer"
             >
               {AVAILABLE_MODELS.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -96,12 +96,12 @@ export default function NodeConfigDrawer({
         {/* Temperature & Inference Parameters */}
         {type !== "input" && type !== "aggregator" && (
           <div className="space-y-2 pt-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-[#d9bdde] flex items-center gap-1.5 font-medium">
-                <Sliders className="w-3.5 h-3.5 text-[#f59e0b]" />
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-200 flex items-center gap-1.5 font-medium">
+                <Sliders className="w-4 h-4 text-[#f59e0b]" />
                 Temperature
               </span>
-              <span className="font-mono text-white font-bold bg-[#4a154b]/40 px-2 py-0.5 rounded-full border border-[#d9bdde]/20">
+              <span className="font-mono text-white text-xs font-bold bg-[#4a154b]/40 px-2.5 py-0.5 rounded-full border border-[#d9bdde]/20">
                 {data.temperature !== undefined ? data.temperature : 0.7}
               </span>
             </div>
@@ -121,16 +121,16 @@ export default function NodeConfigDrawer({
       {/* Scale Selector for Chief Justice & Judges */}
       {(type === "chiefjustice" || data.scaleType) && (
         <div className="space-y-3 pt-3 border-t border-[#4a154b]/30">
-          <label className="text-[11px] font-semibold text-[#d9bdde] flex items-center gap-1.5">
-            <Scale className="w-3.5 h-3.5 text-[#f59e0b]" />
-            Verdict Scale (<code className="text-[#d9bdde] font-mono">verdict.scale</code>)
+          <label className="text-sm font-semibold text-slate-200 flex items-center gap-1.5">
+            <Scale className="w-4 h-4 text-[#f59e0b]" />
+            Verdict Scale (<code className="text-[#38bdf8] font-mono text-xs">verdict.scale</code>)
           </label>
           <select
             value={data.scaleType || "discrete"}
             onChange={(e) =>
               onUpdateNode(id, { scaleType: e.target.value as VerdictScaleType })
             }
-            className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#d9bdde] font-mono cursor-pointer"
+            className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#d9bdde] font-mono cursor-pointer"
           >
             <option value="discrete">DiscreteScale (["PASSED", "FAILED"])</option>
             <option value="boolean">BooleanScale (yes / no)</option>
@@ -143,16 +143,16 @@ export default function NodeConfigDrawer({
       {/* Aggregator Type for Aggregator Nodes */}
       {type === "aggregator" && (
         <div className="space-y-3 pt-3 border-t border-[#4a154b]/30">
-          <label className="text-[11px] font-semibold text-[#d9bdde] flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-[#a855f7]" />
-            Aggregation Method (<code className="text-[#d9bdde] font-mono">verdict.transform</code>)
+          <label className="text-sm font-semibold text-slate-200 flex items-center gap-1.5">
+            <Layers className="w-4 h-4 text-[#a855f7]" />
+            Aggregation Method (<code className="text-[#c084fc] font-mono text-xs">verdict.transform</code>)
           </label>
           <select
             value={data.aggregatorType || "maxpool"}
             onChange={(e) =>
               onUpdateNode(id, { aggregatorType: e.target.value as AggregatorType })
             }
-            className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#d9bdde] font-mono cursor-pointer"
+            className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#d9bdde] font-mono cursor-pointer"
           >
             <option value="maxpool">MaxPoolUnit (Majority Vote - mode)</option>
             <option value="meanpool">MeanPoolUnit (Average Score - mean)</option>
@@ -164,9 +164,9 @@ export default function NodeConfigDrawer({
       {/* Prompt Template Editor for LLM Units */}
       {type !== "input" && type !== "aggregator" && (
         <div className="space-y-2.5 pt-3 border-t border-[#4a154b]/30">
-          <label className="text-[11px] font-semibold text-[#d9bdde] flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-[#1264a3]" />
-            Prompt Template (<code className="text-[#d9bdde] font-mono">.prompt()</code>)
+          <label className="text-sm font-semibold text-slate-200 flex items-center gap-1.5">
+            <FileText className="w-4 h-4 text-[#1264a3]" />
+            Prompt Template (<code className="text-[#38bdf8] font-mono text-xs">.prompt()</code>)
           </label>
 
           {/* Quick Insert Variable Chips */}
@@ -176,7 +176,7 @@ export default function NodeConfigDrawer({
                 key={chip}
                 type="button"
                 onClick={() => insertVariableChip(chip)}
-                className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-[#100311] hover:bg-[#4a154b]/40 border border-[#4a154b]/50 hover:border-[#d9bdde]/40 text-[#d9bdde] hover:text-white transition-all"
+                className="text-xs font-mono px-2.5 py-1 rounded-full bg-[#100311] hover:bg-[#4a154b]/40 border border-[#4a154b]/50 hover:border-[#d9bdde]/40 text-[#d9bdde] hover:text-white transition-all"
               >
                 + {chip}
               </button>
@@ -197,11 +197,11 @@ export default function NodeConfigDrawer({
       {type !== "input" && type !== "aggregator" && (
         <div className="space-y-2 pt-3 border-t border-[#4a154b]/30">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#d9bdde] flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-[#007a5a]" />
-              Layer Replicas (<code className="text-[#d9bdde] font-mono">repeat=N</code>)
+            <span className="text-sm font-semibold text-slate-200 flex items-center gap-1.5">
+              <Layers className="w-4 h-4 text-[#007a5a]" />
+              Layer Replicas (<code className="text-[#2ecc71] font-mono text-xs">repeat=N</code>)
             </span>
-            <span className="font-mono text-xs text-white font-bold bg-[#4a154b]/40 px-2 py-0.5 rounded-full border border-[#d9bdde]/20">
+            <span className="font-mono text-xs text-white font-bold bg-[#4a154b]/40 px-2.5 py-0.5 rounded-full border border-[#d9bdde]/20">
               {data.layerRepeat || 1}x
             </span>
           </div>
@@ -211,7 +211,7 @@ export default function NodeConfigDrawer({
             max="10"
             value={data.layerRepeat || 1}
             onChange={(e) => onUpdateNode(id, { layerRepeat: parseInt(e.target.value) || 1 })}
-            className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#d9bdde] font-mono"
+            className="w-full bg-[#100311] border border-[#4a154b]/50 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#d9bdde] font-mono"
           />
         </div>
       )}

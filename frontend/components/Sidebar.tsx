@@ -86,7 +86,7 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-3.5 space-y-1.5 overflow-y-auto">
-        <div className="px-3 py-2 text-[10px] font-mono tracking-micro-cap text-[#d9bdde]/60 uppercase font-bold">
+        <div className="px-3 py-2 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
           Navigation
         </div>
         {navItems.map((item) => {
@@ -96,15 +96,15 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-full text-xs font-semibold transition-all group ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium transition-all group ${
                 isActive
                   ? "bg-[#4a154b] text-white shadow-md shadow-[#4a154b]/30 border border-[#d9bdde]/30"
-                  : "text-[#d9bdde]/80 hover:text-white hover:bg-[#260c28]"
+                  : "text-slate-300 hover:text-white hover:bg-[#260c28]"
               }`}
             >
               <Icon
                 className={`w-4 h-4 transition-colors ${
-                  isActive ? "text-white" : "text-[#d9bdde]/70 group-hover:text-white"
+                  isActive ? "text-white" : "text-slate-400 group-hover:text-white"
                 }`}
               />
               <span>{item.name}</span>
@@ -112,20 +112,20 @@ export default function Sidebar() {
           );
         })}
 
-        <div className="pt-6 px-3 py-2 text-[10px] font-mono tracking-micro-cap text-[#d9bdde]/60 uppercase font-bold">
+        <div className="pt-6 px-3 py-2 text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">
           Ecosystem
         </div>
         <a
           href="https://github.com/haizelabs/verdict"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-between px-3.5 py-2 rounded-full text-xs text-[#d9bdde]/80 hover:text-white hover:bg-[#260c28] transition-colors"
+          className="flex items-center justify-between px-3.5 py-2.5 rounded-full text-sm font-medium text-slate-300 hover:text-white hover:bg-[#260c28] transition-colors"
         >
           <span className="flex items-center gap-2.5">
-            <Terminal className="w-3.5 h-3.5 text-[#d9bdde]" />
-            <span className="font-mono text-[11px]">haizelabs/verdict</span>
+            <Terminal className="w-4 h-4 text-slate-400" />
+            <span className="font-mono text-xs">haizelabs/verdict</span>
           </span>
-          <ExternalLink className="w-3 h-3 text-[#d9bdde]/60" />
+          <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
         </a>
       </nav>
 

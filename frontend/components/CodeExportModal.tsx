@@ -42,17 +42,17 @@ export default function CodeExportModal({ dag, isOpen, onClose }: CodeExportModa
           <div>
             <h2 className="text-base font-bold text-white flex items-center gap-2 tracking-tight">
               Export Python Code
-              <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#4a154b]/60 text-[#d9bdde] border border-[#d9bdde]/20 font-bold">
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#4a154b]/60 text-[#d9bdde] border border-[#d9bdde]/20 font-bold">
                 haizelabs/verdict v0.2.x
               </span>
             </h2>
-            <p className="text-xs text-[#d9bdde]/80 mt-0.5">
+            <p className="text-sm text-slate-300 mt-0.5">
               Native standalone script matching the visual DAG graph on canvas
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#d9bdde]/70 hover:text-white hover:bg-[#4a154b] transition-colors"
+            className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-[#4a154b] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -67,8 +67,8 @@ export default function CodeExportModal({ dag, isOpen, onClose }: CodeExportModa
 
         {/* Footer */}
         <div className="p-4 border-t border-[#4a154b]/30 bg-[#230c25] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-[#d9bdde] font-mono">
-            <Terminal className="w-4 h-4 text-[#d9bdde]" />
+          <div className="flex items-center gap-2 text-sm text-slate-200 font-mono">
+            <Terminal className="w-4 h-4 text-[#38bdf8]" />
             <span>pip install verdict pydantic litellm</span>
           </div>
 

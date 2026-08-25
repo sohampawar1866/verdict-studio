@@ -8,6 +8,7 @@ import {
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
 import type { GatewayConfig } from "./types.js";
+import { inspectToolPayloadWithVerdict } from "./verdict_enforcer.js";
 
 // Parse CLI arguments and environment variables
 function parseArgs(): GatewayConfig {
@@ -95,6 +96,17 @@ class HaizeSentinelGateway {
               required: ["command"],
             },
           },
+          {
+            name: "read_file",
+            description: "Read file contents from filesystem",
+            inputSchema: {
+              type: "object",
+              properties: {
+                path: { type: "string", description: "File path to read" },
+              },
+              required: ["path"],
+            },
+          },
         ],
       };
     });
@@ -104,49 +116,87 @@ class HaizeSentinelGateway {
       const { name, arguments: args } = request.params;
       console.error(`[Sentinel] Intercepted tools/call: '${name}' with args:`, JSON.stringify(args));
 
-      // Basic SQL Read-Only Guardrail (expanded in Phase 4 with full backend policy engine)
-      if (name === "db_query" && this.config.sqlReadOnly) {
-        const query = String((args as any)?.query || "").trim().toUpperCase();
-        const destructiveKeywords = ["DROP", "DELETE", "TRUNCATE", "UPDATE", "INSERT", "ALTER"];
-        for (const kw of destructiveKeywords) {
-          if (query.startsWith(kw) || query.includes(` ${kw} `)) {
-            console.error(`[Sentinel] 🚨 BLOCKED destructive SQL operation: ${kw}`);
+      // Proxy request to backend policy enforcement engine
+      try {
+        const response = await fetch(`${this.config.backendUrl}/api/mcp/execute-tool`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(this.config.apiKey ? { "X-Haize-MCP-Key": this.config.apiKey } : {}),
+          },
+          body: JSON.stringify({
+            tool_name: name,
+            parameters: args || {},
+          }),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({ detail: "Blocked by Policy" }));
+          console.error(`[Sentinel] 🚨 BLOCKED by policy: ${errData.detail}`);
+          return {
+            isError: true,
+            content: [
+              {
+                type: "text",
+                text: `${errData.detail}`,
+              },
+            ],
+          };
+        }
+
+        const executionData = await response.json();
+        let rawOutput = String(executionData?.data?.result || `[Haize Sentinel] Executed '${name}' safely.`);
+
+        // Apply Inline Verdict Debate Inspection on returned payload
+        if (this.config.enforceVerdict) {
+          const inspection = await inspectToolPayloadWithVerdict(
+            this.config.backendUrl,
+            this.config.apiKey,
+            name,
+            rawOutput
+          );
+
+          if (!inspection.isSafe) {
             return {
               isError: true,
               content: [
                 {
                   type: "text",
-                  text: `🚨 [HAIZE SENTINEL SECURITY VIOLATION] Tool execution blocked. Destructive SQL operation (${kw}) is strictly prohibited on Read-Only keys.`,
+                  text: inspection.outputMessage,
                 },
               ],
             };
           }
+          rawOutput = inspection.outputMessage;
         }
-      }
 
-      // Prohibited Bash Check
-      if (name === "bash") {
-        console.error(`[Sentinel] 🚨 BLOCKED bash tool call (policy: disabled by default)`);
         return {
-          isError: true,
           content: [
             {
               type: "text",
-              text: `🚨 [HAIZE SENTINEL SECURITY VIOLATION] Tool 'bash' is disabled for this scoped MCP Key.`,
+              text: rawOutput,
+            },
+          ],
+        };
+      } catch (err: any) {
+        console.error("[Sentinel] Backend connection error:", err);
+        // Fallback local check if backend is restarting
+        if (name === "bash") {
+          return {
+            isError: true,
+            content: [{ type: "text", text: "🚨 [HAIZE SENTINEL] Tool 'bash' is disabled by policy." }],
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `[Haize Sentinel] Executed '${name}' (Local Fallback Safe Mode)`,
             },
           ],
         };
       }
-
-      // Default safe response
-      return {
-        content: [
-          {
-            type: "text",
-            text: `[Haize Sentinel] Executed '${name}' safely. (Parameters validated against security policy)`,
-          },
-        ],
-      };
     });
   }
 

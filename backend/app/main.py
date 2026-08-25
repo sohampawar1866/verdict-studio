@@ -397,6 +397,7 @@ async def execute_dag_pipeline(req: DAGExecutionRequest):
     response = await compile_and_run_dag(
         dag=req.dag,
         inputs=req.inputs,
+        api_keys=req.api_keys or ({"custom_api_key": req.custom_api_key} if req.custom_api_key else None),
         broadcast_callback=ws_manager.broadcast,
     )
     return response

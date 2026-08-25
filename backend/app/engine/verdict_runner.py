@@ -4,6 +4,7 @@ import asyncio
 import logging
 from typing import Dict, Any, Optional, Callable, List
 from collections import defaultdict, deque
+import httpx
 
 from app.models.dag import DAGGraph, DAGNode, DAGExecutionResponse
 from app.engine.live_streamer import DEBATE_DIALOGUES, simulate_token_stream
@@ -57,20 +58,105 @@ def topological_sort_nodes(dag: DAGGraph) -> List[List[DAGNode]]:
     return layers
 
 
+async def try_live_llm_inference(
+    model: str,
+    prompt: str,
+    system_role: str,
+    api_keys: Optional[Dict[str, Any]] = None,
+    temperature: float = 0.7,
+) -> Optional[str]:
+    """
+    Attempts live model inference using client-provided BYOK keys or custom endpoints.
+    Falls back gracefully to None if keys are absent or API call fails.
+    """
+    if not api_keys:
+        return None
+
+    openai_key = api_keys.get("openaiApiKey") or api_keys.get("custom_api_key")
+    anthropic_key = api_keys.get("anthropicApiKey")
+    custom_base_url = api_keys.get("customBaseUrl")
+
+    try:
+        # OpenAI or Custom Compatible Endpoint (e.g. OpenRouter, Groq, Ollama)
+        if openai_key or custom_base_url:
+            base_url = custom_base_url.rstrip("/") if custom_base_url else "https://api.openai.com/v1"
+            if not base_url.endswith("/v1") and "openai.com" in base_url:
+                base_url = f"{base_url}/v1"
+
+            endpoint = f"{base_url}/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+            }
+            if openai_key:
+                headers["Authorization"] = f"Bearer {openai_key}"
+
+            payload = {
+                "model": model or "gpt-4o",
+                "messages": [
+                    {"role": "system", "content": f"You are an AI Safety unit ({system_role}) evaluating security invariants."},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": temperature,
+                "max_tokens": 500,
+            }
+
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                res = await client.post(endpoint, json=payload, headers=headers)
+                if res.status_code == 200:
+                    data = res.json()
+                    content = data["choices"][0]["message"]["content"]
+                    logger.info(f"Live OpenAI/Compatible completion received for model '{model}'")
+                    return content
+
+        # Anthropic Endpoint
+        elif anthropic_key:
+            endpoint = "https://api.anthropic.com/v1/messages"
+            headers = {
+                "x-api-key": anthropic_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            }
+            payload = {
+                "model": model if "claude" in model else "claude-3-5-sonnet-20241022",
+                "max_tokens": 500,
+                "temperature": temperature,
+                "system": f"You are an AI Safety unit ({system_role}) evaluating security invariants.",
+                "messages": [
+                    {"role": "user", "content": prompt},
+                ],
+            }
+
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                res = await client.post(endpoint, json=payload, headers=headers)
+                if res.status_code == 200:
+                    data = res.json()
+                    content = data["content"][0]["text"]
+                    logger.info(f"Live Anthropic completion received for model '{model}'")
+                    return content
+
+    except Exception as e:
+        logger.warning(f"Live LLM inference encountered error ({e}); falling back to interactive demo dialogue.")
+
+    return None
+
+
 async def compile_and_run_dag(
     dag: DAGGraph,
     inputs: Dict[str, Any],
+    api_keys: Optional[Dict[str, Any]] = None,
     broadcast_callback: Optional[Callable[[Dict[str, Any]], Any]] = None,
 ) -> DAGExecutionResponse:
     """
     Executes a visual Verdict DAG pipeline with real-time WebSocket token streaming.
+    Supports optional BYOK (Bring Your Own Key) live inference with instant demo simulation fallback.
     """
     execution_id = f"exec-{uuid.uuid4().hex[:8]}"
     start_time = time.time()
     outputs: Dict[str, Any] = {}
     leaf_nodes: List[str] = []
 
-    logger.info(f"Starting DAG Execution [{execution_id}] for '{dag.name}'")
+    has_byok = bool(api_keys and any(api_keys.values()))
+    logger.info(f"Starting DAG Execution [{execution_id}] for '{dag.name}' (BYOK Mode: {has_byok})")
 
     if broadcast_callback:
         await broadcast_callback({
@@ -78,6 +164,7 @@ async def compile_and_run_dag(
             "execution_id": execution_id,
             "dag_id": dag.id,
             "dag_name": dag.name,
+            "has_byok": has_byok,
             "timestamp": start_time,
         })
 
@@ -97,6 +184,9 @@ async def compile_and_run_dag(
             node_type = node.type
             unit_name = node.data.get("name") or f"{node_type.capitalize()}Unit"
             role = node.data.get("role") or node_type
+            model = node.data.get("model", "gpt-4o")
+            prompt_tpl = node.data.get("prompt") or ""
+            temperature = float(node.data.get("temperature", 0.7))
 
             # Skip input nodes for token streaming (they provide source data)
             if node_type == "input":
@@ -111,13 +201,29 @@ async def compile_and_run_dag(
                     "node_id": node.id,
                     "unit_name": unit_name,
                     "role": role,
-                    "model": node.data.get("model", "gpt-4o"),
+                    "model": model,
                     "timestamp": time.time(),
                 })
 
-            # Retrieve text to stream
+            # Check if live LLM completion is possible with BYOK
+            live_text = None
+            if has_byok and prompt_tpl:
+                # Format prompt with source inputs
+                formatted_prompt = prompt_tpl
+                for k, v in inputs.items():
+                    formatted_prompt = formatted_prompt.replace(f"{{source.{k}}}", str(v))
+                live_text = await try_live_llm_inference(
+                    model=model,
+                    prompt=formatted_prompt,
+                    system_role=unit_name,
+                    api_keys=api_keys,
+                    temperature=temperature,
+                )
+
+            # Retrieve text to stream (live completion or simulation fallback)
             node_dialogue = (
-                DEBATE_DIALOGUES.get(node_type, {}).get(category_key)
+                live_text
+                or DEBATE_DIALOGUES.get(node_type, {}).get(category_key)
                 or f"Evaluated input with {unit_name}. Response generated with score validation."
             )
 
@@ -149,7 +255,7 @@ async def compile_and_run_dag(
             outputs[node.id] = {
                 "unit_name": unit_name,
                 "role": role,
-                "model": node.data.get("model", "gpt-4o"),
+                "model": model,
                 "output_text": accumulated_tokens.strip(),
                 "verdict": verdict_val,
             }

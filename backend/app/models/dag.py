@@ -32,6 +32,8 @@ class DAGGraph(BaseModel):
 class DAGExecutionRequest(BaseModel):
     dag: DAGGraph
     inputs: Dict[str, Any] = Field(default_factory=dict)
+    api_keys: Optional[Dict[str, Any]] = None
+    custom_api_key: Optional[str] = None
     max_workers: int = 128
     stream_tokens: bool = True
 

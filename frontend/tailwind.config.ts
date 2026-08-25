@@ -64,7 +64,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+        mono: ['"Berkeley Mono"', '"JetBrains Mono"', '"Geist Mono"', '"SF Mono"', "Menlo", "monospace"],
       },
     },
   },

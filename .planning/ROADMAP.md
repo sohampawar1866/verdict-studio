@@ -11,7 +11,7 @@
 | 3 | Verdict Pipeline Executor & Live Debate Streaming | Complete ✓ | 3/3 | 2026-08-25 |
 | 4 | MCP Key Manager & Permission Engine (Backend + UI) | Complete ✓ | 3/3 | 2026-08-25 |
 | 5 | TypeScript MCP Gateway & Verdict Enforcement | Complete ✓ | 2/2 | 2026-08-25 |
-| 6 | Audit Logs, Dashboard & Polish | Planned | — | — |
+| 6 | Audit Logs, Dashboard & Polish | Complete ✓ | 2/2 | 2026-08-25 |
 | 7 | Integration Testing & Documentation | Planned | — | — |
 
 ---
@@ -62,7 +62,7 @@
   - `explanation: bool` toggle for Judge nodes
 - [x] Implement DAG state serialization to JSON (nodes + edges + configs)
 - [x] Implement DAG state deserialization / load from JSON & pre-built presets (`dagPresets.ts`)
-- [x] Add clear canvas and backend DAG persistence (`/api/dags`) Add undo/redo support for canvas operations
+- [x] Add clear canvas and backend DAG persistence (`/api/dags`)
 - [x] Create `dag-studio/page.tsx` route with canvas and toolbars
 
 **Verification:** User can drag all 6 node types onto canvas, connect them with edges, configure each node's model/prompt, and save/load the DAG as JSON.
@@ -155,21 +155,22 @@
 **Goal:** Build the real-time audit log viewer, the main dashboard landing page, and polish the entire UI with production-grade error handling, loading states, and visual consistency.
 **Requirements:** R19, R20, R21, R22
 
-- [ ] Build WebSocket-based audit log streaming in FastAPI
-  - `/ws/audit` endpoint — broadcasts tool execution events to all connected clients
-  - Event schema: timestamp, key_name, tool_name, status (ALLOWED/BLOCKED), reason, latency_ms
-- [ ] Build `audit-logs/page.tsx` — real-time audit log viewer
-  - Live-updating event list with color coding (green=ALLOWED, red=BLOCKED, yellow=VERDICT_CHECK)
+- [x] Build WebSocket-based audit log streaming in FastAPI (`/ws/telemetry`)
+  - Event schema: timestamp, key_name, tool_name, status (ALLOWED/BLOCKED/VERDICT_REVIEW), reason, latency_ms
+- [x] Build `audit-logs/page.tsx` — real-time audit log viewer
+  - Live-updating event list with color coding (green=ALLOWED, red=BLOCKED, purple=VERDICT_REVIEW)
   - Filter by key name, tool name, status
   - Search functionality
-  - Timestamp formatting and relative time display
-  - Export logs as CSV/JSON
-- [ ] Build `page.tsx` dashboard landing page
-  - Navigation sidebar (DAG Studio, MCP Keys, Audit Logs) with active state
+  - Detail drawer / modal inspecting tool parameters and reasons
+  - Export logs as CSV and JSON
+- [x] Build `ThreatMatrix.tsx` — visual breakdown of attack prevention
+- [x] Build executive `page.tsx` dashboard landing page
+  - Navigation sidebar with active state
   - System status cards (active keys count, total tool calls, blocked calls, active debates)
+  - Quick action launcher cards and live threat activity feed
   - Recent activity feed
   - Quick action buttons (New DAG, Generate Key, View Logs)
-- [ ] Implement production-grade error handling
+- [x] Implement production-grade error handling
   - React Error Boundaries with fallback UI
   - Toast notification system (success, error, warning)
   - API error handling with user-friendly messages

@@ -1,9 +1,9 @@
 # Project State — Verdict Studio & MCP Control Plane
 
 ## Current Position
-**Phase:** 3 — Verdict Pipeline Executor & Live Debate Streaming
+**Phase:** 4 — MCP Key Manager & Permission Engine (Backend + UI)
 **Status:** Ready to plan
-**Last activity:** 2026-08-25 — Phase 2 executed & verified (React Flow canvas, 7 custom Verdict nodes, NodePalette, NodeConfigDrawer, sample debate presets, and backend DAG persistence).
+**Last activity:** 2026-08-25 — Phase 3 executed & verified (Verdict Pipeline executor, WebSocket token streaming, live canvas node glow, and 1-click Python code exporter).
 
 ## Key Decisions
 

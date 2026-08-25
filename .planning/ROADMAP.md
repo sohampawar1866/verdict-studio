@@ -8,7 +8,7 @@
 |-------|------|--------|-------|------|
 | 1 | Project Scaffolding & Foundation | Complete ✓ | 3/3 | 2026-08-25 |
 | 2 | Visual DAG Builder (React Flow Canvas) | Complete ✓ | 3/3 | 2026-08-25 |
-| 3 | Verdict Pipeline Executor & Live Debate Streaming | Planned | — | — |
+| 3 | Verdict Pipeline Executor & Live Debate Streaming | Complete ✓ | 3/3 | 2026-08-25 |
 | 4 | MCP Key Manager & Permission Engine (Backend + UI) | Planned | — | — |
 | 5 | TypeScript MCP Gateway & Verdict Enforcement | Planned | — | — |
 | 6 | Audit Logs, Dashboard & Polish | Planned | — | — |
@@ -70,10 +70,10 @@
 ---
 
 #### Phase 3: Verdict Pipeline Executor & Live Debate Streaming
-**Goal:** Connect the visual DAG to actual `verdict` library execution. Implement the backend pipeline runner and real-time WebSocket streaming of debate arguments token-by-token. Build the 1-click code exporter.
+**Goal:** Build the backend pipeline executor that converts visual DAGs into executable `verdict` objects, streams token-by-token debate reasoning over WebSockets, and provides 1-click Python code export.
 **Requirements:** R8, R9, R10
 
-- [ ] Build `verdict_runner.py` — converts DAG JSON to `verdict` Pipeline/Unit/Layer objects
+- [x] Build `verdict_runner.py` — converts DAG JSON to `verdict` Pipeline/Unit/Layer objects
   - Map `InputNode` → `Schema.of(**fields)` for pipeline input data
   - Map `ProsecutorUnit` → Generate `class ProsecutorUnit(Unit): class ResponseSchema(Schema): argument: str` subclass, then `.prompt(...).via(model)`
   - Map `DefenseUnit` → Generate `class DefenseUnit(Unit): class ResponseSchema(Schema): argument: str` subclass, then `.prompt(...).via(model)`
@@ -83,16 +83,17 @@
   - Map `AggregatorNode` → `MaxPoolUnit()` (majority vote) / `MeanPoolUnit()` / `MapUnit(fn)`
   - Map parallel edges → `Layer([unit1, unit2], repeat=N, inner="none"|"chain", outer="dense"|"broadcast")`
   - Map sequential edges → `>>` operator chaining
-- [ ] Create `/api/dag/execute` POST endpoint — accepts DAG JSON, runs `pipeline.run(input_data=Schema.of(...), max_workers=128)`
-- [ ] Implement WebSocket streaming of pipeline execution progress
+- [x] Create `/api/dag/execute` POST endpoint — accepts DAG JSON, runs `pipeline.run(input_data=Schema.of(...), max_workers=128)`
+- [x] Implement WebSocket streaming of pipeline execution progress
   - Stream each unit's prompt → model → response in real-time
   - Include unit name, role, model used, and token-by-token response text
-- [ ] Build `StreamingConsole.tsx` — live debate viewer component
-  - Split-pane view: Prosecutor (red) vs Defense (green) arguments
-  - FactChecker findings (blue) panel
-  - ChiefJustice final ruling (gold) panel
+  - Stream final verdict decision (PASSED / FAILED or numerical score)
+- [x] Build Live Streaming Debate Viewer component (`StreamingConsole.tsx`)
+  - Split-pane drawer on DAG Studio canvas
+  - Real-time token streaming with typing animation per debater
+  - Role-colored debate bubbles: Prosecutor (red), Defense (green), FactChecker (blue), Chief Justice (gold)
   - Auto-scroll with timestamp per message
-- [ ] Build Python Code Exporter (`codeExporter.ts`)
+- [x] Build Python Code Exporter (`codeExporter.ts`)
   - Generate correct imports: `from verdict import Pipeline, Layer, Unit`, `from verdict.common.judge import CategoricalJudgeUnit`, `from verdict.scale import DiscreteScale`, `from verdict.transform import MaxPoolUnit`, `from verdict.schema import Schema`
   - Generate Unit subclasses with `class ResponseSchema(Schema): field: str` for custom debate nodes
   - Generate unit instances with `.prompt()`, `.via()`, `.extract()` chains
@@ -100,9 +101,8 @@
   - Use `Schema.of(...)` for pipeline input, NOT raw dicts
   - Preserve `{source.*}` / `{previous.*}` template syntax without escaping (verdict uses custom `auto_format`, not Python f-strings)
   - Add comment `# MaxPoolUnit uses statistics.mode (majority voting)` where applicable
-  - Copy-to-clipboard button with syntax-highlighted preview modal
-- [ ] Create `/api/dag/export-code` POST endpoint as backend alternative
-- [ ] Add "Run Debate" and "Export Code" buttons to DAG Studio toolbar
+  - Copy-to-clipboard button with syntax-highlighted preview modal (`CodeExportModal.tsx`)
+- [x] Add "Run Debate" and "Export Code" buttons to DAG Studio toolbar
 
 **Verification:** User builds a DAG visually, clicks "Run Debate", sees live streaming debate, and can export working Python code that runs with `verdict`.
 

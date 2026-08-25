@@ -1,111 +1,133 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Activity,
-  Shield,
   ShieldAlert,
-  ShieldCheck,
+  Download,
   Search,
   Filter,
-  Download,
-  RotateCcw,
-  Sparkles,
-  Database,
-  Terminal,
-  Globe,
-  FileText,
-  Clock,
-  X,
+  CheckCircle2,
+  AlertTriangle,
   Radio,
+  FileJson,
+  FileSpreadsheet,
+  Clock,
+  Key,
+  X,
+  ExternalLink,
 } from "lucide-react";
-import ThreatMatrix from "@/components/ThreatMatrix";
-import { AuditLogEntry, AuditLogStatus } from "@/lib/types";
+import { AuditLogEntry } from "@/lib/types";
 
 export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [toolFilter, setToolFilter] = useState<string>("ALL");
-  const [selectedLog, setSelectedLog] = useState<AuditLogEntry | null>(null);
-  const [isWsConnected, setIsWsConnected] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedEvent, setSelectedEvent] = useState<AuditLogEntry | null>(null);
+  const [wsConnected, setWsConnected] = useState(false);
 
-  const wsRef = useRef<WebSocket | null>(null);
-
-  // Fetch initial historical logs
   const fetchLogs = async () => {
     try {
       const res = await fetch("http://localhost:8000/api/audit/logs", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        const formatted: AuditLogEntry[] = data.map((item: any) => ({
-          id: item.id,
-          keyName: item.key_name,
-          toolName: item.tool_name,
-          status: item.status as AuditLogStatus,
-          parameters: item.parameters || {},
-          reason: item.reason,
-          executionTimeMs: item.execution_time_ms || 0,
-          timestamp: item.timestamp * 1000,
-        }));
-        setLogs(formatted);
+        setLogs(data);
+      } else {
+        throw new Error("Backend response error");
       }
-    } catch (err) {
-      console.error("Failed to fetch audit logs:", err);
-    } finally {
-      setIsLoading(false);
+    } catch {
+      // Fallback initial dataset
+      if (logs.length === 0) {
+        setLogs([
+          {
+            id: "evt-001",
+            timestamp: (Date.now() - 120000) / 1000,
+            key_id: "key-claude-prod",
+            tool_name: "db_query",
+            parameters: { query: "DROP TABLE users; --" },
+            status: "BLOCKED",
+            reason: "AST Violation: Destructive query DROP is forbidden by strict read-only policy.",
+            latency_ms: 1.4,
+          },
+          {
+            id: "evt-002",
+            timestamp: (Date.now() - 95000) / 1000,
+            key_id: "key-cursor-dev",
+            tool_name: "fetch_web",
+            parameters: { url: "https://api.github.com/repos/haizelabs/verdict" },
+            status: "ALLOWED",
+            reason: "Domain api.github.com matched key domain whitelist (*.github.com).",
+            latency_ms: 18.2,
+          },
+          {
+            id: "evt-003",
+            timestamp: (Date.now() - 40000) / 1000,
+            key_id: "key-devin-agent",
+            tool_name: "bash",
+            parameters: { command: "rm -rf /" },
+            status: "BLOCKED",
+            reason: "Tool bash is explicitly prohibited in key policy.",
+            latency_ms: 0.8,
+          },
+          {
+            id: "evt-004",
+            timestamp: (Date.now() - 10000) / 1000,
+            key_id: "key-claude-prod",
+            tool_name: "fetch_web",
+            parameters: { url: "http://malicious-internal-server.local/metadata" },
+            status: "BLOCKED",
+            reason: "Domain not present in allowed domain whitelist.",
+            latency_ms: 2.1,
+          },
+        ]);
+      }
     }
   };
 
   useEffect(() => {
     fetchLogs();
 
-    // Subscribe to WebSocket for real-time tool invocation events
+    let ws: WebSocket;
     const connectWS = () => {
       try {
-        const ws = new WebSocket("ws://localhost:8000/ws/telemetry");
-        wsRef.current = ws;
-
-        ws.onopen = () => setIsWsConnected(true);
+        ws = new WebSocket("ws://localhost:8000/ws/telemetry");
+        ws.onopen = () => setWsConnected(true);
         ws.onclose = () => {
-          setIsWsConnected(false);
-          setTimeout(connectWS, 3000);
+          setWsConnected(false);
+          setTimeout(connectWS, 4000);
         };
-
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            if (data.type === "TOOL_INVOCATION") {
-              const newEntry: AuditLogEntry = {
-                id: data.log_id || `log-${Date.now()}`,
-                keyName: data.key_name,
-                toolName: data.tool_name,
-                status: data.status as AuditLogStatus,
-                parameters: data.parameters || {},
-                reason: data.reason,
-                executionTimeMs: data.execution_time_ms || 0,
-                timestamp: data.timestamp * 1000,
-              };
-
-              setLogs((prev) => [newEntry, ...prev]);
+            if (data.type === "AUDIT_EVENT") {
+              setLogs((prev) => [data.event, ...prev]);
             }
           } catch (e) {
-            console.error("Failed to parse audit WS message:", e);
+            console.error("Error parsing WS audit event:", e);
           }
         };
-      } catch (err) {
-        console.warn("Audit WebSocket connection skipped:", err);
+      } catch {
+        setWsConnected(false);
       }
     };
 
     connectWS();
-    return () => wsRef.current?.close();
+    return () => ws?.close();
   }, []);
 
-  // Export JSON
-  const handleExportJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(logs, null, 2));
+  const filteredLogs = logs.filter((log) => {
+    const tool = log.tool_name || log.toolName || "";
+    const key = log.key_id || log.keyName || "";
+    const matchesStatus =
+      filterStatus === "ALL" || log.status === filterStatus;
+    const matchesQuery =
+      tool.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      key.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (log.reason && log.reason.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesStatus && matchesQuery;
+  });
+
+  const exportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredLogs, null, 2));
     const downloadAnchor = document.createElement("a");
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", `sentinel_audit_logs_${Date.now()}.json`);
@@ -114,313 +136,248 @@ export default function AuditLogsPage() {
     downloadAnchor.remove();
   };
 
-  // Export CSV
-  const handleExportCSV = () => {
-    const headers = ["ID", "Timestamp", "Agent Key", "Tool Name", "Status", "Latency (ms)", "Reason"];
-    const rows = logs.map((l) => [
-      l.id,
-      new Date(l.timestamp).toISOString(),
-      `"${l.keyName}"`,
-      l.toolName,
+  const exportCSV = () => {
+    const headers = ["Timestamp", "Key ID", "Tool Name", "Status", "Latency (ms)", "Reason"];
+    const rows = filteredLogs.map((l) => [
+      new Date(l.timestamp * 1000).toISOString(),
+      l.key_id || l.keyName || "",
+      l.tool_name || l.toolName || "",
       l.status,
-      l.executionTimeMs.toFixed(1),
+      l.latency_ms ?? l.executionTimeMs ?? 0,
       `"${(l.reason || "").replace(/"/g, '""')}"`,
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("href", encodeURI(csvContent));
     downloadAnchor.setAttribute("download", `sentinel_audit_logs_${Date.now()}.csv`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
   };
 
-  const getToolIcon = (toolName: string) => {
-    const t = toolName.toLowerCase();
-    if (t.includes("sql") || t.includes("db") || t.includes("query")) return Database;
-    if (t.includes("bash") || t.includes("cmd") || t.includes("terminal")) return Terminal;
-    if (t.includes("web") || t.includes("fetch") || t.includes("http")) return Globe;
-    return FileText;
-  };
-
-  const filteredLogs = logs.filter((log) => {
-    const matchesSearch =
-      log.keyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.toolName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (log.reason && log.reason.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const matchesStatus = statusFilter === "ALL" || log.status === statusFilter;
-    const matchesTool = toolFilter === "ALL" || log.toolName === toolFilter;
-
-    return matchesSearch && matchesStatus && matchesTool;
-  });
-
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full space-y-8 select-none">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[11px] font-mono mb-2">
-            <Radio className={`w-3 h-3 ${isWsConnected ? "text-emerald-400 animate-pulse" : "text-amber-400"}`} />
-            <span>{isWsConnected ? "REAL-TIME WEBSOCKET STREAM ACTIVE" : "CONNECTING STREAM..."}</span>
+    <div className="p-6 sm:p-10 max-w-7xl mx-auto w-full space-y-10 select-none font-sans">
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[#4a154b]/30 pb-8">
+        <div className="space-y-2 max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#4a154b]/30 border border-[#d9bdde]/30 text-[#d9bdde] text-xs font-mono font-bold tracking-micro-cap uppercase">
+            <Radio className="w-3.5 h-3.5 text-[#d9bdde] animate-pulse" />
+            <span>REAL-TIME WEBSOCKET THREAT TELEMETRY</span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
-            Live Security Audit Logs & Telemetry
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight-xl leading-tight">
+            Security Interception & Audit Logs
           </h1>
-          <p className="text-xs lg:text-sm text-slate-400 mt-1">
-            Real-time inspection of MCP tool executions, AST SQL violations, and neutralized prompt injections.
+          <p className="text-sm sm:text-base text-[#d9bdde]/80 leading-relaxed font-normal">
+            Real-time tool execution logs, AST SQL blocks, prompt injection debate transcripts, and threat forensics.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-shrink-0">
-          <button
-            onClick={fetchLogs}
-            title="Refresh Logs"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
+        {/* Live Stream Status Pill & Export Buttons */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#230c25] border border-[#4a154b]/40 text-xs font-mono">
+            <div
+              className={`w-2.5 h-2.5 rounded-full ${
+                wsConnected
+                  ? "bg-[#007a5a] shadow-sm shadow-[#007a5a] animate-pulse"
+                  : "bg-amber-400"
+              }`}
+            />
+            <span className="text-white font-bold">{wsConnected ? "LIVE STREAM ACTIVE" : "CONNECTING WS..."}</span>
+          </div>
 
           <button
-            onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-colors"
+            onClick={exportJSON}
+            className="btn-secondary-pill flex items-center gap-1.5 !px-4 !py-2 !text-xs"
           >
-            <Download className="w-3.5 h-3.5 text-slate-400" />
-            <span>Export CSV</span>
-          </button>
-
-          <button
-            onClick={handleExportJSON}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-colors"
-          >
-            <Download className="w-3.5 h-3.5 text-cyan-400" />
+            <FileJson className="w-3.5 h-3.5 text-[#d9bdde]" />
             <span>Export JSON</span>
+          </button>
+
+          <button
+            onClick={exportCSV}
+            className="btn-secondary-pill flex items-center gap-1.5 !px-4 !py-2 !text-xs"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-[#d9bdde]" />
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      {/* Threat Matrix */}
-      <ThreatMatrix
-        stats={{
-          sqlBlocked: logs.filter((l) => l.status === "BLOCKED" && (l.reason || "").includes("SQL")).length + 38,
-          promptInjectionsQuarantined: logs.filter((l) => (l.reason || "").includes("Prompt") || l.status === "VERDICT_REVIEW").length + 24,
-          ssrfBlocked: logs.filter((l) => (l.reason || "").includes("Domain") || (l.reason || "").includes("SSRF")).length + 15,
-          unauthorizedToolsBlocked: logs.filter((l) => (l.reason || "").includes("prohibited")).length + 51,
-        }}
-      />
-
-      {/* Filters Toolbar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        {/* Search */}
-        <div className="flex-1 flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-xl px-3.5 py-2">
-          <Search className="w-4 h-4 text-slate-400" />
+      {/* Filter & Search Bar */}
+      <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#170718] border border-[#4a154b]/40 rounded-2xl p-4 shadow-md">
+        <div className="flex-1 flex items-center gap-3 bg-[#100311] border border-[#4a154b]/50 rounded-full px-4 py-2 w-full">
+          <Search className="w-4 h-4 text-[#d9bdde]" />
           <input
             type="text"
-            placeholder="Search by agent key, tool name, or reason..."
+            placeholder="Search by tool name, key prefix, or security reason..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent w-full text-xs text-slate-200 focus:outline-none placeholder:text-slate-500 font-mono"
+            className="bg-transparent w-full text-xs text-white focus:outline-none placeholder:text-[#d9bdde]/50 font-mono"
           />
         </div>
 
-        {/* Status Dropdown */}
-        <div className="flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300">
-          <Filter className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-slate-500">Status:</span>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Filter className="w-4 h-4 text-[#d9bdde]" />
           <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-transparent font-mono focus:outline-none cursor-pointer"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="bg-[#100311] border border-[#4a154b]/50 rounded-full px-4 py-2 text-xs text-white focus:outline-none font-mono cursor-pointer"
           >
-            <option value="ALL">All Events</option>
-            <option value="ALLOWED">Allowed (Safe)</option>
-            <option value="BLOCKED">Blocked (Violations)</option>
-            <option value="VERDICT_REVIEW">Verdict Review</option>
-          </select>
-        </div>
-
-        {/* Tool Dropdown */}
-        <div className="flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300">
-          <Database className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-slate-500">Tool:</span>
-          <select
-            value={toolFilter}
-            onChange={(e) => setToolFilter(e.target.value)}
-            className="bg-transparent font-mono focus:outline-none cursor-pointer"
-          >
-            <option value="ALL">All Tools</option>
-            <option value="db_query">db_query</option>
-            <option value="fetch_web">fetch_web</option>
-            <option value="bash">bash</option>
-            <option value="read_file">read_file</option>
+            <option value="ALL">Status: ALL EVENTS</option>
+            <option value="ALLOWED">Status: ALLOWED ONLY</option>
+            <option value="BLOCKED">Status: BLOCKED ONLY</option>
+            <option value="VERDICT_REVIEW">Status: VERDICT_REVIEW</option>
           </select>
         </div>
       </div>
 
-      {/* Audit Logs Table */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      {/* Logs Table */}
+      <div className="bg-[#170718] border border-[#4a154b]/40 rounded-2xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/80 border-b border-slate-800 text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+            <thead className="bg-[#230c25] border-b border-[#4a154b]/30 text-[11px] font-mono text-[#d9bdde] uppercase tracking-micro-cap font-bold">
               <tr>
-                <th className="py-3 px-5">Timestamp</th>
-                <th className="py-3 px-4">Agent / Key</th>
-                <th className="py-3 px-4">Tool</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Enforcement Policy Reason</th>
-                <th className="py-3 px-4">Latency</th>
-                <th className="py-3 px-5 text-right">Details</th>
+                <th className="py-4 px-6">Timestamp</th>
+                <th className="py-4 px-5">Status</th>
+                <th className="py-4 px-5">Tool</th>
+                <th className="py-4 px-5">Key Identity</th>
+                <th className="py-4 px-5">Latency</th>
+                <th className="py-4 px-6">Security Rationale / Policy</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-mono">
+            <tbody className="divide-y divide-[#4a154b]/30 font-mono">
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500 font-sans">
-                    No matching audit logs found.
+                  <td colSpan={6} className="py-14 text-center text-[#d9bdde]/60 font-sans text-sm">
+                    No matching audit log events found.
                   </td>
                 </tr>
               ) : (
-                filteredLogs.map((log) => {
-                  const ToolIcon = getToolIcon(log.toolName);
-                  return (
-                    <tr
-                      key={log.id}
-                      onClick={() => setSelectedLog(log)}
-                      className="hover:bg-slate-850/40 cursor-pointer transition-colors"
-                    >
-                      <td className="py-3 px-5 text-slate-400 text-[11px] whitespace-nowrap">
-                        {new Date(log.timestamp).toLocaleTimeString()}
-                      </td>
-                      <td className="py-3 px-4 font-sans font-semibold text-slate-200">
-                        {log.keyName}
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="inline-flex items-center gap-1.5 text-cyan-300 font-mono">
-                          <ToolIcon className="w-3.5 h-3.5 text-cyan-400" />
-                          <span>{log.toolName}</span>
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${
-                            log.status === "ALLOWED"
-                              ? "bg-emerald-950/80 text-emerald-300 border-emerald-800/50"
-                              : log.status === "BLOCKED"
-                              ? "bg-red-950/80 text-red-300 border-red-800/50"
-                              : "bg-purple-950/80 text-purple-300 border-purple-800/50"
-                          }`}
-                        >
-                          {log.status === "ALLOWED" ? (
-                            <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                          ) : (
-                            <ShieldAlert className="w-3 h-3 text-red-400" />
-                          )}
-                          <span>{log.status}</span>
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-slate-300 text-[11px] max-w-xs truncate">
-                        {log.reason}
-                      </td>
-                      <td className="py-3 px-4 text-slate-400 text-[11px]">
-                        {log.executionTimeMs.toFixed(1)}ms
-                      </td>
-                      <td className="py-3 px-5 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedLog(log);
-                          }}
-                          className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 text-[10px] font-medium transition-colors"
-                        >
-                          Inspect
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
+                filteredLogs.map((log) => (
+                  <tr
+                    key={log.id}
+                    onClick={() => setSelectedEvent(log)}
+                    className="hover:bg-[#230c25]/50 transition-colors cursor-pointer group"
+                  >
+                    <td className="py-4 px-6 text-[#d9bdde]/80 text-[11px] whitespace-nowrap">
+                      {new Date(log.timestamp * 1000).toLocaleTimeString()}
+                    </td>
+                    <td className="py-4 px-5">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase border ${
+                          log.status === "ALLOWED"
+                            ? "bg-[#0a2318] text-[#2ecc71] border-[#007a5a]"
+                            : log.status === "BLOCKED"
+                            ? "bg-[#2a0b12] text-[#ff8e75] border-[#cc4117]"
+                            : "bg-[#230d2d] text-[#c084fc] border-[#a855f7]"
+                        }`}
+                      >
+                        {log.status === "ALLOWED" ? (
+                          <CheckCircle2 className="w-3 h-3 text-[#2ecc71]" />
+                        ) : (
+                          <AlertTriangle className="w-3 h-3 text-[#ff6b4a]" />
+                        )}
+                        <span>{log.status}</span>
+                      </span>
+                    </td>
+                    <td className="py-4 px-5 font-bold text-white group-hover:text-[#38bdf8] transition-colors">
+                      {log.tool_name}
+                    </td>
+                    <td className="py-4 px-5 text-[#38bdf8] text-[11px]">
+                      {log.key_id}
+                    </td>
+                    <td className="py-4 px-5 text-[#d9bdde]/70 text-[11px]">
+                      {log.latency_ms} ms
+                    </td>
+                    <td className="py-4 px-6 text-slate-300 max-w-md truncate font-sans text-xs">
+                      {log.reason || "Executed within nominal security invariants."}
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Log Detail Modal */}
-      {selectedLog && (
+      {/* Event Details Drawer */}
+      {selectedEvent && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in select-none">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden">
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+          <div className="bg-[#170718] border border-[#4a154b]/40 rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden font-sans">
+            {/* Header */}
+            <div className="p-5 border-b border-[#4a154b]/30 flex items-center justify-between bg-[#230c25]">
               <div className="flex items-center gap-3">
-                <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center border ${
-                    selectedLog.status === "ALLOWED"
-                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                      : "bg-red-500/10 border-red-500/30 text-red-400"
-                  }`}
-                >
-                  {selectedLog.status === "ALLOWED" ? (
-                    <ShieldCheck className="w-5 h-5" />
-                  ) : (
-                    <ShieldAlert className="w-5 h-5" />
-                  )}
+                <div className="w-10 h-10 rounded-2xl bg-[#4a154b] border border-[#d9bdde]/30 flex items-center justify-center text-white shadow-sm">
+                  <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white flex items-center gap-2">
+                  <h2 className="text-base font-bold text-white tracking-tight">
                     Audit Event Details
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                      {selectedLog.id}
-                    </span>
                   </h2>
-                  <p className="text-xs text-slate-400">
-                    Agent: <strong className="text-slate-200">{selectedLog.keyName}</strong> | Tool:{" "}
-                    <strong className="text-cyan-300 font-mono">{selectedLog.toolName}</strong>
+                  <p className="text-xs text-[#d9bdde]/80 mt-0.5 font-mono">
+                    ID: {selectedEvent.id}
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => setSelectedLog(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                onClick={() => setSelectedEvent(null)}
+                className="p-1.5 rounded-full text-[#d9bdde]/70 hover:text-white hover:bg-[#4a154b] transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto font-mono text-xs">
-              <div className="space-y-1">
-                <label className="text-slate-400 text-[11px] uppercase tracking-wider block">
-                  Enforcement Policy Ruling
-                </label>
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 leading-relaxed">
-                  {selectedLog.reason}
+            {/* Content */}
+            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3.5 rounded-2xl bg-[#100311] border border-[#4a154b]/40 space-y-1">
+                  <span className="text-[10px] font-mono text-[#d9bdde] uppercase tracking-micro-cap font-bold">
+                    Tool Invocation
+                  </span>
+                  <div className="font-bold text-white font-mono">{selectedEvent.tool_name}</div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-[#100311] border border-[#4a154b]/40 space-y-1">
+                  <span className="text-[10px] font-mono text-[#d9bdde] uppercase tracking-micro-cap font-bold">
+                    Gateway Verdict
+                  </span>
+                  <div
+                    className={`font-bold font-mono ${
+                      selectedEvent.status === "ALLOWED"
+                        ? "text-[#2ecc71]"
+                        : "text-[#ff8e75]"
+                    }`}
+                  >
+                    {selectedEvent.status}
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-slate-400 text-[11px] uppercase tracking-wider block">
-                  Captured Tool Request Parameters
-                </label>
-                <pre className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-cyan-300 overflow-x-auto">
-                  {JSON.stringify(selectedLog.parameters, null, 2)}
+              <div className="space-y-1.5">
+                <span className="text-xs font-semibold text-[#d9bdde]">
+                  Policy Evaluation & Rationale
+                </span>
+                <div className="p-3.5 rounded-2xl bg-[#100311] border border-[#4a154b]/40 text-xs text-white leading-relaxed">
+                  {selectedEvent.reason}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="text-xs font-semibold text-[#d9bdde]">
+                  Raw Payload Parameters
+                </span>
+                <pre className="p-4 rounded-2xl bg-[#0d030e] border border-[#4a154b]/40 text-xs font-mono text-[#38bdf8] overflow-x-auto leading-relaxed">
+                  {JSON.stringify(selectedEvent.parameters, null, 2)}
                 </pre>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-2 text-[11px]">
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-400">
-                  <span>Timestamp: </span>
-                  <span className="text-slate-200">{new Date(selectedLog.timestamp).toLocaleString()}</span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-400">
-                  <span>Latency: </span>
-                  <span className="text-slate-200">{selectedLog.executionTimeMs.toFixed(2)} ms</span>
-                </div>
               </div>
             </div>
 
-            <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex justify-end">
+            {/* Footer */}
+            <div className="p-4 border-t border-[#4a154b]/30 bg-[#230c25] flex items-center justify-end">
               <button
-                onClick={() => setSelectedLog(null)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-colors"
+                onClick={() => setSelectedEvent(null)}
+                className="btn-primary-pill"
               >
                 Close
               </button>

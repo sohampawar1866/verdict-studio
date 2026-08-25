@@ -89,15 +89,15 @@ export default function Canvas({
           snapGrid={[15, 15]}
           defaultEdgeOptions={{
             animated: true,
-            style: { stroke: "#0ea5e9", strokeWidth: 2 },
+            style: { stroke: "#1264a3", strokeWidth: 2.5 },
           }}
         >
           <Background
             variant={BackgroundVariant.Dots}
-            gap={20}
+            gap={22}
             size={1.5}
-            color="#1e293b"
-            className="bg-slate-950"
+            color="#3b153d"
+            className="bg-[#0e040f]"
           />
           <Controls position="bottom-left" />
           <MiniMap
@@ -105,11 +105,11 @@ export default function Canvas({
             nodeColor={(node) => {
               switch (node.type) {
                 case "input":
-                  return "#3b82f6";
+                  return "#1264a3";
                 case "prosecutor":
-                  return "#ef4444";
+                  return "#cc4117";
                 case "defense":
-                  return "#10b981";
+                  return "#007a5a";
                 case "factchecker":
                   return "#38bdf8";
                 case "chiefjustice":
@@ -117,11 +117,11 @@ export default function Canvas({
                 case "cot":
                   return "#a855f7";
                 default:
-                  return "#64748b";
+                  return "#d9bdde";
               }
             }}
-            maskColor="rgba(2, 6, 23, 0.8)"
-            className="!bg-slate-900 !border !border-slate-800 !rounded-xl !overflow-hidden"
+            maskColor="rgba(14, 4, 15, 0.85)"
+            className="!bg-[#1a071b] !border !border-[#4a154b]/50 !rounded-2xl !overflow-hidden"
           />
         </ReactFlow>
       </ReactFlowProvider>

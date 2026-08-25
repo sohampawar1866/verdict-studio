@@ -1,26 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Copy, Check, Terminal, Shield, Laptop } from "lucide-react";
+import { X, Copy, Check, Terminal, Laptop, Code2 } from "lucide-react";
 import { MCPKey } from "@/lib/types";
 
 interface ConfigSnippetModalProps {
-  keyRecord: MCPKey | null;
+  keyData: MCPKey | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export default function ConfigSnippetModal({
-  keyRecord,
+  keyData,
   isOpen,
   onClose,
 }: ConfigSnippetModalProps) {
-  const [copiedTab, setCopiedTab] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"claude" | "cursor" | "devin">("claude");
 
-  if (!isOpen || !keyRecord) return null;
+  if (!isOpen || !keyData) return null;
 
-  const keyToUse = keyRecord.rawKey || `${keyRecord.keyPrefix}...[SECRET]`;
+  const keyToUse = keyData.rawKey || `${keyData.keyPrefix}...[SECRET]`;
 
   const claudeConfig = {
     mcpServers: {
@@ -41,137 +41,134 @@ export default function ConfigSnippetModal({
   const cursorConfig = {
     mcpServers: {
       "haize-sentinel": {
-        type: "command",
-        command: `npx -y @haizelabs/sentinel-mcp --key ${keyToUse} --backend-url http://localhost:8000`,
+        command: "node",
+        args: [
+          "/path/to/verdict_studio/mcp-gateway/dist/index.js",
+          "--key",
+          keyToUse,
+        ],
+        env: {
+          HAIZE_BACKEND_URL: "http://localhost:8000",
+        },
       },
     },
   };
 
-  const devinConfig = {
-    agentGovernance: {
-      provider: "haize-sentinel-mcp",
-      apiKey: keyToUse,
-      gatewayEndpoint: "http://localhost:8000/api/mcp/execute-tool",
-      sqlGuardrails: keyRecord.sqlReadOnly ? "STRICT_READ_ONLY" : "CUSTOM",
-      inlineVerdictDebate: keyRecord.enforceVerdictEval ? "ENABLED" : "DISABLED",
-    },
-  };
+  const devinSnippet = `# Run in Devin Shell / Custom Agent Environment
+export HAIZE_MCP_KEY="${keyToUse}"
+export HAIZE_BACKEND_URL="http://localhost:8000"
 
-  const getActiveCode = () => {
-    switch (activeTab) {
-      case "claude":
-        return JSON.stringify(claudeConfig, null, 2);
-      case "cursor":
-        return JSON.stringify(cursorConfig, null, 2);
-      case "devin":
-        return JSON.stringify(devinConfig, null, 2);
-    }
-  };
+# Launch Sentinel Gateway
+npx -y @haizelabs/sentinel-mcp --key $HAIZE_MCP_KEY
+`;
+
+  const currentSnippet =
+    activeTab === "claude"
+      ? JSON.stringify(claudeConfig, null, 2)
+      : activeTab === "cursor"
+      ? JSON.stringify(cursorConfig, null, 2)
+      : devinSnippet;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(getActiveCode());
-    setCopiedTab(activeTab);
-    setTimeout(() => setCopiedTab(null), 2000);
+    navigator.clipboard.writeText(currentSnippet);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in select-none">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-[#170718] border border-[#4a154b]/40 rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden font-sans">
         {/* Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div className="p-5 border-b border-[#4a154b]/30 flex items-center justify-between bg-[#230c25]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <div className="w-10 h-10 rounded-2xl bg-[#4a154b] border border-[#d9bdde]/30 flex items-center justify-center text-white shadow-sm">
               <Laptop className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                1-Click Agent Configuration
+              <h2 className="text-base font-bold text-white tracking-tight">
+                Agent Integration Snippets
               </h2>
-              <p className="text-xs text-slate-400">
-                Configure Claude Desktop, Cursor IDE, or Devin with key: <strong className="text-slate-200">{keyRecord.name}</strong>
+              <p className="text-xs text-[#d9bdde]/80 mt-0.5">
+                Target configuration for <strong className="text-white">{keyData.name}</strong>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-full text-[#d9bdde]/70 hover:text-white hover:bg-[#4a154b] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex border-b border-slate-800 px-5 pt-3 bg-slate-950/40 gap-4 text-xs font-mono">
+        {/* Tab Selection */}
+        <div className="flex items-center gap-2 p-3 bg-[#1e0a20] border-b border-[#4a154b]/30">
           <button
             onClick={() => setActiveTab("claude")}
-            className={`pb-2.5 font-bold transition-all border-b-2 ${
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
               activeTab === "claude"
-                ? "border-cyan-400 text-cyan-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "bg-[#4a154b] text-white shadow-sm border border-[#d9bdde]/30"
+                : "text-[#d9bdde]/70 hover:text-white hover:bg-[#2e1030]"
             }`}
           >
             Claude Desktop
           </button>
           <button
             onClick={() => setActiveTab("cursor")}
-            className={`pb-2.5 font-bold transition-all border-b-2 ${
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
               activeTab === "cursor"
-                ? "border-cyan-400 text-cyan-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "bg-[#4a154b] text-white shadow-sm border border-[#d9bdde]/30"
+                : "text-[#d9bdde]/70 hover:text-white hover:bg-[#2e1030]"
             }`}
           >
-            Cursor IDE (.cursor/mcp.json)
+            Cursor IDE
           </button>
           <button
             onClick={() => setActiveTab("devin")}
-            className={`pb-2.5 font-bold transition-all border-b-2 ${
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
               activeTab === "devin"
-                ? "border-cyan-400 text-cyan-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "bg-[#4a154b] text-white shadow-sm border border-[#d9bdde]/30"
+                : "text-[#d9bdde]/70 hover:text-white hover:bg-[#2e1030]"
             }`}
           >
-            Devin Agent
+            Devin / Bash
           </button>
         </div>
 
-        {/* Code Content */}
-        <div className="p-5 space-y-3 bg-slate-950">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
+        {/* Code Snippet */}
+        <div className="p-5 space-y-4">
+          <div className="text-[11px] text-[#d9bdde] flex items-center justify-between">
             <span>
-              {activeTab === "claude"
-                ? "~/Library/Application Support/Claude/claude_desktop_config.json"
-                : activeTab === "cursor"
-                ? ".cursor/mcp.json"
-                : "devin.config.json"}
+              Paste into{" "}
+              <code className="text-[#38bdf8] font-mono font-semibold">
+                {activeTab === "claude"
+                  ? "claude_desktop_config.json"
+                  : activeTab === "cursor"
+                  ? ".cursor/mcp.json"
+                  : "Environment Variables"}
+              </code>
             </span>
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 text-xs font-semibold transition-colors"
+              className="text-[11px] text-[#38bdf8] hover:underline font-mono flex items-center gap-1 font-semibold"
             >
-              {copiedTab === activeTab ? (
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-              ) : (
-                <Copy className="w-3.5 h-3.5" />
-              )}
-              <span>{copiedTab === activeTab ? "Copied!" : "Copy Snippet"}</span>
+              {copied ? <Check className="w-3.5 h-3.5 text-[#2ecc71]" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? "Copied!" : "Copy Configuration"}</span>
             </button>
           </div>
 
-          <pre className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto leading-relaxed">
-            <code>{getActiveCode()}</code>
+          <pre className="p-4 rounded-2xl bg-[#0d030e] border border-[#4a154b]/40 text-xs font-mono text-slate-200 overflow-x-auto leading-relaxed max-h-64">
+            <code>{currentSnippet}</code>
           </pre>
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
-          <span className="text-xs text-slate-500 font-mono">
-            Haize Sentinel automatically proxies tools & validates AST SQL invariants.
-          </span>
+        <div className="p-4 border-t border-[#4a154b]/30 bg-[#230c25] flex items-center justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-colors"
+            className="btn-primary-pill"
           >
-            Close
+            Done
           </button>
         </div>
       </div>

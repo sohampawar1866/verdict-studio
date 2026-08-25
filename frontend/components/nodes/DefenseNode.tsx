@@ -11,59 +11,59 @@ function DefenseNodeComponent({ data, selected }: NodeProps) {
 
   return (
     <div
-      className={`w-72 rounded-xl bg-slate-900/95 border transition-all shadow-xl backdrop-blur relative ${
+      className={`w-72 rounded-2xl bg-[#1e0d20] border transition-all shadow-xl backdrop-blur relative select-none ${
         selected
-          ? "border-emerald-500 ring-2 ring-emerald-500/30 shadow-emerald-500/20"
-          : "border-slate-800 hover:border-slate-700"
-      } ${isExecuting ? "border-emerald-400 animate-pulse shadow-lg shadow-emerald-500/30" : ""}`}
+          ? "border-[#007a5a] ring-2 ring-[#007a5a]/40 shadow-[#007a5a]/20"
+          : "border-[#4a154b]/40 hover:border-[#007a5a]/50"
+      } ${isExecuting ? "border-[#007a5a] animate-pulse shadow-lg shadow-[#007a5a]/30" : ""}`}
     >
       {/* Target Handle */}
       <Handle
         type="target"
         position={Position.Top}
-        className="!w-3 !h-3 !bg-emerald-400 !border-2 !border-slate-950 hover:!scale-125 transition-transform"
+        className="!w-3.5 !h-3.5 !bg-[#007a5a] !border-2 !border-white hover:!scale-125 transition-transform"
       />
 
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-950/80 border-b border-slate-800/80 rounded-t-xl">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+      <div className="flex items-center justify-between px-4 py-3 bg-[#2a102d] border-b border-[#4a154b]/40 rounded-t-2xl">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-xl bg-[#007a5a]/20 border border-[#007a5a]/40 flex items-center justify-center text-[#2ecc71] shadow-sm">
             <ShieldCheck className="w-3.5 h-3.5" />
           </div>
           <div>
-            <span className="text-xs font-bold text-slate-200">
+            <span className="text-xs font-bold text-white tracking-tight block">
               {nodeData.name || "DefenseUnit"}
             </span>
-            <span className="text-[10px] text-slate-500 block font-mono">Constructive Counsel</span>
+            <span className="text-[10px] text-[#d9bdde]/80 block font-mono">Constructive Counsel</span>
           </div>
         </div>
-        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-800/40">
+        <span className="text-[10px] font-bold tracking-wider uppercase font-mono px-2 py-0.5 rounded-full bg-[#007a5a]/20 text-[#2ecc71] border border-[#007a5a]/30">
           Unit
         </span>
       </div>
 
       {/* Node Body */}
-      <div className="p-3 space-y-2">
+      <div className="p-3.5 space-y-2.5">
         {/* Model Badge */}
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-slate-400 flex items-center gap-1.5">
-            <Cpu className="w-3 h-3 text-emerald-400" />
-            <span className="font-mono">{nodeData.model || "gpt-4o"}</span>
+          <span className="text-[#d9bdde] flex items-center gap-1.5 font-mono">
+            <Cpu className="w-3 h-3 text-[#2ecc71]" />
+            <span>{nodeData.model || "gpt-4o"}</span>
           </span>
-          <span className="text-[10px] font-mono text-slate-500">
+          <span className="text-[10px] font-mono text-[#d9bdde]/60">
             T={nodeData.temperature !== undefined ? nodeData.temperature : 0.7}
           </span>
         </div>
 
         {/* Prompt Preview */}
-        <div className="bg-slate-950/90 rounded-lg p-2 border border-slate-800/80 text-[11px] font-mono text-slate-300 line-clamp-2 leading-relaxed">
-          {nodeData.prompt || "Defend the safety, utility, and factual merits of the candidate response..."}
+        <div className="bg-[#120613] rounded-xl p-2.5 border border-[#4a154b]/40 text-[11px] font-mono text-slate-300 line-clamp-2 leading-relaxed">
+          {nodeData.prompt || "Defend candidate payload merits, normal business intent, and utility..."}
         </div>
 
-        {/* Live Streaming Token Preview */}
+        {/* Live Streaming Token Preview if active */}
         {nodeData.streamingTokens && (
-          <div className="p-2 rounded bg-emerald-950/30 border border-emerald-800/40 text-[10px] font-mono text-emerald-300 animate-fade-in">
-            <span className="flex items-center gap-1 text-emerald-400 font-bold mb-0.5">
+          <div className="p-2.5 rounded-xl bg-[#0a2318] border border-[#007a5a]/40 text-[10px] font-mono text-[#2ecc71] animate-fade-in">
+            <span className="flex items-center gap-1 text-[#2ecc71] font-bold mb-0.5">
               <Sparkles className="w-2.5 h-2.5 animate-spin" />
               Defending:
             </span>
@@ -76,7 +76,7 @@ function DefenseNodeComponent({ data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Bottom}
-        className="!w-3 !h-3 !bg-emerald-400 !border-2 !border-slate-950 hover:!scale-125 transition-transform"
+        className="!w-3.5 !h-3.5 !bg-[#007a5a] !border-2 !border-white hover:!scale-125 transition-transform"
       />
     </div>
   );

@@ -25,10 +25,10 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
         {
           type: "input" as VerdictNodeType,
           name: "Input Schema",
-          desc: "Source query, document & claim variables",
+          desc: "Source query & variables",
           icon: FileInput,
-          border: "border-blue-500/30 hover:border-blue-400",
-          iconColor: "text-blue-400 bg-blue-500/10",
+          border: "border-[#1264a3]/40 hover:border-[#1264a3]",
+          iconColor: "text-[#38bdf8] bg-[#1264a3]/20",
         },
       ],
     },
@@ -38,34 +38,34 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
         {
           type: "prosecutor" as VerdictNodeType,
           name: "Prosecutor Unit",
-          desc: "Adversarial critique & risk finder",
+          desc: "Adversarial critique",
           icon: ShieldAlert,
-          border: "border-red-500/30 hover:border-red-400",
-          iconColor: "text-red-400 bg-red-500/10",
+          border: "border-[#cc4117]/40 hover:border-[#cc4117]",
+          iconColor: "text-[#ff8e75] bg-[#cc4117]/20",
         },
         {
           type: "defense" as VerdictNodeType,
           name: "Defense Unit",
-          desc: "Constructive defense & merit advocate",
+          desc: "Constructive counsel",
           icon: ShieldCheck,
-          border: "border-emerald-500/30 hover:border-emerald-400",
-          iconColor: "text-emerald-400 bg-emerald-500/10",
+          border: "border-[#007a5a]/40 hover:border-[#007a5a]",
+          iconColor: "text-[#2ecc71] bg-[#007a5a]/20",
         },
         {
           type: "factchecker" as VerdictNodeType,
           name: "Fact Checker Unit",
-          desc: "Empirical claim & context verifier",
+          desc: "Empirical claim verifier",
           icon: SearchCheck,
-          border: "border-sky-500/30 hover:border-sky-400",
-          iconColor: "text-sky-400 bg-sky-500/10",
+          border: "border-[#1264a3]/40 hover:border-[#1264a3]",
+          iconColor: "text-[#38bdf8] bg-[#1264a3]/20",
         },
         {
           type: "chiefjustice" as VerdictNodeType,
           name: "Chief Justice",
-          desc: "Adjudicator & final verdict extractor",
+          desc: "Adjudicator & final ruling",
           icon: Gavel,
-          border: "border-amber-500/30 hover:border-amber-400",
-          iconColor: "text-amber-400 bg-amber-500/10",
+          border: "border-[#f59e0b]/40 hover:border-[#f59e0b]",
+          iconColor: "text-[#f59e0b] bg-[#f59e0b]/20",
         },
       ],
     },
@@ -75,18 +75,18 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
         {
           type: "cot" as VerdictNodeType,
           name: "CoT Unit",
-          desc: "Step-by-step thinking scratchpad",
+          desc: "Step-by-step thinking",
           icon: Brain,
-          border: "border-purple-500/30 hover:border-purple-400",
-          iconColor: "text-purple-400 bg-purple-500/10",
+          border: "border-[#a855f7]/40 hover:border-[#a855f7]",
+          iconColor: "text-[#c084fc] bg-[#a855f7]/20",
         },
         {
           type: "aggregator" as VerdictNodeType,
           name: "MaxPool (Majority)",
-          desc: "Majority voting / mode aggregation",
+          desc: "Majority vote aggregator",
           icon: Combine,
-          border: "border-slate-600 hover:border-slate-400",
-          iconColor: "text-slate-300 bg-slate-800",
+          border: "border-[#d9bdde]/40 hover:border-[#d9bdde]",
+          iconColor: "text-[#d9bdde] bg-[#4a154b]/40",
         },
       ],
     },
@@ -98,20 +98,20 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
   };
 
   return (
-    <div className="w-64 bg-slate-900/90 border-r border-slate-800 flex flex-col h-full overflow-y-auto select-none p-4 space-y-5">
+    <div className="w-64 bg-[#140615] border-r border-[#4a154b]/30 flex flex-col h-full overflow-y-auto select-none p-4 space-y-5">
       <div>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
+        <h3 className="text-xs font-bold uppercase tracking-micro-cap text-[#d9bdde] font-mono">
           Verdict Node Palette
         </h3>
-        <p className="text-[11px] text-slate-500 mt-0.5">
-          Drag nodes to canvas or click + to add
+        <p className="text-[11px] text-[#d9bdde]/60 mt-0.5">
+          Drag nodes to canvas or click to add
         </p>
       </div>
 
       <div className="space-y-4">
         {categories.map((cat, idx) => (
           <div key={idx} className="space-y-2">
-            <span className="text-[10px] font-mono tracking-wider text-slate-400 uppercase">
+            <span className="text-[10px] font-mono tracking-micro-cap text-[#d9bdde]/50 uppercase font-bold">
               {cat.title}
             </span>
             <div className="space-y-2">
@@ -123,26 +123,26 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
                     draggable
                     onDragStart={(e) => handleDragStart(e, node.type)}
                     onClick={() => onAddNode && onAddNode(node.type)}
-                    className={`p-2.5 rounded-xl bg-slate-950/80 border ${node.border} cursor-grab active:cursor-grabbing hover:bg-slate-900 transition-all group flex items-center justify-between shadow-sm`}
+                    className={`p-2.5 rounded-2xl bg-[#1d0a1f] border ${node.border} cursor-grab active:cursor-grabbing hover:bg-[#280e2a] transition-all group flex items-center justify-between shadow-sm`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${node.iconColor}`}
+                        className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 ${node.iconColor}`}
                       >
                         <Icon className="w-3.5 h-3.5" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs font-bold text-slate-200 truncate group-hover:text-white">
+                        <div className="text-xs font-bold text-white truncate group-hover:text-[#d9bdde]">
                           {node.name}
                         </div>
-                        <div className="text-[10px] text-slate-500 truncate">
+                        <div className="text-[10px] text-[#d9bdde]/60 truncate">
                           {node.desc}
                         </div>
                       </div>
                     </div>
                     <button
                       type="button"
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#4a154b] rounded-full text-[#d9bdde] hover:text-white transition-all"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>

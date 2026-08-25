@@ -3,69 +3,154 @@
 @tailwind utilities;
 
 :root {
-  --background: #020617; /* slate-950 */
-  --foreground: #f8fafc; /* slate-50 */
-  --card: #0f172a;       /* slate-900 */
-  --card-foreground: #f8fafc;
-  --border: #1e293b;     /* slate-800 */
+  --background: #0f0511; /* Dark Aubergine / Charcoal Base */
+  --foreground: #fcfaff;
+  --card: #1c0b1e;
+  --card-foreground: #fcfaff;
+  --border: rgba(217, 189, 222, 0.15);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
-/* Custom Scrollbar for Terminals and Canvas */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: #0c040d;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 3px;
+  background: #2b112d;
+  border-radius: 90px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #4a154b;
 }
 
-/* React Flow Canvas custom glow & dark background */
+/* ==========================================================================
+   REACT FLOW CANVAS OVERRIDES — Eliminates unstyled white box artifact
+   ========================================================================== */
+.react-flow__node,
+.react-flow__node-input,
+.react-flow__node-default,
+.react-flow__node-output,
+.react-flow__node-group {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+}
+
 .react-flow__pane {
-  background: #020617 !important;
+  background: radial-gradient(circle at 50% 50%, #150717 0%, #0b030c 100%) !important;
 }
 
 .react-flow__edge-path {
-  stroke: #0ea5e9 !important;
-  stroke-width: 2 !important;
+  stroke: #1264a3 !important; /* link-blue from DESIGN.md */
+  stroke-width: 2.2 !important;
 }
 
 .react-flow__handle {
   width: 10px !important;
   height: 10px !important;
   border-radius: 50% !important;
-  background: #22d3ee !important;
-  border: 2px solid #0f172a !important;
+  background: #1264a3 !important;
+  border: 2px solid #ffffff !important;
 }
 
 .react-flow__controls {
-  background: #0f172a !important;
-  border: 1px solid #1e293b !important;
-  border-radius: 8px !important;
+  background: #1c0b1e !important;
+  border: 1px solid rgba(217, 189, 222, 0.2) !important;
+  border-radius: 90px !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
 }
 
 .react-flow__controls-button {
-  background: #0f172a !important;
-  border-bottom: 1px solid #1e293b !important;
-  fill: #94a3b8 !important;
+  background: #1c0b1e !important;
+  border-bottom: 1px solid rgba(217, 189, 222, 0.15) !important;
+  fill: #d9bdde !important;
 }
 
 .react-flow__controls-button:hover {
-  background: #1e293b !important;
-  fill: #38bdf8 !important;
+  background: #4a154b !important;
+  fill: #ffffff !important;
+}
+
+/* ==========================================================================
+   SIGNATURE DESIGN SYSTEM UTILITIES (DESIGN.md)
+   ========================================================================== */
+.bg-pastel-mesh {
+  background-color: #0f0511;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(74, 21, 75, 0.45) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(18, 100, 163, 0.25) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(97, 31, 105, 0.3) 0px, transparent 50%);
+}
+
+.bg-pastel-mesh-light {
+  background-color: #fdfaf7;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(244, 237, 228, 0.8) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(249, 240, 255, 0.9) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(230, 242, 255, 0.6) 0px, transparent 50%);
+}
+
+.btn-primary-pill {
+  background-color: #4a154b;
+  color: #ffffff;
+  border-radius: 90px;
+  padding: 12px 28px;
+  font-weight: 700;
+  font-size: 14.5px;
+  line-height: 1.38;
+  letter-spacing: 0.15px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px 0 rgba(74, 21, 75, 0.4);
+}
+
+.btn-primary-pill:hover {
+  background-color: #611f69;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(97, 31, 105, 0.5);
+}
+
+.btn-secondary-pill {
+  background-color: rgba(249, 240, 255, 0.12);
+  color: #fcfaff;
+  border: 1px solid rgba(217, 189, 222, 0.25);
+  border-radius: 90px;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-secondary-pill:hover {
+  background-color: rgba(249, 240, 255, 0.2);
+  border-color: rgba(217, 189, 222, 0.4);
+}
+
+.pill-eyebrow {
+  background-color: rgba(217, 189, 222, 0.12);
+  color: #d9bdde;
+  border: 1px solid rgba(217, 189, 222, 0.2);
+  border-radius: 90px;
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.96px;
+  text-transform: uppercase;
 }

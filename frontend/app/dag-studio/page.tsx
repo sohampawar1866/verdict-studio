@@ -27,7 +27,6 @@ import {
   Sparkles,
   Code2,
   Check,
-  RotateCcw,
 } from "lucide-react";
 
 const SIMULATED_DIALOGUES: Record<string, string> = {
@@ -301,7 +300,6 @@ export default function DAGStudioPage() {
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 2500);
       } else {
-        // Fallback local save indication
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 2500);
       }
@@ -311,7 +309,6 @@ export default function DAGStudioPage() {
     }
   };
 
-  // Run Local Fallback Debate Stream (guarantees 100% reliable simulation even if backend is offline)
   const runLocalFallbackSimulation = async () => {
     setIsOfflineMode(true);
     const nonInputNodes = nodes.filter((n) => n.type !== "input");
@@ -323,7 +320,6 @@ export default function DAGStudioPage() {
         SIMULATED_DIALOGUES[nodeType] ||
         `Evaluated arguments for ${unitName} with verified model consensus.`;
 
-      // Activate node
       setNodes((nds) =>
         nds.map((n) =>
           n.id === node.id
@@ -345,7 +341,6 @@ export default function DAGStudioPage() {
         },
       ]);
 
-      // Stream tokens
       const words = dialogueText.split(" ");
       let accumulated = "";
       for (let i = 0; i < words.length; i += 3) {
@@ -401,14 +396,12 @@ export default function DAGStudioPage() {
     setIsExecuting(false);
   };
 
-  // Run Debate Pipeline Simulation (Backend first, graceful local fallback)
   const handleRunDebate = async () => {
     setIsExecuting(true);
     setIsConsoleOpen(true);
     setDebateMessages([]);
     setFinalVerdict(null);
 
-    // Reset node execution states
     setNodes((nds) =>
       nds.map((n) => ({
         ...n,
@@ -448,7 +441,6 @@ export default function DAGStudioPage() {
         throw new Error("Backend response error");
       }
     } catch {
-      // Graceful local client fallback
       runLocalFallbackSimulation();
     }
   };
@@ -465,64 +457,66 @@ export default function DAGStudioPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-slate-950 text-slate-100">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#0c030d] text-[#fcfaff] font-sans">
       {/* Top Toolbar */}
-      <header className="h-14 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-5 flex items-center justify-between z-20 select-none">
+      <header className="h-16 bg-[#160617] border-b border-[#4a154b]/30 px-6 flex items-center justify-between z-20 select-none">
         {/* Title & Preset Dropdown */}
         <div className="flex items-center gap-4">
           <input
             type="text"
             value={dagTitle}
             onChange={(e) => setDagTitle(e.target.value)}
-            className="bg-transparent font-bold text-sm text-white hover:bg-slate-800/50 px-2 py-1 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 font-mono tracking-tight"
+            className="bg-transparent font-bold text-sm text-white hover:bg-[#280c2a] px-3 py-1.5 rounded-full focus:outline-none focus:ring-2 focus:ring-[#4a154b] font-sans tracking-tight border border-transparent hover:border-[#d9bdde]/20 transition-all"
           />
 
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1">
-            <Layers className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="flex items-center gap-2 text-xs text-[#d9bdde] bg-[#230c25] border border-[#4a154b]/40 rounded-full px-3.5 py-1.5 shadow-sm">
+            <Layers className="w-3.5 h-3.5 text-[#d9bdde]" />
             <select
               onChange={(e) => handleLoadPreset(e.target.value)}
               defaultValue="adversarial_safety"
-              className="bg-transparent text-slate-200 text-xs focus:outline-none cursor-pointer"
+              className="bg-transparent text-white text-xs focus:outline-none cursor-pointer font-medium"
             >
-              <option value="adversarial_safety">Preset: Adversarial Safety Court</option>
-              <option value="geval_coherence">Preset: G-Eval Coherence</option>
-              <option value="ensemble_verify">Preset: Ensemble Verification</option>
+              <option value="adversarial_safety" className="bg-[#170718] text-white">Preset: Adversarial Safety Court</option>
+              <option value="geval_coherence" className="bg-[#170718] text-white">Preset: G-Eval Coherence</option>
+              <option value="ensemble_verify" className="bg-[#170718] text-white">Preset: Ensemble Verification</option>
             </select>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <button
             onClick={handleRunDebate}
             disabled={isExecuting}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-50"
+            className="btn-primary-pill flex items-center gap-2"
           >
             {isExecuting ? (
-              <Sparkles className="w-3.5 h-3.5 animate-spin" />
+              <Sparkles className="w-4 h-4 animate-spin" />
             ) : (
-              <Play className="w-3.5 h-3.5 fill-current" />
+              <Play className="w-4 h-4 fill-current" />
             )}
             <span>{isExecuting ? "Debating..." : "Run Debate Simulation"}</span>
           </button>
 
           <button
             onClick={() => setIsCodeModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition-colors"
+            className="btn-secondary-pill flex items-center gap-2"
           >
-            <Code2 className="w-3.5 h-3.5 text-cyan-400" />
+            <Code2 className="w-4 h-4 text-[#d9bdde]" />
             <span>Export Python</span>
           </button>
+
+          <div className="h-6 w-px bg-[#4a154b]/30" />
 
           <button
             onClick={handleClearCanvas}
             title="Clear canvas"
-            className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white transition-colors"
           >
             <Trash className="w-4 h-4" />
           </button>
 
-          <label className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-white cursor-pointer transition-colors">
+          <label className="p-2 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white cursor-pointer transition-colors">
             <Upload className="w-4 h-4" />
             <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
           </label>
@@ -530,20 +524,20 @@ export default function DAGStudioPage() {
           <button
             onClick={handleExportJSON}
             title="Export DAG as JSON"
-            className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-full bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-[#d9bdde]/70 hover:text-white transition-colors"
           >
             <Download className="w-4 h-4" />
           </button>
 
           <button
             onClick={handleSaveDAG}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all ${
               isSaved
-                ? "bg-emerald-600 text-white"
-                : "bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white"
+                ? "bg-[#007a5a] text-white shadow-md shadow-[#007a5a]/30"
+                : "bg-[#230c25] hover:bg-[#3d1440] border border-[#4a154b]/40 text-white"
             }`}
           >
-            {isSaved ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5 text-cyan-400" />}
+            {isSaved ? <Check className="w-4 h-4 text-[#2ecc71]" /> : <Save className="w-4 h-4 text-[#d9bdde]" />}
             <span>{isSaved ? "Saved!" : "Save"}</span>
           </button>
         </div>
@@ -553,8 +547,8 @@ export default function DAGStudioPage() {
       <div className="flex-1 flex overflow-hidden relative">
         <NodePalette onAddNode={(type) => handleAddNode(type)} />
 
-        <div className="flex-1 h-full flex flex-col relative">
-          <div className="flex-1 h-full relative">
+        <div className="flex-1 h-full flex flex-col relative min-h-0">
+          <div className="flex-1 h-full relative min-h-0 w-full">
             <Canvas
               nodes={nodes}
               edges={edges}

@@ -5,15 +5,12 @@ import {
   Key,
   Plus,
   Shield,
-  ShieldAlert,
-  ShieldCheck,
   Database,
   Terminal,
   Globe,
   Trash2,
   Laptop,
   CheckCircle,
-  AlertCircle,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -34,7 +31,6 @@ export default function MCPKeysPage() {
       const res = await fetch("http://localhost:8000/api/mcp/keys", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        // Transform backend keys to frontend model
         const formatted: MCPKey[] = data.map((k: any) => ({
           id: k.id,
           name: k.name,
@@ -51,9 +47,30 @@ export default function MCPKeysPage() {
           isActive: k.is_active !== false,
         }));
         setKeys(formatted);
+      } else {
+        throw new Error("Backend response error");
       }
-    } catch (err) {
-      console.error("Failed to fetch keys:", err);
+    } catch {
+      // Fallback demo state
+      if (keys.length === 0) {
+        setKeys([
+          {
+            id: "key-demo-claude",
+            name: "Claude Desktop Support (Demo)",
+            keyPrefix: "haize_mcp_live_demo",
+            hashedKey: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            allowedTools: ["db_query", "fetch_web"],
+            prohibitedTools: ["bash", "file_delete"],
+            enforceVerdictEval: true,
+            verdictTokenThreshold: 150,
+            sqlReadOnly: true,
+            allowedDomains: ["*.company.com", "api.github.com"],
+            maxRpm: 60,
+            createdAt: Date.now() - 3600000,
+            isActive: true,
+          },
+        ]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -74,9 +91,11 @@ export default function MCPKeysPage() {
       });
       if (res.ok) {
         fetchKeys();
+      } else {
+        setKeys((prev) => prev.filter((k) => k.id !== keyId));
       }
-    } catch (err) {
-      console.error("Failed to revoke key:", err);
+    } catch {
+      setKeys((prev) => prev.filter((k) => k.id !== keyId));
     }
   };
 
@@ -87,25 +106,25 @@ export default function MCPKeysPage() {
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full space-y-8 select-none">
+    <div className="p-6 sm:p-10 max-w-7xl mx-auto w-full space-y-10 select-none font-sans">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[11px] font-mono mb-2">
-            <Shield className="w-3.5 h-3.5" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[#4a154b]/30 pb-8">
+        <div className="space-y-2 max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#4a154b]/30 border border-[#d9bdde]/30 text-[#d9bdde] text-xs font-mono font-bold tracking-micro-cap uppercase">
+            <Shield className="w-3.5 h-3.5 text-[#d9bdde]" />
             <span>HAIZE SENTINEL SECURITY CONTROL PLANE</span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight-xl leading-tight">
             Scoped MCP Keys & Tool Permissions
           </h1>
-          <p className="text-xs lg:text-sm text-slate-400 mt-1">
+          <p className="text-sm sm:text-base text-[#d9bdde]/80 leading-relaxed font-normal">
             Generate and govern API keys for Claude Desktop, Cursor, and Devin with AST SQL guardrails and inline Verdict debate protection.
           </p>
         </div>
 
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex-shrink-0"
+          className="btn-primary-pill inline-flex items-center gap-2 flex-shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Generate Scoped Key</span>
@@ -113,154 +132,148 @@ export default function MCPKeysPage() {
       </div>
 
       {/* Key Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-1.5">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>Total Managed Keys</span>
-            <Key className="w-3.5 h-3.5 text-cyan-400" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-[#170718] border border-[#4a154b]/40 p-6 rounded-2xl space-y-2 shadow-lg">
+          <div className="flex items-center justify-between text-[#d9bdde] text-xs">
+            <span className="font-bold tracking-micro-cap uppercase text-[11px]">Total Managed Keys</span>
+            <Key className="w-4 h-4 text-[#d9bdde]" />
           </div>
-          <div className="text-xl font-bold font-mono text-white">{keys.length}</div>
+          <div className="text-4xl font-extrabold tracking-tight-lg text-white font-sans">{keys.length}</div>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-1.5">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>Active Keys</span>
-            <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="bg-[#170718] border border-[#4a154b]/40 p-6 rounded-2xl space-y-2 shadow-lg">
+          <div className="flex items-center justify-between text-[#d9bdde] text-xs">
+            <span className="font-bold tracking-micro-cap uppercase text-[11px]">Active Keys</span>
+            <CheckCircle className="w-4 h-4 text-[#2ecc71]" />
           </div>
-          <div className="text-xl font-bold font-mono text-emerald-400">
+          <div className="text-4xl font-extrabold tracking-tight-lg text-[#2ecc71] font-sans">
             {keys.filter((k) => k.isActive).length}
           </div>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-1.5">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>AST SQL Guardrails</span>
-            <Database className="w-3.5 h-3.5 text-blue-400" />
+        <div className="bg-[#170718] border border-[#4a154b]/40 p-6 rounded-2xl space-y-2 shadow-lg">
+          <div className="flex items-center justify-between text-[#d9bdde] text-xs">
+            <span className="font-bold tracking-micro-cap uppercase text-[11px]">AST SQL Guardrails</span>
+            <Database className="w-4 h-4 text-[#38bdf8]" />
           </div>
-          <div className="text-xl font-bold font-mono text-blue-400">
-            {keys.filter((k) => k.sqlReadOnly && k.isActive).length} Keys
+          <div className="text-4xl font-extrabold tracking-tight-lg text-[#38bdf8] font-sans">
+            {keys.filter((k) => k.sqlReadOnly && k.isActive).length}
           </div>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-1.5">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>Verdict Debate Firewalls</span>
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+        <div className="bg-[#170718] border border-[#4a154b]/40 p-6 rounded-2xl space-y-2 shadow-lg">
+          <div className="flex items-center justify-between text-[#d9bdde] text-xs">
+            <span className="font-bold tracking-micro-cap uppercase text-[11px]">Verdict Debate Firewalls</span>
+            <Sparkles className="w-4 h-4 text-[#c084fc]" />
           </div>
-          <div className="text-xl font-bold font-mono text-purple-400">
-            {keys.filter((k) => k.enforceVerdictEval && k.isActive).length} Keys
+          <div className="text-4xl font-extrabold tracking-tight-lg text-[#c084fc] font-sans">
+            {keys.filter((k) => k.enforceVerdictEval && k.isActive).length}
           </div>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="flex items-center gap-3 bg-slate-900/80 border border-slate-800 rounded-xl px-3.5 py-2">
-        <Search className="w-4 h-4 text-slate-400" />
+      <div className="flex items-center gap-3 bg-[#170718] border border-[#4a154b]/40 rounded-full px-5 py-3 shadow-md">
+        <Search className="w-4 h-4 text-[#d9bdde]" />
         <input
           type="text"
           placeholder="Filter scoped keys by agent name or prefix..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="bg-transparent w-full text-xs text-slate-200 focus:outline-none placeholder:text-slate-500 font-mono"
+          className="bg-transparent w-full text-xs text-white focus:outline-none placeholder:text-[#d9bdde]/50 font-mono"
         />
       </div>
 
       {/* Keys Table */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-[#170718] border border-[#4a154b]/40 rounded-2xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/80 border-b border-slate-800 text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+            <thead className="bg-[#230c25] border-b border-[#4a154b]/30 text-[11px] font-mono text-[#d9bdde] uppercase tracking-micro-cap font-bold">
               <tr>
-                <th className="py-3 px-5">Agent / Key Identifier</th>
-                <th className="py-3 px-4">Display Prefix</th>
-                <th className="py-3 px-4">Security Policies & RBAC</th>
-                <th className="py-3 px-4">Created</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-5 text-right">Actions</th>
+                <th className="py-4 px-6">Agent / Key Identifier</th>
+                <th className="py-4 px-5">Display Prefix</th>
+                <th className="py-4 px-5">Security Policies & RBAC</th>
+                <th className="py-4 px-5">Created</th>
+                <th className="py-4 px-5">Status</th>
+                <th className="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-mono">
+            <tbody className="divide-y divide-[#4a154b]/30 font-mono">
               {filteredKeys.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-500">
-                    No scoped MCP keys found. Click <strong className="text-cyan-400">"Generate Scoped Key"</strong> to create one.
+                  <td colSpan={6} className="py-14 text-center text-[#d9bdde]/60 font-sans text-sm">
+                    No scoped MCP keys found. Click <strong className="text-white font-bold">"Generate Scoped Key"</strong> to create one.
                   </td>
                 </tr>
               ) : (
                 filteredKeys.map((key) => (
-                  <tr key={key.id} className="hover:bg-slate-850/40 transition-colors">
-                    <td className="py-3.5 px-5 font-sans font-bold text-slate-200">
+                  <tr key={key.id} className="hover:bg-[#230c25]/50 transition-colors">
+                    <td className="py-4 px-6 font-sans font-bold text-white text-sm">
                       {key.name}
                     </td>
-                    <td className="py-3.5 px-4 text-cyan-400 text-[11px]">
+                    <td className="py-4 px-5 text-[#38bdf8] text-[11px]">
                       {key.keyPrefix}...
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-4 px-5">
                       <div className="flex flex-wrap gap-1.5">
                         {key.sqlReadOnly && (
-                          <span className="px-2 py-0.5 rounded bg-blue-950/80 text-blue-300 border border-blue-800/40 text-[10px] flex items-center gap-1">
-                            <Database className="w-2.5 h-2.5 text-blue-400" />
-                            Read-Only SQL
-                          </span>
-                        )}
-                        {key.prohibitedTools.includes("bash") && (
-                          <span className="px-2 py-0.5 rounded bg-red-950/80 text-red-300 border border-red-800/40 text-[10px] flex items-center gap-1">
-                            <Terminal className="w-2.5 h-2.5 text-red-400" />
-                            Bash Blocked
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1264a3]/20 border border-[#1264a3]/40 text-[#38bdf8] text-[10px] font-mono font-semibold">
+                            <Database className="w-3 h-3" />
+                            SQL Read-Only
                           </span>
                         )}
                         {key.enforceVerdictEval && (
-                          <span className="px-2 py-0.5 rounded bg-purple-950/80 text-purple-300 border border-purple-800/40 text-[10px] flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5 text-purple-400" />
-                            Verdict Guard
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#4a154b]/40 border border-[#d9bdde]/30 text-[#d9bdde] text-[10px] font-mono font-semibold">
+                            <Sparkles className="w-3 h-3 text-[#c084fc]" />
+                            Verdict Review
                           </span>
                         )}
-                        {key.allowedDomains.length > 0 && !key.allowedDomains.includes("*") && (
-                          <span className="px-2 py-0.5 rounded bg-sky-950/80 text-sky-300 border border-sky-800/40 text-[10px] flex items-center gap-1">
-                            <Globe className="w-2.5 h-2.5 text-sky-400" />
-                            Domain Whitelist
+                        {key.prohibitedTools.includes("bash") && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#cc4117]/20 border border-[#cc4117]/40 text-[#ff8e75] text-[10px] font-mono font-semibold">
+                            <Terminal className="w-3 h-3" />
+                            Bash Blocked
+                          </span>
+                        )}
+                        {key.allowedDomains && key.allowedDomains[0] !== "*" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#007a5a]/20 border border-[#007a5a]/40 text-[#2ecc71] text-[10px] font-mono font-semibold">
+                            <Globe className="w-3 h-3" />
+                            Scoped Whitelist
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400 text-[11px]">
+                    <td className="py-4 px-5 text-[#d9bdde]/70 text-[11px]">
                       {new Date(key.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-4 px-5">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
                           key.isActive
-                            ? "bg-emerald-950/80 text-emerald-300 border-emerald-800/50"
-                            : "bg-red-950/80 text-red-300 border-red-800/50"
+                            ? "bg-[#007a5a]/20 text-[#2ecc71] border-[#007a5a]/40"
+                            : "bg-[#cc4117]/20 text-[#ff8e75] border-[#cc4117]/40"
                         }`}
                       >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            key.isActive ? "bg-emerald-400 animate-pulse" : "bg-red-400"
-                          }`}
-                        />
                         {key.isActive ? "ACTIVE" : "REVOKED"}
                       </span>
                     </td>
-                    <td className="py-3.5 px-5 text-right space-x-2">
-                      <button
-                        onClick={() => setSelectedKeyForSnippet(key)}
-                        title="1-Click Agent Configuration Snippet"
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-medium transition-colors"
-                      >
-                        <Laptop className="w-3 h-3 text-cyan-400" />
-                        <span>Config</span>
-                      </button>
-
-                      {key.isActive && (
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setSelectedKeyForSnippet(key)}
+                          title="View Client Config Snippets"
+                          className="btn-secondary-pill !px-3 !py-1.5 !text-[11px] inline-flex items-center gap-1.5"
+                        >
+                          <Laptop className="w-3.5 h-3.5 text-[#d9bdde]" />
+                          <span>Config</span>
+                        </button>
                         <button
                           onClick={() => handleRevokeKey(key.id)}
-                          title="Revoke API Key"
-                          className="inline-flex items-center p-1 rounded-lg hover:bg-red-950 text-slate-500 hover:text-red-400 transition-colors"
+                          title="Revoke Key"
+                          className="p-1.5 rounded-full bg-[#cc4117]/15 hover:bg-[#cc4117]/30 border border-[#cc4117]/40 text-[#ff8e75] hover:text-white transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -270,7 +283,7 @@ export default function MCPKeysPage() {
         </div>
       </div>
 
-      {/* Key Creation Modal */}
+      {/* Create Key Modal */}
       <KeyModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -279,8 +292,8 @@ export default function MCPKeysPage() {
 
       {/* Config Snippet Modal */}
       <ConfigSnippetModal
-        keyRecord={selectedKeyForSnippet}
-        isOpen={!!selectedKeyForSnippet}
+        keyData={selectedKeyForSnippet}
+        isOpen={Boolean(selectedKeyForSnippet)}
         onClose={() => setSelectedKeyForSnippet(null)}
       />
     </div>

@@ -92,12 +92,15 @@ export type AuditLogStatus = "ALLOWED" | "BLOCKED" | "VERDICT_REVIEW";
 export interface AuditLog {
   id: string;
   timestamp: number;
-  keyName: string;
-  toolName: string;
-  status: AuditLogStatus;
+  key_id?: string;
+  keyName?: string;
+  tool_name?: string;
+  toolName?: string;
+  status: AuditLogStatus | string;
   parameters?: Record<string, unknown>;
   reason: string;
-  executionTimeMs: number;
+  latency_ms?: number;
+  executionTimeMs?: number;
   verdictScore?: number;
   clientIp?: string;
 }

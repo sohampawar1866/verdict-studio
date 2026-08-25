@@ -1,0 +1,190 @@
+# ⚖️ Verdict Studio & Haize Sentinel MCP Control Plane
+
+[![Verdict v0.2.x](https://img.shields.io/badge/Verdict-v0.2.x_Compliant-06b6d4.svg)](https://github.com/haizelabs/verdict)
+[![Model Context Protocol](https://img.shields.io/badge/MCP-Standard_Compliant-8b5cf6.svg)](https://modelcontextprotocol.io/)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14_App_Router-black.svg)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-1.0.0-009688.svg)](https://fastapi.tiangolo.com/)
+[![Tests](https://img.shields.io/badge/Integration_Tests-8%2F8_Passed-10b981.svg)]()
+
+> **Verdict Studio & Haize Sentinel** is an enterprise-grade visual DAG pipeline builder, live multi-agent debate playground, and scoped Model Context Protocol (MCP) security gateway built natively on top of Haize Labs' [`haizelabs/verdict`](https://github.com/haizelabs/verdict) library and Anthropic's Model Context Protocol (MCP).
+
+---
+
+## 🌟 Key Capabilities
+
+1. **🎨 Visual Multi-Agent DAG Studio (Frontend)**
+   - Custom draggable nodes: `InputNode`, `ProsecutorUnit`, `DefenseUnit`, `FactCheckerUnit`, `ChiefJusticeUnit`, `CoTUnit`, and `AggregatorNode` (`MaxPoolUnit` via majority vote).
+   - Real-time token streaming WebSocket viewer (`StreamingConsole.tsx`) showing sub-models arguing token-by-token with glowing canvas node animations.
+   - **1-Click Python Code Exporter**: Generates 100% syntactically valid standalone Python scripts using native `haizelabs/verdict` v0.2.x DSL.
+
+2. **🛡️ Scoped MCP Key & Permission Control Plane (Backend & Security Gateway)**
+   - **Cryptographic Key Hashing**: Issues `haize_mcp_live_<token>` keys with SHA-256 validation.
+   - **AST-Level SQL Guardrails**: Parses SQL with `sqlparse` AST tokenizer to block `DROP`, `DELETE`, `UPDATE`, `INSERT`, and `ALTER` on Read-Only keys while permitting `SELECT`.
+   - **Inline Verdict Safety Debate Defense**: Intercepts unverified tool outputs and triggers multi-agent Adversarial Safety Court debates to quarantine indirect prompt injection vectors before the host model ingests them.
+   - **1-Click Agent Configuration**: Generates copy-pasteable JSON configs for **Claude Desktop** (`claude_desktop_config.json`), **Cursor IDE** (`.cursor/mcp.json`), and **Devin Agent**.
+
+3. **📊 Live Security Audit Logs & Threat Matrix**
+   - Live WebSocket event ingestion (`/ws/telemetry`) tracking tool calls, latencies, and violations.
+   - Multi-criteria filtering by Agent Key, Tool name, and Status (`ALLOWED`, `BLOCKED`, `VERDICT_REVIEW`).
+   - 1-Click CSV and JSON export.
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Clients["🤖 AI Agents & Interfaces"]
+        Claude["Claude Desktop / Cursor IDE / Devin"]
+        Browser["Verdict Studio UI (Next.js 14)"]
+    end
+
+    subgraph Gateway["🛡️ Haize Sentinel MCP Gateway (TypeScript)"]
+        Stdio["Stdio JSON-RPC Server"]
+        Enforcer["Verdict Payload Quarantine Enforcer"]
+    end
+
+    subgraph Backend["⚡ Control Plane (FastAPI + Verdict Engine)"]
+        Auth["Key Auth (SHA-256)"]
+        AST["SQL AST Guardrails (sqlparse)"]
+        Runner["Verdict Pipeline Runner"]
+        WSHub["WebSocket Telemetry Streamer"]
+    end
+
+    subgraph VerdictCore["⚖️ Haize Labs Verdict v0.2.x Core"]
+        Pipeline["Pipeline >> Layer(repeat=N) >> Unit"]
+        Court["Adversarial Safety Court (Prosecutor ⚔️ Defense ⚖️ ChiefJustice)"]
+    end
+
+    Claude <-->|Stdio JSON-RPC| Stdio
+    Stdio <-->|HTTP Tool Proxy / X-Haize-MCP-Key| Backend
+    Browser <-->|REST & WebSockets| Backend
+    Backend --> Auth
+    Backend --> AST
+    Backend --> Runner
+    Runner --> VerdictCore
+    Backend --> WSHub
+    WSHub -.->|Live Debate Tokens & Audit Logs| Browser
+```
+
+---
+
+## 🚀 Quickstart Guide
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+ & npm
+
+### Step 1: Start the FastAPI Backend
+```bash
+cd backend
+pip install -r requirements.txt
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+*API running on `http://localhost:8000` (`GET /api/health`, WebSocket `/ws/telemetry`)*
+
+### Step 2: Start the Next.js Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*Verdict Studio running on `http://localhost:3000`*
+
+### Step 3: Run the TypeScript MCP Gateway (for Claude Desktop / Cursor)
+```bash
+cd mcp-gateway
+npm install
+npx tsx src/index.ts --key haize_mcp_live_demo1234567890abcdef12345678 --backend-url http://localhost:8000
+```
+
+---
+
+## 💻 Claude Desktop Configuration
+
+To connect Claude Desktop to Haize Sentinel, add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "haize-sentinel": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@haizelabs/sentinel-mcp",
+        "--key",
+        "haize_mcp_live_YOUR_KEY_HERE",
+        "--backend-url",
+        "http://localhost:8000"
+      ]
+    }
+  }
+}
+```
+
+---
+
+## 🧪 Integration Test Suite
+
+Run the full end-to-end test suite verifying the DAG runner, AST SQL guardrail engine, and key cryptography:
+
+```bash
+# Run Python backend integration tests
+python3 -m unittest backend/tests/test_integration.py
+
+# Run MCP Gateway stdio test runner
+node mcp-gateway/tests/e2e_test.js
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+verdict_studio/
+├── frontend/                     # Next.js 14 App Router, React Flow & Tailwind
+│   ├── app/
+│   │   ├── page.tsx              # Executive Dashboard & System Health
+│   │   ├── dag-studio/page.tsx   # Visual Multi-Agent DAG Studio
+│   │   ├── mcp-keys/page.tsx     # Scoped MCP Key Manager & Permission Engine
+│   │   └── audit-logs/page.tsx   # Live Security Audit Logs & Telemetry
+│   ├── components/
+│   │   ├── Canvas.tsx            # @xyflow/react Canvas with custom edge styles
+│   │   ├── NodePalette.tsx       # Draggable Verdict Node Palette
+│   │   ├── NodeConfigDrawer.tsx  # Node configuration drawer (.prompt, .via, scale)
+│   │   ├── StreamingConsole.tsx  # Live debate WebSocket terminal
+│   │   ├── CodeExportModal.tsx   # 1-Click Python code export modal
+│   │   ├── KeyModal.tsx          # Key creation modal with permission toggles
+│   │   ├── ConfigSnippetModal.tsx# 1-Click Claude / Cursor config generator
+│   │   ├── ThreatMatrix.tsx      # Security telemetry breakdown
+│   │   └── nodes/                # 7 Custom React Flow Verdict Nodes
+│   └── lib/
+│       ├── codeExporter.ts       # Standalone Python script generator
+│       ├── dagPresets.ts         # Pre-built Verdict debate architectures
+│       └── dagSerializer.ts      # DAG JSON import/export parser
+├── backend/                      # FastAPI, Verdict Runner & Policy Engine
+│   ├── app/
+│   │   ├── main.py               # API routes, WebSocket hub, and datastores
+│   │   ├── engine/
+│   │   │   ├── verdict_runner.py # Topological DAG compiler & execution engine
+│   │   │   └── live_streamer.py  # WebSocket token-by-token streaming generator
+│   │   ├── mcp_gateway/
+│   │   │   ├── key_auth.py       # SHA-256 key generation & constant-time auth
+│   │   │   └── policy_engine.py  # AST SQL parser (sqlparse) & domain sentry
+│   │   └── models/               # Pydantic models for DAGs, Keys, and Audits
+│   └── tests/
+│       └── test_integration.py   # 8/8 End-to-End full-stack integration tests
+└── mcp-gateway/                  # TypeScript Stdio MCP Gateway
+    ├── src/
+    │   ├── index.ts              # Model Context Protocol stdio server
+    │   ├── verdict_enforcer.ts   # Inline Verdict prompt injection quarantine
+    │   └── types.ts              # TypeScript MCP contracts
+    └── tests/
+        └── e2e_test.js           # Automated stdio JSON-RPC test runner
+```
+
+---
+
+## 📜 License
+
+Apache 2.0. Built with ❤️ for **Haize Labs** and the open-source AI security community.

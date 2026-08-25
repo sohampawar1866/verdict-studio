@@ -72,23 +72,25 @@ async def try_live_llm_inference(
     if not api_keys:
         return None
 
-    openai_key = api_keys.get("openaiApiKey") or api_keys.get("custom_api_key")
+    openai_key = api_keys.get("openaiApiKey")
     anthropic_key = api_keys.get("anthropicApiKey")
     custom_base_url = api_keys.get("customBaseUrl")
+    custom_api_key = api_keys.get("customApiKey") or api_keys.get("custom_api_key")
 
     try:
-        # OpenAI or Custom Compatible Endpoint (e.g. OpenRouter, Groq, Ollama)
-        if openai_key or custom_base_url:
-            base_url = custom_base_url.rstrip("/") if custom_base_url else "https://api.openai.com/v1"
-            if not base_url.endswith("/v1") and "openai.com" in base_url:
+        # Custom Compatible Endpoint (e.g. OpenRouter, Groq, Together, Ollama)
+        if custom_base_url:
+            base_url = custom_base_url.rstrip("/")
+            if not base_url.endswith("/v1") and ("openai.com" in base_url or "openrouter.ai" in base_url or "groq.com" in base_url):
                 base_url = f"{base_url}/v1"
 
             endpoint = f"{base_url}/chat/completions"
             headers = {
                 "Content-Type": "application/json",
             }
-            if openai_key:
-                headers["Authorization"] = f"Bearer {openai_key}"
+            active_key = custom_api_key or openai_key
+            if active_key:
+                headers["Authorization"] = f"Bearer {active_key}"
 
             payload = {
                 "model": model or "gpt-4o",
@@ -105,7 +107,32 @@ async def try_live_llm_inference(
                 if res.status_code == 200:
                     data = res.json()
                     content = data["choices"][0]["message"]["content"]
-                    logger.info(f"Live OpenAI/Compatible completion received for model '{model}'")
+                    logger.info(f"Live Custom Provider completion received for model '{model}'")
+                    return content
+
+        # Direct OpenAI Endpoint
+        elif openai_key:
+            endpoint = "https://api.openai.com/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {openai_key}",
+            }
+            payload = {
+                "model": model or "gpt-4o",
+                "messages": [
+                    {"role": "system", "content": f"You are an AI Safety unit ({system_role}) evaluating security invariants."},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": temperature,
+                "max_tokens": 500,
+            }
+
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                res = await client.post(endpoint, json=payload, headers=headers)
+                if res.status_code == 200:
+                    data = res.json()
+                    content = data["choices"][0]["message"]["content"]
+                    logger.info(f"Live OpenAI completion received for model '{model}'")
                     return content
 
         # Anthropic Endpoint

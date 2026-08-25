@@ -1,20 +1,31 @@
 import { DAGGraph, DAGNode, DAGEdge } from "./types";
 
+/**
+ * Sanitizes an arbitrary string into a valid Python class/variable identifier.
+ */
+function sanitizePythonIdentifier(name: string, fallback = "CustomUnit"): string {
+  const cleaned = name.replace(/[^a-zA-Z0-9_]/g, "");
+  if (!cleaned || /^[0-9]/.test(cleaned)) {
+    return `Unit_${cleaned || fallback}`;
+  }
+  return cleaned;
+}
+
 export function generateVerdictPythonCode(dag: DAGGraph): string {
   const customUnitTypes = new Set<string>();
-  const unitInstantiations: string[] = [];
-  const pipelinePipes: string[] = [];
+  const nodeVarMap: Record<string, string> = {};
 
-  // 1. Identify node types
+  // 1. Identify node types and map class names
   dag.nodes.forEach((node) => {
     if (["prosecutor", "defense", "factchecker"].includes(node.type)) {
-      const className =
+      const rawName =
         node.data.name ||
         (node.type === "prosecutor"
           ? "ProsecutorUnit"
           : node.type === "defense"
           ? "DefenseUnit"
           : "FactCheckerUnit");
+      const className = sanitizePythonIdentifier(rawName);
       customUnitTypes.add(className);
     }
   });
@@ -56,26 +67,27 @@ from verdict.transform import MaxPoolUnit, MeanPoolUnit, MapUnit
   code += `# Unit Configurations (.prompt, .via, .extract)\n`;
   code += `# ---------------------------------------------------------------------------\n`;
 
-  const nodeVarMap: Record<string, string> = {};
-
   dag.nodes.forEach((node, idx) => {
-    const varName = `${node.type}_${idx + 1}`;
+    const varName = `${sanitizePythonIdentifier(node.type, "node")}_${idx + 1}`;
     nodeVarMap[node.id] = varName;
     const model = node.data.model || "gpt-4o";
     const temp = node.data.temperature !== undefined ? node.data.temperature : 0.7;
-    const prompt = (node.data.prompt || "Evaluate input payload: {source.query}").replace(/"/g, '\\"');
+    const rawPrompt = node.data.prompt || "Evaluate input payload: {source.query}";
+    // Escape multiline triple quotes if present
+    const prompt = rawPrompt.replace(/"""/g, '\\"\\"\\"');
 
     if (node.type === "input") {
       // Input is passed to pipeline.run(input_data=Schema.of(...))
       return;
     } else if (node.type === "prosecutor" || node.type === "defense" || node.type === "factchecker") {
-      const className =
+      const rawName =
         node.data.name ||
         (node.type === "prosecutor"
           ? "ProsecutorUnit"
           : node.type === "defense"
           ? "DefenseUnit"
           : "FactCheckerUnit");
+      const className = sanitizePythonIdentifier(rawName);
       code += `${varName} = (\n`;
       code += `    ${className}(name="${node.data.name || className}")\n`;
       code += `    .prompt("""${prompt}""")\n`;
@@ -121,16 +133,18 @@ from verdict.transform import MaxPoolUnit, MeanPoolUnit, MapUnit
   code += `# Pipeline Composition (>> pipe operator)\n`;
   code += `# ---------------------------------------------------------------------------\n`;
 
-  // Find parallel nodes connected to input
   const debaterVars = dag.nodes
     .filter((n) => ["prosecutor", "defense", "factchecker", "cot"].includes(n.type))
-    .map((n) => nodeVarMap[n.id]);
+    .map((n) => nodeVarMap[n.id])
+    .filter(Boolean);
 
   const judgeVars = dag.nodes
     .filter((n) => ["chiefjustice", "aggregator"].includes(n.type))
-    .map((n) => nodeVarMap[n.id]);
+    .map((n) => nodeVarMap[n.id])
+    .filter(Boolean);
 
-  code += `pipeline = Pipeline("${dag.name.replace(/\s+/g, "_")}")\n`;
+  const sanitizedPipelineName = sanitizePythonIdentifier(dag.name.replace(/\s+/g, "_"), "Verdict_Pipeline");
+  code += `pipeline = Pipeline("${sanitizedPipelineName}")\n`;
 
   if (debaterVars.length > 1) {
     code += `pipeline >>= Layer([\n    ${debaterVars.join(",\n    ")}\n])\n`;

@@ -27,10 +27,10 @@ def verify_mcp_key(raw_key: str, hashed_key: str) -> bool:
 
 
 def extract_key_from_header(auth_header: Optional[str]) -> Optional[str]:
-    """Extracts raw key from Authorization Bearer or direct key header."""
+    """Extracts and sanitizes raw key from Authorization Bearer or direct key header."""
     if not auth_header:
         return None
-    header_val = auth_header.strip()
+    header_val = auth_header.strip().strip('"').strip("'")
     if header_val.lower().startswith("bearer "):
-        return header_val[7:].strip()
+        return header_val[7:].strip().strip('"').strip("'")
     return header_val

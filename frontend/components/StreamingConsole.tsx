@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   Terminal,
   X,
@@ -14,6 +14,8 @@ import {
   RotateCcw,
   Minimize2,
   Maximize2,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 export interface DebateMessage {
@@ -30,6 +32,7 @@ interface StreamingConsoleProps {
   messages: DebateMessage[];
   isExecuting: boolean;
   finalVerdict: string | null;
+  isOfflineMode?: boolean;
   onClear: () => void;
   onClose: () => void;
 }
@@ -38,10 +41,12 @@ export default function StreamingConsole({
   messages,
   isExecuting,
   finalVerdict,
+  isOfflineMode,
   onClear,
   onClose,
 }: StreamingConsoleProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -95,9 +100,13 @@ export default function StreamingConsole({
   };
 
   return (
-    <div className="h-64 bg-slate-950/95 border-t border-slate-800 flex flex-col select-none relative z-30 shadow-2xl backdrop-blur">
+    <div
+      className={`bg-slate-950/95 border-t border-slate-800 flex flex-col select-none relative z-30 shadow-2xl backdrop-blur transition-all duration-200 ${
+        isExpanded ? "h-96" : "h-64"
+      }`}
+    >
       {/* Console Top Bar */}
-      <div className="h-9 px-4 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
+      <div className="h-9 px-4 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Terminal className="w-3.5 h-3.5 text-cyan-400" />
@@ -111,6 +120,12 @@ export default function StreamingConsole({
               <Sparkles className="w-2.5 h-2.5 animate-spin" />
               <span>STREAMING TOKENS...</span>
             </div>
+          )}
+
+          {isOfflineMode && (
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
+              Local Client Mode
+            </span>
           )}
 
           {finalVerdict && (
@@ -131,7 +146,14 @@ export default function StreamingConsole({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            title={isExpanded ? "Collapse height" : "Expand height"}
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+          </button>
           <button
             onClick={onClear}
             className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-[10px] font-mono flex items-center gap-1"

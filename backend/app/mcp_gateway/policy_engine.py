@@ -66,17 +66,21 @@ def validate_sql_query(query: str, read_only: bool = True) -> Tuple[bool, Option
 def validate_domain_whitelist(url: str, allowed_domains: List[str]) -> Tuple[bool, Optional[str]]:
     """
     Validates target URL against domain whitelist wildcard patterns.
+    Handles schemeless domains (e.g., 'api.github.com') cleanly.
     """
-    if not url:
+    if not url or not url.strip():
         return False, "Missing URL parameter"
 
     if "*" in allowed_domains or "*.*" in allowed_domains:
         return True, None
 
     try:
-        parsed = urlparse(url)
-        hostname = parsed.hostname or url
-        hostname = hostname.lower()
+        raw_url = url.strip()
+        if "://" not in raw_url:
+            raw_url = f"https://{raw_url}"
+
+        parsed = urlparse(raw_url)
+        hostname = (parsed.hostname or parsed.netloc or raw_url).lower()
 
         for pattern in allowed_domains:
             pattern = pattern.strip().lower()

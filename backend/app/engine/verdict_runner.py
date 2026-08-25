@@ -14,18 +14,20 @@ logger = logging.getLogger("verdict_runner")
 def topological_sort_nodes(dag: DAGGraph) -> List[List[DAGNode]]:
     """
     Groups DAG nodes into execution layers based on topological dependencies.
-    Nodes in the same layer can be evaluated in parallel.
+    Handles cyclic or disconnected nodes gracefully by placing remaining nodes in a fallback layer.
     """
     adj = defaultdict(list)
     in_degree = defaultdict(int)
     node_map = {n.id: n for n in dag.nodes}
+    visited_node_ids = set()
 
     for node in dag.nodes:
         in_degree[node.id] = 0
 
     for edge in dag.edges:
-        adj[edge.source].append(edge.target)
-        in_degree[edge.target] += 1
+        if edge.source in node_map and edge.target in node_map:
+            adj[edge.source].append(edge.target)
+            in_degree[edge.target] += 1
 
     # Queue of nodes with zero in-degree (roots)
     queue = deque([node_id for node_id, deg in in_degree.items() if deg == 0])
@@ -37,12 +39,20 @@ def topological_sort_nodes(dag: DAGGraph) -> List[List[DAGNode]]:
         current_layer_nodes = [node_map[nid] for nid in current_layer_ids if nid in node_map]
         if current_layer_nodes:
             layers.append(current_layer_nodes)
+            for nid in current_layer_ids:
+                visited_node_ids.add(nid)
 
         for nid in current_layer_ids:
             for neighbor in adj[nid]:
                 in_degree[neighbor] -= 1
                 if in_degree[neighbor] == 0:
                     queue.append(neighbor)
+
+    # Fallback: append any unvisited/cyclic nodes in a trailing layer
+    unvisited_nodes = [n for n in dag.nodes if n.id not in visited_node_ids]
+    if unvisited_nodes:
+        logger.warning(f"Detected {len(unvisited_nodes)} unvisited or cyclic nodes. Appending to fallback layer.")
+        layers.append(unvisited_nodes)
 
     return layers
 

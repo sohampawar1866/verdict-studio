@@ -49,6 +49,7 @@ export default function DAGStudioPage() {
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [isLiveByok, setIsLiveByok] = useState(false);
   const [debateMessages, setDebateMessages] = useState<DebateMessage[]>([]);
   const [finalVerdict, setFinalVerdict] = useState<string | null>(null);
 
@@ -73,6 +74,7 @@ export default function DAGStudioPage() {
             if (data.type === "DEBATE_STARTED") {
               setIsExecuting(true);
               setIsConsoleOpen(true);
+              setIsLiveByok(Boolean(data.has_byok));
               setDebateMessages([]);
               setFinalVerdict(null);
             } else if (data.type === "NODE_ACTIVATED") {
@@ -572,6 +574,7 @@ export default function DAGStudioPage() {
               isExecuting={isExecuting}
               finalVerdict={finalVerdict}
               isOfflineMode={isOfflineMode}
+              isLiveByok={isLiveByok}
               onClear={() => setDebateMessages([])}
               onClose={() => setIsConsoleOpen(false)}
             />

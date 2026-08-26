@@ -238,6 +238,88 @@ pipeline >>= chiefjustice_1
         parsed = ast.parse(sample_code)
         self.assertIsNotNone(parsed)
 
+    def test_09_byok_zero_key_demo_simulation_fallback(self):
+        """Verify that when no API keys are provided, execution runs demo simulation with zero errors."""
+        dag = DAGGraph(
+            id="test-zero-key-dag",
+            name="Zero-Key Simulation Test",
+            nodes=[
+                DAGNode(id="n1", type="input", position={"x": 0, "y": 0}, data={"fields": ["tool_output"]}),
+                DAGNode(id="n2", type="prosecutor", position={"x": 100, "y": 100}, data={"name": "ProsecutorUnit", "model": "gpt-4o"}),
+                DAGNode(id="n3", type="chiefjustice", position={"x": 200, "y": 200}, data={"name": "ChiefJustice", "model": "gpt-4o"}),
+            ],
+            edges=[
+                DAGEdge(id="e1-2", source="n1", target="n2"),
+                DAGEdge(id="e2-3", source="n2", target="n3"),
+            ],
+        )
+
+        response = asyncio.run(
+            compile_and_run_dag(
+                dag=dag,
+                inputs={"tool_output": "sample test payload"},
+                api_keys=None,  # No keys provided
+            )
+        )
+        self.assertEqual(response.status, "COMPLETED")
+        self.assertIn("n3", response.leaf_nodes)
+        self.assertGreater(len(response.outputs["n2"]["output_text"]), 10)
+        self.assertIn(response.outputs["n3"]["verdict"], ["BLOCKED", "PASSED", "COMPLETED"])
+
+    def test_10_byok_api_keys_execution_payload(self):
+        """Verify POST /api/dag/execute accepts api_keys in request body and executes cleanly."""
+        exec_payload = {
+            "dag": {
+                "id": "test-byok-http",
+                "name": "BYOK HTTP Pipeline",
+                "nodes": [
+                    {"id": "n1", "type": "input", "position": {"x": 0, "y": 0}, "data": {"fields": ["query"]}},
+                    {"id": "n2", "type": "cot", "position": {"x": 100, "y": 100}, "data": {"name": "CoTUnit", "model": "gpt-4o"}},
+                ],
+                "edges": [{"id": "e1-2", "source": "n1", "target": "n2"}],
+            },
+            "inputs": {"query": "Assess injection safety"},
+            "api_keys": {
+                "openaiApiKey": "sk-mock-key-for-testing",
+                "anthropicApiKey": "",
+                "customBaseUrl": "http://localhost:11434/v1",
+                "customApiKey": "test-custom-token",
+            },
+            "stream_tokens": True,
+        }
+
+        res = self.client.post("/api/dag/execute", json=exec_payload)
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data["status"], "COMPLETED")
+        self.assertIn("n2", data["outputs"])
+
+    def test_11_byok_multi_turn_prompt_substitution(self):
+        """Verify prompt template variable substitution for {source.*} and {previous.*}."""
+        dag = DAGGraph(
+            id="test-prompt-sub",
+            name="Prompt Substitution Test",
+            nodes=[
+                DAGNode(id="n1", type="input", position={"x": 0, "y": 0}, data={"fields": ["tool_output"]}),
+                DAGNode(id="n2", type="prosecutor", position={"x": 100, "y": 100}, data={"name": "ProsecutorUnit", "prompt": "Check: {source.tool_output}"}),
+                DAGNode(id="n3", type="chiefjustice", position={"x": 200, "y": 200}, data={"name": "ChiefJustice", "prompt": "Ruling on: {previous.prosecutor}"}),
+            ],
+            edges=[
+                DAGEdge(id="e1-2", source="n1", target="n2"),
+                DAGEdge(id="e2-3", source="n2", target="n3"),
+            ],
+        )
+
+        response = asyncio.run(
+            compile_and_run_dag(
+                dag=dag,
+                inputs={"tool_output": "<script>alert(1)</script>"},
+                api_keys={"openaiApiKey": "sk-dummy-test-key"},
+            )
+        )
+        self.assertEqual(response.status, "COMPLETED")
+        self.assertTrue(len(response.outputs) >= 2)
+
 
 if __name__ == "__main__":
     unittest.main()

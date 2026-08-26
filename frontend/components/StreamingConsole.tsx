@@ -31,6 +31,7 @@ interface StreamingConsoleProps {
   isExecuting: boolean;
   finalVerdict: string | null;
   isOfflineMode?: boolean;
+  isLiveByok?: boolean;
   onClear: () => void;
   onClose: () => void;
 }
@@ -40,6 +41,7 @@ export default function StreamingConsole({
   isExecuting,
   finalVerdict,
   isOfflineMode,
+  isLiveByok,
   onClear,
   onClose,
 }: StreamingConsoleProps) {
@@ -122,9 +124,19 @@ export default function StreamingConsole({
             </div>
           )}
 
+          {isLiveByok ? (
+            <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/50 font-semibold">
+              Live Model Inference (BYOK)
+            </span>
+          ) : (
+            <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#3b123d]/60 text-[#d9bdde] border border-[#d9bdde]/30 font-semibold">
+              Demo Simulation Mode
+            </span>
+          )}
+
           {isOfflineMode && (
             <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/50 font-semibold">
-              Local Client Mode
+              Local Fallback
             </span>
           )}
 

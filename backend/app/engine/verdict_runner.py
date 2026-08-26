@@ -58,6 +58,14 @@ def topological_sort_nodes(dag: DAGGraph) -> List[List[DAGNode]]:
     return layers
 
 
+ANTHROPIC_MODEL_MAP = {
+    "claude-3-5-sonnet": "claude-3-5-sonnet-20241022",
+    "claude-3-sonnet": "claude-3-sonnet-20240229",
+    "claude-3-haiku": "claude-3-haiku-20240307",
+    "claude-3-opus": "claude-3-opus-20240229",
+}
+
+
 async def try_live_llm_inference(
     model: str,
     prompt: str,
@@ -72,22 +80,20 @@ async def try_live_llm_inference(
     if not api_keys:
         return None
 
-    openai_key = api_keys.get("openaiApiKey")
-    anthropic_key = api_keys.get("anthropicApiKey")
-    custom_base_url = api_keys.get("customBaseUrl")
-    custom_api_key = api_keys.get("customApiKey") or api_keys.get("custom_api_key")
+    openai_key = (api_keys.get("openaiApiKey") or "").strip()
+    anthropic_key = (api_keys.get("anthropicApiKey") or "").strip()
+    custom_base_url = (api_keys.get("customBaseUrl") or "").strip()
+    custom_api_key = (api_keys.get("customApiKey") or api_keys.get("custom_api_key") or "").strip()
 
     try:
-        # Custom Compatible Endpoint (e.g. OpenRouter, Groq, Together, Ollama)
+        # Route 1: Custom Endpoint (e.g. OpenRouter, Groq, Together AI, local Ollama)
         if custom_base_url:
             base_url = custom_base_url.rstrip("/")
             if not base_url.endswith("/v1") and ("openai.com" in base_url or "openrouter.ai" in base_url or "groq.com" in base_url):
                 base_url = f"{base_url}/v1"
 
             endpoint = f"{base_url}/chat/completions"
-            headers = {
-                "Content-Type": "application/json",
-            }
+            headers = {"Content-Type": "application/json"}
             active_key = custom_api_key or openai_key
             if active_key:
                 headers["Authorization"] = f"Bearer {active_key}"
@@ -95,48 +101,26 @@ async def try_live_llm_inference(
             payload = {
                 "model": model or "gpt-4o",
                 "messages": [
-                    {"role": "system", "content": f"You are an AI Safety unit ({system_role}) evaluating security invariants."},
+                    {"role": "system", "content": f"You are an AI Safety debate unit ({system_role}). Evaluate payload safety rigorously and succinctly."},
                     {"role": "user", "content": prompt},
                 ],
                 "temperature": temperature,
                 "max_tokens": 500,
             }
 
-            async with httpx.AsyncClient(timeout=12.0) as client:
+            async with httpx.AsyncClient(timeout=15.0) as client:
                 res = await client.post(endpoint, json=payload, headers=headers)
                 if res.status_code == 200:
                     data = res.json()
                     content = data["choices"][0]["message"]["content"]
-                    logger.info(f"Live Custom Provider completion received for model '{model}'")
+                    logger.info(f"Live Custom Provider completion succeeded for '{system_role}' ({model})")
                     return content
+                else:
+                    logger.warning(f"Custom endpoint returned status {res.status_code}: {res.text[:200]}")
 
-        # Direct OpenAI Endpoint
-        elif openai_key:
-            endpoint = "https://api.openai.com/v1/chat/completions"
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {openai_key}",
-            }
-            payload = {
-                "model": model or "gpt-4o",
-                "messages": [
-                    {"role": "system", "content": f"You are an AI Safety unit ({system_role}) evaluating security invariants."},
-                    {"role": "user", "content": prompt},
-                ],
-                "temperature": temperature,
-                "max_tokens": 500,
-            }
-
-            async with httpx.AsyncClient(timeout=12.0) as client:
-                res = await client.post(endpoint, json=payload, headers=headers)
-                if res.status_code == 200:
-                    data = res.json()
-                    content = data["choices"][0]["message"]["content"]
-                    logger.info(f"Live OpenAI completion received for model '{model}'")
-                    return content
-
-        # Anthropic Endpoint
-        elif anthropic_key:
+        # Route 2: Anthropic Claude (when Anthropic key is present and model is claude)
+        elif anthropic_key and ("claude" in model.lower() or not openai_key):
+            anthropic_model = ANTHROPIC_MODEL_MAP.get(model, model if "claude" in model else "claude-3-5-sonnet-20241022")
             endpoint = "https://api.anthropic.com/v1/messages"
             headers = {
                 "x-api-key": anthropic_key,
@@ -144,25 +128,55 @@ async def try_live_llm_inference(
                 "content-type": "application/json",
             }
             payload = {
-                "model": model if "claude" in model else "claude-3-5-sonnet-20241022",
+                "model": anthropic_model,
                 "max_tokens": 500,
                 "temperature": temperature,
-                "system": f"You are an AI Safety unit ({system_role}) evaluating security invariants.",
+                "system": f"You are an AI Safety debate unit ({system_role}). Evaluate payload safety rigorously and succinctly.",
                 "messages": [
                     {"role": "user", "content": prompt},
                 ],
             }
 
-            async with httpx.AsyncClient(timeout=12.0) as client:
+            async with httpx.AsyncClient(timeout=15.0) as client:
                 res = await client.post(endpoint, json=payload, headers=headers)
                 if res.status_code == 200:
                     data = res.json()
                     content = data["content"][0]["text"]
-                    logger.info(f"Live Anthropic completion received for model '{model}'")
+                    logger.info(f"Live Anthropic completion succeeded for '{system_role}' ({anthropic_model})")
                     return content
+                else:
+                    logger.warning(f"Anthropic returned status {res.status_code}: {res.text[:200]}")
+
+        # Route 3: OpenAI (GPT-4o, GPT-4o-mini, o1-mini, or fallback for other units when OpenAI key is present)
+        elif openai_key:
+            openai_model = model if ("gpt" in model.lower() or "o1" in model.lower()) else "gpt-4o"
+            endpoint = "https://api.openai.com/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {openai_key}",
+            }
+            payload = {
+                "model": openai_model,
+                "messages": [
+                    {"role": "system", "content": f"You are an AI Safety debate unit ({system_role}). Evaluate payload safety rigorously and succinctly."},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": temperature,
+                "max_tokens": 500,
+            }
+
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                res = await client.post(endpoint, json=payload, headers=headers)
+                if res.status_code == 200:
+                    data = res.json()
+                    content = data["choices"][0]["message"]["content"]
+                    logger.info(f"Live OpenAI completion succeeded for '{system_role}' ({openai_model})")
+                    return content
+                else:
+                    logger.warning(f"OpenAI returned status {res.status_code}: {res.text[:200]}")
 
     except Exception as e:
-        logger.warning(f"Live LLM inference encountered error ({e}); falling back to interactive demo dialogue.")
+        logger.warning(f"Live LLM inference error for '{system_role}': {e}. Falling back to demo simulation.")
 
     return None
 
@@ -182,8 +196,8 @@ async def compile_and_run_dag(
     outputs: Dict[str, Any] = {}
     leaf_nodes: List[str] = []
 
-    has_byok = bool(api_keys and any(api_keys.values()))
-    logger.info(f"Starting DAG Execution [{execution_id}] for '{dag.name}' (BYOK Mode: {has_byok})")
+    has_byok = bool(api_keys and any(str(v).strip() for v in api_keys.values() if v is not None))
+    logger.info(f"Starting DAG Execution [{execution_id}] for '{dag.name}' (BYOK Active: {has_byok})")
 
     if broadcast_callback:
         await broadcast_callback({
@@ -232,13 +246,26 @@ async def compile_and_run_dag(
                     "timestamp": time.time(),
                 })
 
-            # Check if live LLM completion is possible with BYOK
+            # Format prompt with source inputs & previous node outputs
             live_text = None
             if has_byok and prompt_tpl:
-                # Format prompt with source inputs
                 formatted_prompt = prompt_tpl
+                # Substitute source query & payload variables
                 for k, v in inputs.items():
                     formatted_prompt = formatted_prompt.replace(f"{{source.{k}}}", str(v))
+
+                # Substitute previous node outputs (e.g. {previous.prosecutor}, {previous.defense})
+                for prev_id, prev_out in outputs.items():
+                    if isinstance(prev_out, dict):
+                        p_role = str(prev_out.get("role", "")).lower()
+                        p_name = str(prev_out.get("unit_name", "")).lower()
+                        p_text = str(prev_out.get("output_text", ""))
+                        if p_role:
+                            formatted_prompt = formatted_prompt.replace(f"{{previous.{p_role}}}", p_text)
+                        if p_name:
+                            formatted_prompt = formatted_prompt.replace(f"{{previous.{p_name}}}", p_text)
+                        formatted_prompt = formatted_prompt.replace("{previous.output}", p_text)
+
                 live_text = await try_live_llm_inference(
                     model=model,
                     prompt=formatted_prompt,

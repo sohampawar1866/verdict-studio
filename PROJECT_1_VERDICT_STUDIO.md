@@ -1,4 +1,4 @@
-# Project 1: Verdict Studio & Haize Sentinel MCP Control Plane ⚖️🛡️
+# Project 1: Verdict Studio & Haize Sentinel MCP Control Plane
 ### *The Visual Multi-Agent Debate Studio, Scoped MCP Key Manager, & Test-Time Tool Security Firewall*
 
 ---
@@ -14,26 +14,26 @@ Autonomous AI agents (e.g., **Claude Desktop, Devin, Cursor, and enterprise cust
 ### B. The Unified Solution: Verdict Studio + Haize Sentinel
 **Verdict Studio & Haize Sentinel** bridges offline evaluation and inline agent governance into a single open-source control plane:
 
-* 📊 **Visual DAG Studio:** A node-based canvas (`@xyflow/react`) to visually design, debug, and execute multi-agent debate evaluation graphs matching `haizelabs/verdict` v0.2.x primitives (`Unit`, `Layer`, `CategoricalJudgeUnit`, `CoTUnit`, `MaxPoolUnit`, `MapUnit`).
-* 🔑 **Client-Side BYOK & Interactive Simulation Fallback:** 100% optional API keys with zero blocking dialogs for demo simulation, plus seamless live model inference for OpenAI, Anthropic Claude, and custom base endpoints (OpenRouter, Groq, Ollama).
-* 🛡️ **Haize Sentinel (MCP Security Gateway):** A scoped MCP proxy that intercepts agent tool requests, enforces granular tool permissions (AST-level Read-Only SQL, blocked Bash, domain whitelists), and **triggers an inline test-time Verdict debate** on untrusted tool returns before the LLM ingests them.
-* ⚡ **Live Canvas Telemetry & Threat Stream:** When Claude Desktop or Devin executes a tool, the visual DAG canvas lights up in real time over WebSockets, displaying the inline safety debate and streaming execution audit logs.
-* 🌐 **Cloud-Native Full-Stack Deployment:** Static HTML export for **Cloudflare Pages** (`*.pages.dev`) and FastAPI container service for **Render** with dynamic environment base URLs.
+* **Visual DAG Studio:** A node-based canvas (`@xyflow/react`) to visually design, debug, and execute multi-agent debate evaluation graphs matching `haizelabs/verdict` v0.2.x primitives (`Unit`, `Layer`, `CategoricalJudgeUnit`, `CoTUnit`, `MaxPoolUnit`, `MapUnit`).
+* **Client-Side BYOK & Interactive Simulation Fallback:** 100% optional API keys with zero blocking dialogs for demo simulation, plus seamless live model inference for OpenAI, Anthropic Claude, and custom base endpoints (OpenRouter, Groq, Ollama).
+* **Haize Sentinel (MCP Security Gateway):** A scoped MCP proxy that intercepts agent tool requests, enforces granular tool permissions (AST-level Read-Only SQL, blocked Bash, domain whitelists), and **triggers an inline test-time Verdict debate** on untrusted tool returns before the LLM ingests them.
+* **Live Canvas Telemetry & Threat Stream:** When Claude Desktop or Devin executes a tool, the visual DAG canvas lights up in real time over WebSockets, displaying the inline safety debate and streaming execution audit logs.
+* **Cloud-Native Full-Stack Deployment:** Static HTML export for **Vercel / Cloudflare Pages** and FastAPI container service for **Render** with dynamic environment base URLs.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
 │  VERDICT STUDIO & HAIZE SENTINEL CONTROL PLANE                                [ + Generate Key ] │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────┤
 │  [ NAVIGATION ]        │                                                                         │
-│  • 📊 Visual DAG Studio│  [ SCOPED MCP KEY & SECURITY POLICIES ]                                 │
-│  • 🛡️ Sentinel Gateway │  ┌────────────────────────────────────────────────────────────────────┐ │
-│  • ⚡ Live Threat Feed │  │ Key: "Devin-Prod-Support"  | Hash: haize_mcp_live_8f3a9e...        │ │
-│  • 📜 Audit Logs       │  │ Scoped Permissions & Guardrails:                                   │ │
-│  ────────────────────  │  │  ☑️ db_query: Read-Only (AST-level: blocks DROP/UPDATE/DELETE)     │ │
-│  [ DAG CANVAS ]        │  │  ⛔ bash_terminal: BLOCKED (High Risk Execution)                  │ │
-│  Tool Return ──>       │  │  ☑️ fetch_web: Domain Whitelist (*.internal.corp.com)               │ │
-│  ┌──────────────────┐  │  │  ⚖️ Inline Verdict Debate Firewall (>150 tokens): [ENABLED]        │ │
-│  │ Prosecutor ⚔️    │  │  └────────────────────────────────────────────────────────────────────┘ │
+│  • Visual DAG Studio   │  [ SCOPED MCP KEY & SECURITY POLICIES ]                                 │
+│  • Sentinel Gateway    │  ┌────────────────────────────────────────────────────────────────────┐ │
+│  • Live Threat Feed    │  │ Key: "Devin-Prod-Support"  | Hash: haize_mcp_live_8f3a9e...        │ │
+│  • Audit Logs          │  │ Scoped Permissions & Guardrails:                                   │ │
+│  ────────────────────  │  │  - db_query: Read-Only (AST-level: blocks DROP/UPDATE/DELETE)      │ │
+│  [ DAG CANVAS ]        │  │  - bash_terminal: BLOCKED (High Risk Execution)                   │ │
+│  Tool Return ──>       │  │  - fetch_web: Domain Whitelist (*.internal.corp.com)                │ │
+│  ┌──────────────────┐  │  │  - Inline Verdict Debate Firewall (>150 tokens): [ENABLED]         │ │
+│  │ Prosecutor       │  │  └────────────────────────────────────────────────────────────────────┘ │
 │  │ Defense Unit     │  │                                                                         │
 │  └────────┬─────────┘  │  [ 1-CLICK CLAUDE DESKTOP / DEVIN CONFIG GENERATOR ]                    │
 │           ▼            │  { "mcpServers": { "haize": { "args": ["--key", "haize_mcp_..."] } } }  │
@@ -43,9 +43,9 @@ Autonomous AI agents (e.g., **Claude Desktop, Devin, Cursor, and enterprise cust
 │  └──────────────────┘  │                                                                         │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────┤
 │  REAL-TIME MCP THREAT STREAM & AUDIT TELEMETRY:                                                 │
-│  [18:42:01] Devin invoked 'db_query' -> "SELECT * FROM orders WHERE id=1" -> ✅ ALLOWED (AST OK) │
-│  [18:42:09] Claude invoked 'db_query' -> "DROP TABLE customers;" -> 🚨 BLOCKED (SQL Guardrail)   │
-│  [18:42:15] Cursor fetched 'http://untrusted-blog.com' -> ⚖️ VERDICT DEBATE: INJECTION DETECTED │
+│  [18:42:01] Devin invoked 'db_query' -> "SELECT * FROM orders WHERE id=1" -> ALLOWED (AST OK)   │
+│  [18:42:09] Claude invoked 'db_query' -> "DROP TABLE customers;" -> BLOCKED (SQL Guardrail)     │
+│  [18:42:15] Cursor fetched 'http://untrusted-blog.com' -> VERDICT DEBATE: INJECTION DETECTED     │
 └──────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -90,7 +90,7 @@ flowchart TB
         DB[(In-Memory & SQLite Datastores)]
     end
 
-    subgraph FrontendStudio ["Verdict Studio Frontend (Next.js 14 on Cloudflare Pages)"]
+    subgraph FrontendStudio ["Verdict Studio Frontend (Next.js 14 on Vercel / Cloudflare)"]
         DAGCanvas["Visual DAG Builder (React Flow)"]
         KeyManager["Scoped Key & Permission Manager"]
         LiveDebateViewer["Token-by-Token Debate Stream"]
@@ -152,13 +152,13 @@ flowchart TB
 
 | Capability | Verification Procedure | Expected Result |
 | :--- | :--- | :--- |
-| **Visual DAG Composition** | Drag `InputNode` $\to$ `Layer([Prosecutor, Defense])` $\to$ `ChiefJustice` | Canvas connects valid handles and serializes graph state. |
+| **Visual DAG Composition** | Drag `InputNode` -> `Layer([Prosecutor, Defense])` -> `ChiefJustice` | Canvas connects valid handles and serializes graph state. |
 | **Live Debate Streaming** | Click "Run Debate Simulation" on canvas | Token-by-token debate streams in UI split-pane via WebSockets. |
 | **BYOK Live Inference** | Enter custom OpenAI/Anthropic/Groq key in Settings modal | Streams live LLM tokens over WebSockets; falls back to demo simulation if key absent/invalid. |
-| **1-Click Code Export** | Click "Export Python" $\to$ run code with `python test.py` | Native script runs successfully using `verdict` v0.2.7. |
+| **1-Click Code Export** | Click "Export Python" -> run code with `python test.py` | Native script runs successfully using `verdict` v0.2.7. |
 | **Scoped Key Creation** | Generate key with `db_query` Read-Only and `bash` Disabled | Hashed key record created; Claude Desktop snippet generated. |
 | **AST SQL Guardrail** | Agent executes `DROP TABLE users;` via MCP Gateway | Intercepted in <10ms; rejected with `BLOCKED (SQL Violation)`. |
-| **Verdict Tool Firewall** | Agent fetches untrusted web page with prompt injection | Tool return triggers Verdict debate $\to$ malicious payload quarantined. |
+| **Verdict Tool Firewall** | Agent fetches untrusted web page with prompt injection | Tool return triggers Verdict debate -> malicious payload quarantined. |
 | **Live Telemetry** | Execute tool calls in Claude Desktop | Live Audit Log and DAG canvas light up with real-time events. |
 
 ---
@@ -177,8 +177,8 @@ flowchart TB
 > *With autonomous agents rapidly adopting Anthropic's Model Context Protocol (MCP), production teams face a massive security gap: **how to govern agent tool permissions and protect against indirect prompt injections at runtime**.*
 > 
 > *To solve this, I built and open-sourced **Verdict Studio & Haize Sentinel**:*
-> * 📊 **Visual DAG Studio:** A drag-and-drop builder for composing `haizelabs/verdict` multi-agent debate pipelines with live token streaming, BYOK inference, and 1-click Python code export.
-> * 🛡️ **Haize Sentinel MCP Gateway:** A scoped API key manager for Claude Desktop, Cursor, and Devin that enforces AST-level Read-Only SQL, bash quarantine, and **inline Verdict safety debates on tool returns** before agents ingest them.
-> * ⚡ **Live Threat Telemetry:** Real-time WebSocket observability stream tracking every agent tool invocation and policy violation.
+> * - **Visual DAG Studio:** A drag-and-drop builder for composing `haizelabs/verdict` multi-agent debate pipelines with live token streaming, BYOK inference, and 1-click Python code export.
+> * - **Haize Sentinel MCP Gateway:** A scoped API key manager for Claude Desktop, Cursor, and Devin that enforces AST-level Read-Only SQL, bash quarantine, and **inline Verdict safety debates on tool returns** before agents ingest them.
+> * - **Live Threat Telemetry:** Real-time WebSocket observability stream tracking every agent tool invocation and policy violation.
 > 
 > *I’d love to bring this level of full-stack systems engineering and product vision to Haize Labs as a SWE Intern!"*

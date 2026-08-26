@@ -1,16 +1,16 @@
-# 🚀 Full-Stack Deployment Runbook
+# Full-Stack Deployment Runbook
 
-This guide covers deploying **Verdict Studio & Haize Sentinel** across **Render** (Backend FastAPI Service) and **Cloudflare Pages** (Frontend Next.js Static Export).
+This guide covers deploying **Verdict Studio & Haize Sentinel** across **Render** (Backend FastAPI Service) and **Vercel / Cloudflare Pages** (Frontend Next.js Application).
 
 ---
 
-## 🏗️ Architecture Summary
+## Architecture Summary
 
 ```
    ┌─────────────────────────────────────────────────────────┐
-   │                  Cloudflare Pages (Edge)                │
-   │               Static Next.js 14 Web UI                  │
-   │         https://verdict-studio.pages.dev                │
+   │             Vercel / Cloudflare Pages                   │
+   │               Next.js 14 Web Application                │
+   │           https://your-frontend.vercel.app              │
    └──────────────────────────┬──────────────────────────────┘
                               │
               REST APIs       │       WebSocket Telemetry
@@ -25,14 +25,14 @@ This guide covers deploying **Verdict Studio & Haize Sentinel** across **Render*
 
 ---
 
-## 1. ⚡ Deploying Backend on Render
+## 1. Deploying Backend on Render
 
 Render hosts the FastAPI application, in-memory datastores, WebSocket telemetry hub, and the topological Verdict execution engine.
 
-### Option A: 1-Click Infrastructure as Code (Recommended)
-1. Fork or push the repository to GitHub.
+### Option A: Blueprints (Infrastructure as Code)
+1. Push the repository to GitHub.
 2. In the [Render Dashboard](https://dashboard.render.com/), select **Blueprints > New Blueprint Instance**.
-3. Select your repository. Render will automatically read [`render.yaml`](./render.yaml) and configure the service.
+3. Select your repository. Render will read [`render.yaml`](./render.yaml) and configure the service.
 4. Click **Apply**.
 
 ### Option B: Manual Web Service Setup
@@ -55,49 +55,52 @@ Render hosts the FastAPI application, in-memory datastores, WebSocket telemetry 
 
 ---
 
-## 2. 🌐 Deploying Frontend on Cloudflare Pages
+## 2. Deploying Frontend on Vercel
 
-Cloudflare Pages provides global CDN edge delivery with zero cold starts for the static export bundle.
-
-### Step-by-Step Setup:
-1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/).
-2. Navigate to **Workers & Pages > Create application > Pages > Connect to Git**.
-3. Select your `verdict-studio` repository.
-4. Configure the build settings:
-   - **Project Name**: `verdict-studio`
-   - **Production Branch**: `master`
-   - **Framework Preset**: `None` or `Next.js (Static HTML Export)`
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm run build`
-   - **Build Output Directory**: `out`
-5. In the **Environment Variables** section, add:
-   | Variable | Value |
-   | :--- | :--- |
-   | `NEXT_PUBLIC_API_URL` | `https://verdict-studio-backend.onrender.com` |
-   | `NEXT_PUBLIC_WS_URL` | `wss://verdict-studio-backend.onrender.com` |
-   | `NODE_VERSION` | `18.20.0` or `20.x` |
-6. Click **Save and Deploy**.
-
-Cloudflare Pages will build the static export and deploy it to `https://verdict-studio.pages.dev`.
+1. In the [Vercel Dashboard](https://vercel.com/), click **Add New > Project**.
+2. Import your GitHub repository.
+3. Under **Project Settings**:
+   - **Root Directory**: Click Edit and select `frontend`.
+   - **Framework Preset**: `Next.js`
+4. Under **Environment Variables**, add:
+   | Variable Name | Value | Description |
+   | :--- | :--- | :--- |
+   | `NEXT_PUBLIC_API_URL` | `https://verdict-studio-backend.onrender.com` | HTTPS base URL of your Render backend |
+   | `NEXT_PUBLIC_WS_URL` | `wss://verdict-studio-backend.onrender.com` | WSS WebSocket URL of your Render backend |
+5. Click **Deploy**.
 
 ---
 
-## 3. 🔍 Post-Deployment Verification Checklist
+## 3. Deploying Frontend on Cloudflare Pages (Alternative)
 
-Once both services are active:
+1. In the [Cloudflare Dashboard](https://dash.cloudflare.com/), navigate to **Workers & Pages > Create application > Pages > Connect to Git**.
+2. Select your repository and configure:
+   - **Project Name**: `verdict-studio`
+   - **Root Directory**: `frontend`
+   - **Framework Preset**: `Next.js (Static HTML Export)`
+   - **Build Command**: `npm run build`
+   - **Build Output Directory**: `out`
+3. Under **Environment Variables**, add:
+   - `NEXT_PUBLIC_API_URL`: `https://verdict-studio-backend.onrender.com`
+   - `NEXT_PUBLIC_WS_URL`: `wss://verdict-studio-backend.onrender.com`
+4. Click **Save and Deploy**.
+
+---
+
+## 4. Post-Deployment Verification Checklist
 
 1. **Verify Backend Health**:
    ```bash
    curl -I https://<your-render-app>.onrender.com/api/health
-   # Expected: HTTP/1.1 200 OK with status: "ok"
+   # Expected: HTTP/1.1 200 OK with {"status":"ok"}
    ```
 2. **Verify Frontend UI**:
-   - Visit `https://<your-pages-app>.pages.dev`.
+   - Visit `https://<your-frontend>.vercel.app` or `https://<your-frontend>.pages.dev`.
    - Look at the sidebar bottom footer: it should display **`Gateway Core: ONLINE`** with a pulsing green indicator.
 3. **Verify WebSocket Live Stream**:
    - Navigate to `/dag-studio`.
    - Click **Run Debate Simulation**.
-   - Verify that the bottom console opens and streams token-by-token arguments in real-time.
+   - Verify that the bottom console opens and streams tokens in real time.
 4. **Verify Scoped MCP Key Creation**:
    - Navigate to `/mcp-keys`.
    - Click **Create Scoped Key**, configure permissions, and generate a new key.
@@ -105,8 +108,8 @@ Once both services are active:
 
 ---
 
-## 4. 🛠️ Troubleshooting
+## 5. Troubleshooting
 
-- **CORS Errors**: The FastAPI backend includes `allow_origins=["*"]` and `allow_origin_regex=r"https?://.*"`. If you enforce strict origin whitelisting, set `CORS_ORIGINS=https://verdict-studio.pages.dev` in Render environment variables.
-- **WebSocket Connection Failures**: Ensure `NEXT_PUBLIC_WS_URL` begins with `wss://` (secure WebSocket) when connecting from HTTPS Cloudflare Pages.
+- **CORS Errors**: The FastAPI backend includes `allow_origins=["*"]` and `allow_origin_regex=r"https?://.*"`. If you enforce strict origin whitelisting, set `CORS_ORIGINS=https://your-frontend.vercel.app` in Render environment variables.
+- **WebSocket Connection Failures**: Ensure `NEXT_PUBLIC_WS_URL` begins with `wss://` (secure WebSocket) when connecting from HTTPS frontend deployments.
 - **Render Free Tier Cold Starts**: Render free tier instances spin down after 15 minutes of inactivity. The frontend includes automatic retry reconnection timers (4-second exponential backoff) and displays `Gateway Core: CHECKING` while the instance warms up.

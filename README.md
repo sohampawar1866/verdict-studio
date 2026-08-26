@@ -1,9 +1,9 @@
-# ⚖️ Verdict Studio & Haize Sentinel MCP Control Plane
+# Verdict Studio & Haize Sentinel MCP Control Plane
 
 [![Verdict v0.2.x](https://img.shields.io/badge/Verdict-v0.2.x_Compliant-06b6d4.svg)](https://github.com/haizelabs/verdict)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Standard_Compliant-8b5cf6.svg)](https://modelcontextprotocol.io/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14_App_Router-black.svg)](https://nextjs.org/)
-[![Cloudflare Pages](https://img.shields.io/badge/Cloudflare_Pages-Static_Export-f38020.svg)](https://pages.cloudflare.com/)
+[![Vercel / Cloudflare](https://img.shields.io/badge/Vercel_/_Cloudflare-Deployment_Ready-f38020.svg)](https://vercel.com/)
 [![Render](https://img.shields.io/badge/Render-FastAPI_Deployment-46e3b7.svg)](https://render.com/)
 [![Integration Tests](https://img.shields.io/badge/Integration_Tests-11%2F11_Passed-10b981.svg)]()
 [![Playwright Audit](https://img.shields.io/badge/Playwright_Audit-24%2F24_Passed-10b981.svg)]()
@@ -12,56 +12,56 @@
 
 ---
 
-## 🌟 Key Capabilities
+## Key Capabilities
 
-1. **🎨 Visual Multi-Agent DAG Studio (Frontend)**
+1. **Visual Multi-Agent DAG Studio (Frontend)**
    - **Custom Reactive Nodes**: `InputNode`, `ProsecutorUnit`, `DefenseUnit`, `FactCheckerUnit`, `ChiefJusticeUnit`, `CoTUnit`, and `AggregatorNode` (`MaxPoolUnit` via majority vote).
    - **Real-Time Token Streaming**: WebSocket telemetry console (`StreamingConsole.tsx`) streaming tokens chunk-by-chunk with glowing node execution states.
    - **1-Click Python Code Exporter**: Generates 100% syntactically valid standalone Python scripts using native `haizelabs/verdict` v0.2.x DSL.
    - **Multi-Turn Dynamic Prompt Substitution**: Automatically injects previous node arguments (e.g. `{previous.prosecutor}`, `{previous.defense}`) into downstream judge prompts.
 
-2. **🔑 Client-Side BYOK (Bring Your Own Key) & Simulation Fallback**
+2. **Client-Side BYOK (Bring Your Own Key) & Simulation Fallback**
    - **100% Optional Keys**: Zero-key visitors instantly experience interactive multi-agent debate simulations with zero blocking dialogs.
    - **Live Inference Engine**: Pass OpenAI, Anthropic Claude, or Custom Base URLs (OpenRouter, Groq, Together AI, local Ollama) for real model execution.
    - **Client-Side Privacy**: Keys are cached strictly in browser `localStorage` and passed ephemerally in execution requests.
 
-3. **🛡️ Scoped MCP Key & Permission Control Plane (Backend & Security Gateway)**
+3. **Scoped MCP Key & Permission Control Plane (Backend & Security Gateway)**
    - **Cryptographic Key Hashing**: Issues `haize_mcp_live_<token>` keys with SHA-256 validation.
    - **AST-Level SQL Guardrails**: Tokenizes SQL with `sqlparse` AST inspector to block `DROP`, `DELETE`, `UPDATE`, `INSERT`, and `ALTER` on Read-Only keys while permitting `SELECT`.
    - **Inline Verdict Safety Debate Defense**: Intercepts unverified tool outputs and triggers multi-agent Adversarial Safety Court debates to quarantine indirect prompt injection vectors before the host model ingests them.
    - **1-Click Agent Configuration**: Generates copy-pasteable JSON configs for **Claude Desktop** (`claude_desktop_config.json`), **Cursor IDE** (`.cursor/mcp.json`), and **Devin Agent**.
 
-4. **📊 Live Security Audit Logs & Threat Matrix**
+4. **Live Security Audit Logs & Threat Matrix**
    - Live WebSocket event ingestion (`/ws/telemetry`) tracking tool calls, latencies, and violations.
    - Multi-criteria filtering by Agent Key, Tool name, and Status (`ALLOWED`, `BLOCKED`, `VERDICT_REVIEW`).
    - 1-Click CSV and JSON export.
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
-    subgraph Clients["🤖 AI Agents & Interfaces"]
+    subgraph Clients["AI Agents & Interfaces"]
         Claude["Claude Desktop / Cursor IDE / Devin"]
-        Browser["Verdict Studio UI (Next.js 14 on Cloudflare Pages)"]
+        Browser["Verdict Studio UI (Next.js 14 on Vercel / Cloudflare Pages)"]
     end
 
-    subgraph Gateway["🛡️ Haize Sentinel MCP Gateway (TypeScript)"]
+    subgraph Gateway["Haize Sentinel MCP Gateway (TypeScript)"]
         Stdio["Stdio JSON-RPC Server"]
         Enforcer["Verdict Payload Quarantine Enforcer"]
     end
 
-    subgraph Backend["⚡ Control Plane (FastAPI on Render)"]
+    subgraph Backend["Control Plane (FastAPI on Render)"]
         Auth["Key Auth (SHA-256)"]
         AST["SQL AST Guardrails (sqlparse)"]
         Runner["Verdict Pipeline Runner (Topological Engine)"]
         WSHub["WebSocket Telemetry Streamer"]
     end
 
-    subgraph VerdictCore["⚖️ Haize Labs Verdict v0.2.x Core"]
+    subgraph VerdictCore["Haize Labs Verdict v0.2.x Core"]
         Pipeline["Pipeline >> Layer(repeat=N) >> Unit"]
-        Court["Adversarial Safety Court (Prosecutor ⚔️ Defense ⚖️ ChiefJustice)"]
+        Court["Adversarial Safety Court (Prosecutor / Defense / ChiefJustice)"]
     end
 
     Claude <-->|Stdio JSON-RPC| Stdio
@@ -77,9 +77,9 @@ flowchart TD
 
 ---
 
-## 🌐 Full-Stack Production Deployment
+## Full-Stack Production Deployment
 
-Verdict Studio is architected for cloud-native deployment with **Cloudflare Pages** (Frontend) and **Render** (Backend):
+Verdict Studio is architected for cloud-native deployment with **Vercel / Cloudflare Pages** (Frontend) and **Render** (Backend):
 
 ### 1. Backend Deployment (Render)
 1. Fork or push this repository to GitHub.
@@ -91,21 +91,19 @@ Verdict Studio is architected for cloud-native deployment with **Cloudflare Page
    - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 4. Note your public backend URL (e.g. `https://verdict-studio-backend.onrender.com`).
 
-### 2. Frontend Deployment (Cloudflare Pages)
-1. In the [Cloudflare Dashboard](https://dash.cloudflare.com/), navigate to **Workers & Pages > Create application > Pages > Connect to Git**.
-2. Select the repository and configure:
-   - **Framework Preset**: `Next.js (Static HTML Export)` / `None`
+### 2. Frontend Deployment (Vercel or Cloudflare Pages)
+1. In the [Vercel Dashboard](https://vercel.com/), click **Add New > Project** and import the repository.
+2. Configure the project settings:
    - **Root Directory**: `frontend`
-   - **Build Command**: `npm run build`
-   - **Build Output Directory**: `out`
-3. Add Environment Variables under **Settings > Environment variables**:
+   - **Framework Preset**: `Next.js`
+3. Add Environment Variables under **Settings > Environment Variables**:
    - `NEXT_PUBLIC_API_URL`: `https://<your-render-app>.onrender.com`
    - `NEXT_PUBLIC_WS_URL`: `wss://<your-render-app>.onrender.com`
-4. Click **Save and Deploy**.
+4. Click **Deploy**.
 
 ---
 
-## 🚀 Local Development Quickstart
+## Local Development Quickstart
 
 ### Prerequisites
 - Python 3.10+
@@ -136,7 +134,7 @@ npx tsx src/index.ts --key haize_mcp_live_demo1234567890abcdef12345678 --backend
 
 ---
 
-## 💻 Claude Desktop & Cursor Configuration
+## Claude Desktop & Cursor Configuration
 
 ### Claude Desktop (`claude_desktop_config.json`)
 ```json
@@ -178,7 +176,7 @@ npx tsx src/index.ts --key haize_mcp_live_demo1234567890abcdef12345678 --backend
 
 ---
 
-## 🧪 Comprehensive Test Suite
+## Comprehensive Test Suite
 
 Run the full automated test suite verifying Python DAG runner, BYOK fallback, AST SQL guardrail engine, and Playwright UI matrix:
 
@@ -198,16 +196,16 @@ node mcp-gateway/tests/e2e_test.js
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 verdict_studio/
 ├── .env.example                  # Root full-stack environment variables template
 ├── render.yaml                   # Infrastructure-as-code for Render deployment
-├── DEPLOYMENT.md                 # Complete Cloudflare Pages & Render deployment runbook
+├── DEPLOYMENT.md                 # Complete Vercel, Cloudflare Pages & Render deployment runbook
 ├── PROJECT_1_VERDICT_STUDIO.md   # Architectural specification & technical deep-dive
 ├── frontend/                     # Next.js 14 App Router, React Flow & Tailwind
-│   ├── .env.example              # Frontend Cloudflare environment variables template
+│   ├── .env.example              # Frontend environment variables template
 │   ├── next.config.mjs           # Next.js static HTML export configuration
 │   ├── app/
 │   │   ├── page.tsx              # Executive Dashboard & System Health
@@ -256,14 +254,14 @@ verdict_studio/
 
 ---
 
-## 🔗 Ecosystem & Links
+## Ecosystem & Links
 
 - **Official Haize Labs Verdict**: [`haizelabs/verdict`](https://github.com/haizelabs/verdict)
 - **Project Repository**: [`sohampawar1866/verdict-studio`](https://github.com/sohampawar1866/verdict-studio)
-- **Builder / Author**: [Soham Sanjay Pawar](https://github.com/sohampawar1866) • [LinkedIn](https://www.linkedin.com/in/sohampawar1866/) • [Devfolio](https://devfolio.co/@sohampawar1866)
+- **Builder / Author**: [Soham Sanjay Pawar](https://github.com/sohampawar1866) | [LinkedIn](https://www.linkedin.com/in/sohampawar1866/) | [Devfolio](https://devfolio.co/@sohampawar1866)
 
 ---
 
-## 📜 License
+## License
 
-Apache 2.0. Built with ❤️ for **Haize Labs** and the open-source AI safety engineering community.
+Apache 2.0. Built for **Haize Labs** and the open-source AI safety engineering community.

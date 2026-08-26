@@ -1,0 +1,4 @@
+Introducing Verdict Studio & Haize Sentinel: the visual multi-agent debate studio and scoped MCP tool security gateway built natively for Haize Labs Verdict. Compose adversarial red-team courts, stream live debate tokens, and enforce AST-level SQL firewalls on autonomous agents.
+
+Live Demo: https://verdict-studio-haizelabs.vercel.app
+GitHub: https://github.com/sohampawar1866/verdict-studio

@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -20,7 +21,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchHealth = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/health", { cache: "no-store" });
+        const res = await fetch(`${API_BASE_URL}/api/health`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setStats({
@@ -37,7 +38,7 @@ export default function DashboardPage() {
 
     const fetchAudit = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/audit/logs", { cache: "no-store" });
+        const res = await fetch(`${API_BASE_URL}/api/audit/logs`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setRecentEvents(data.slice(0, 5));

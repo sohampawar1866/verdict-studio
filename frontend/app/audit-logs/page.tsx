@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { AuditLogEntry } from "@/lib/types";
+import { API_BASE_URL, WS_BASE_URL } from "@/lib/config";
 
 export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
@@ -21,7 +22,7 @@ export default function AuditLogsPage() {
 
   const fetchLogs = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/audit/logs", { cache: "no-store" });
+      const res = await fetch(`${API_BASE_URL}/api/audit/logs`, { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setLogs(data);
@@ -83,7 +84,7 @@ export default function AuditLogsPage() {
     let ws: WebSocket;
     const connectWS = () => {
       try {
-        ws = new WebSocket("ws://localhost:8000/ws/telemetry");
+        ws = new WebSocket(`${WS_BASE_URL}/ws/telemetry`);
         ws.onopen = () => setWsConnected(true);
         ws.onclose = () => {
           setWsConnected(false);

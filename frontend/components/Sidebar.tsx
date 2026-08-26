@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import SettingsModal, { getStoredAPISettings } from "./SettingsModal";
+import { API_BASE_URL } from "@/lib/config";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -26,7 +27,7 @@ export default function Sidebar() {
   useEffect(() => {
     const checkSettings = () => {
       const stored = getStoredAPISettings();
-      setHasCustomKey(Boolean(stored.openaiApiKey || stored.anthropicApiKey || stored.customBaseUrl));
+      setHasCustomKey(Boolean(stored.openaiApiKey || stored.anthropicApiKey || stored.customBaseUrl || stored.customApiKey));
     };
     checkSettings();
     const interval = setInterval(checkSettings, 3000);
@@ -36,7 +37,7 @@ export default function Sidebar() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/health", { cache: "no-store" });
+        const res = await fetch(`${API_BASE_URL}/api/health`, { cache: "no-store" });
         if (res.ok) {
           setBackendHealthy(true);
         } else {
@@ -234,10 +235,13 @@ export default function Sidebar() {
 
         {/* Backend Health Footer */}
         <div className="p-3.5 border-t border-[#4a154b]/30 bg-[#0d030e]">
-          <div className="flex items-center justify-between px-3.5 py-2.5 rounded-full bg-[#1e0a20] border border-[#4a154b]/40 text-[11px]">
-            <div className="flex items-center gap-2">
+          <div
+            title={`Connected to: ${API_BASE_URL}`}
+            className="flex items-center justify-between px-3.5 py-2.5 rounded-full bg-[#1e0a20] border border-[#4a154b]/40 text-[11px] cursor-help transition-all hover:border-[#d9bdde]/30"
+          >
+            <div className="flex items-center gap-2 min-w-0">
               <div
-                className={`w-2.5 h-2.5 rounded-full ${
+                className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
                   backendHealthy === true
                     ? "bg-[#007a5a] shadow-sm shadow-[#007a5a] animate-pulse"
                     : backendHealthy === false
@@ -245,10 +249,10 @@ export default function Sidebar() {
                     : "bg-amber-400"
                 }`}
               />
-              <span className="text-slate-200 font-mono text-[11px]">FastAPI Core</span>
+              <span className="text-slate-200 font-mono text-[11px] truncate">Gateway Core</span>
             </div>
             <span
-              className={`font-mono text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+              className={`font-mono text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider flex-shrink-0 ${
                 backendHealthy === true
                   ? "bg-[#007a5a]/20 text-[#2ecc71] border border-[#007a5a]/40"
                   : backendHealthy === false
@@ -256,7 +260,7 @@ export default function Sidebar() {
                   : "bg-amber-950 text-amber-300"
               }`}
             >
-              {backendHealthy === true ? ":8000 ONLINE" : backendHealthy === false ? "OFFLINE" : "CHECKING"}
+              {backendHealthy === true ? "ONLINE" : backendHealthy === false ? "OFFLINE" : "CHECKING"}
             </span>
           </div>
         </div>

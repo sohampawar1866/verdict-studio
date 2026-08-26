@@ -3,14 +3,17 @@
 import React, { useState } from "react";
 import { X, Copy, Check, Terminal, Laptop, Code2 } from "lucide-react";
 import { MCPKey } from "@/lib/types";
+import { API_BASE_URL } from "@/lib/config";
 
 interface ConfigSnippetModalProps {
-  keyData: MCPKey | null;
+  selectedKey?: MCPKey | null;
+  keyData?: MCPKey | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export default function ConfigSnippetModal({
+  selectedKey,
   keyData,
   isOpen,
   onClose,
@@ -18,9 +21,11 @@ export default function ConfigSnippetModal({
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"claude" | "cursor" | "devin">("claude");
 
-  if (!isOpen || !keyData) return null;
+  const targetKey = selectedKey || keyData;
 
-  const keyToUse = keyData.rawKey || `${keyData.keyPrefix}...[SECRET]`;
+  if (!isOpen || !targetKey) return null;
+
+  const keyToUse = targetKey.keyPrefix ? `${targetKey.keyPrefix}...` : "haize_mcp_live_YOUR_SECRET_KEY";
 
   const claudeConfig = {
     mcpServers: {
@@ -32,7 +37,7 @@ export default function ConfigSnippetModal({
           "--key",
           keyToUse,
           "--backend-url",
-          "http://localhost:8000",
+          API_BASE_URL,
         ],
       },
     },
@@ -48,7 +53,7 @@ export default function ConfigSnippetModal({
           keyToUse,
         ],
         env: {
-          HAIZE_BACKEND_URL: "http://localhost:8000",
+          HAIZE_BACKEND_URL: API_BASE_URL,
         },
       },
     },
@@ -56,7 +61,7 @@ export default function ConfigSnippetModal({
 
   const devinSnippet = `# Run in Devin Shell / Custom Agent Environment
 export HAIZE_MCP_KEY="${keyToUse}"
-export HAIZE_BACKEND_URL="http://localhost:8000"
+export HAIZE_BACKEND_URL="${API_BASE_URL}"
 
 # Launch Sentinel Gateway
 npx -y @haizelabs/sentinel-mcp --key $HAIZE_MCP_KEY
@@ -85,7 +90,7 @@ npx -y @haizelabs/sentinel-mcp --key $HAIZE_MCP_KEY
               Agent Integration Snippets
             </h2>
             <p className="text-sm text-slate-300 mt-0.5">
-              Target configuration for <strong className="text-white">{keyData.name}</strong>
+              Target configuration for <strong className="text-white">{targetKey.name}</strong>
             </p>
           </div>
           <button

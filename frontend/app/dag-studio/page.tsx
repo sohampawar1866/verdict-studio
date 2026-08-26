@@ -18,6 +18,7 @@ import { SAMPLE_DAG_PRESETS } from "@/lib/dagPresets";
 import { downloadDAGAsJSON, parseDAGFromJSON } from "@/lib/dagSerializer";
 import { DAGGraph, DAGNode, NodeData, VerdictNodeType } from "@/lib/types";
 import { getStoredAPISettings } from "@/components/SettingsModal";
+import { API_BASE_URL, WS_BASE_URL } from "@/lib/config";
 import {
   Play,
   Save,
@@ -59,7 +60,7 @@ export default function DAGStudioPage() {
   useEffect(() => {
     const connectWS = () => {
       try {
-        const ws = new WebSocket("ws://localhost:8000/ws/telemetry");
+        const ws = new WebSocket(`${WS_BASE_URL}/ws/telemetry`);
         wsRef.current = ws;
 
         ws.onopen = () => setIsOfflineMode(false);
@@ -293,7 +294,7 @@ export default function DAGStudioPage() {
         edges: edges as any,
       };
 
-      const res = await fetch("http://localhost:8000/api/dags", {
+      const res = await fetch(`${API_BASE_URL}/api/dags`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(currentDAG),
@@ -429,7 +430,7 @@ export default function DAGStudioPage() {
     const apiSettings = getStoredAPISettings();
 
     try {
-      const res = await fetch("http://localhost:8000/api/dag/execute", {
+      const res = await fetch(`${API_BASE_URL}/api/dag/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

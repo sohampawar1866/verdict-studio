@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Check, Copy } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 
 interface KeyModalProps {
   isOpen: boolean;
@@ -50,7 +51,7 @@ export default function KeyModal({ isOpen, onClose, onKeyCreated }: KeyModalProp
       .filter(Boolean);
 
     try {
-      const res = await fetch("http://localhost:8000/api/mcp/keys", {
+      const res = await fetch(`${API_BASE_URL}/api/mcp/keys`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

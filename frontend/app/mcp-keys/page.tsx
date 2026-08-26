@@ -10,6 +10,7 @@ import {
 import KeyModal from "@/components/KeyModal";
 import ConfigSnippetModal from "@/components/ConfigSnippetModal";
 import { MCPKey } from "@/lib/types";
+import { API_BASE_URL } from "@/lib/config";
 
 export default function MCPKeysPage() {
   const [keys, setKeys] = useState<MCPKey[]>([]);
@@ -21,7 +22,7 @@ export default function MCPKeysPage() {
 
   const fetchKeys = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/mcp/keys", { cache: "no-store" });
+      const res = await fetch(`${API_BASE_URL}/api/mcp/keys`, { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         const formatted: MCPKey[] = data.map((k: any) => ({
@@ -79,7 +80,7 @@ export default function MCPKeysPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/api/mcp/keys/${keyId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/mcp/keys/${keyId}`, {
         method: "DELETE",
       });
       if (res.ok) {

@@ -1,14 +1,25 @@
 # Verdict Studio & Haize Sentinel MCP Control Plane
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-verdict--studio--haizelabs.vercel.app-7928ca.svg)](https://verdict-studio-haizelabs.vercel.app)
+[![Backend API](https://img.shields.io/badge/Backend_API-verdict--studio.onrender.com-46e3b7.svg)](https://verdict-studio.onrender.com/api/health)
 [![Verdict v0.2.x](https://img.shields.io/badge/Verdict-v0.2.x_Compliant-06b6d4.svg)](https://github.com/haizelabs/verdict)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Standard_Compliant-8b5cf6.svg)](https://modelcontextprotocol.io/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14_App_Router-black.svg)](https://nextjs.org/)
-[![Vercel / Cloudflare](https://img.shields.io/badge/Vercel_/_Cloudflare-Deployment_Ready-f38020.svg)](https://vercel.com/)
-[![Render](https://img.shields.io/badge/Render-FastAPI_Deployment-46e3b7.svg)](https://render.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-1.0.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![Integration Tests](https://img.shields.io/badge/Integration_Tests-11%2F11_Passed-10b981.svg)]()
 [![Playwright Audit](https://img.shields.io/badge/Playwright_Audit-24%2F24_Passed-10b981.svg)]()
 
 > **Verdict Studio & Haize Sentinel** is an enterprise-grade visual DAG pipeline builder, live multi-agent debate playground, and scoped Model Context Protocol (MCP) security gateway built natively on top of Haize Labs' [`haizelabs/verdict`](https://github.com/haizelabs/verdict) library and Anthropic's Model Context Protocol (MCP).
+
+---
+
+## Live Deployments & Quick Links
+
+- **Live Web Application:** [https://verdict-studio-haizelabs.vercel.app](https://verdict-studio-haizelabs.vercel.app)
+- **Live Backend API & Telemetry Hub:** [https://verdict-studio.onrender.com](https://verdict-studio.onrender.com)
+- **API Health Endpoint:** [https://verdict-studio.onrender.com/api/health](https://verdict-studio.onrender.com/api/health)
+- **Official Haize Labs Verdict Repository:** [https://github.com/haizelabs/verdict](https://github.com/haizelabs/verdict)
+- **Project Repository:** [https://github.com/sohampawar1866/verdict-studio](https://github.com/sohampawar1866/verdict-studio)
 
 ---
 
@@ -44,7 +55,7 @@
 flowchart TD
     subgraph Clients["AI Agents & Interfaces"]
         Claude["Claude Desktop / Cursor IDE / Devin"]
-        Browser["Verdict Studio UI (Next.js 14 on Vercel / Cloudflare Pages)"]
+        Browser["Verdict Studio UI (Next.js 14 on Vercel)"]
     end
 
     subgraph Gateway["Haize Sentinel MCP Gateway (TypeScript)"]
@@ -77,29 +88,23 @@ flowchart TD
 
 ---
 
-## Full-Stack Production Deployment
+## Production Deployment Reference
 
-Verdict Studio is architected for cloud-native deployment with **Vercel / Cloudflare Pages** (Frontend) and **Render** (Backend):
+Verdict Studio is deployed across **Vercel** (Frontend) and **Render** (Backend):
 
-### 1. Backend Deployment (Render)
-1. Fork or push this repository to GitHub.
-2. In the [Render Dashboard](https://dashboard.render.com/), click **New + > Web Service** and select this repo.
-3. Configure the service using [`render.yaml`](./render.yaml) or with these manual settings:
-   - **Environment**: `Python 3`
-   - **Root Directory**: `backend`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-4. Note your public backend URL (e.g. `https://verdict-studio-backend.onrender.com`).
+### 1. Backend Web Service (Render)
+- **Repository Directory**: `backend`
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Live Endpoint**: `https://verdict-studio.onrender.com`
 
-### 2. Frontend Deployment (Vercel or Cloudflare Pages)
-1. In the [Vercel Dashboard](https://vercel.com/), click **Add New > Project** and import the repository.
-2. Configure the project settings:
-   - **Root Directory**: `frontend`
-   - **Framework Preset**: `Next.js`
-3. Add Environment Variables under **Settings > Environment Variables**:
-   - `NEXT_PUBLIC_API_URL`: `https://<your-render-app>.onrender.com`
-   - `NEXT_PUBLIC_WS_URL`: `wss://<your-render-app>.onrender.com`
-4. Click **Deploy**.
+### 2. Frontend Application (Vercel)
+- **Repository Directory**: `frontend`
+- **Framework**: `Next.js 14`
+- **Environment Variables**:
+  - `NEXT_PUBLIC_API_URL`: `https://verdict-studio.onrender.com`
+  - `NEXT_PUBLIC_WS_URL`: `wss://verdict-studio.onrender.com`
+- **Live URL**: `https://verdict-studio-haizelabs.vercel.app`
 
 ---
 
@@ -148,7 +153,7 @@ npx tsx src/index.ts --key haize_mcp_live_demo1234567890abcdef12345678 --backend
         "--key",
         "haize_mcp_live_YOUR_KEY_HERE",
         "--backend-url",
-        "https://verdict-studio-backend.onrender.com"
+        "https://verdict-studio.onrender.com"
       ]
     }
   }
@@ -167,7 +172,7 @@ npx tsx src/index.ts --key haize_mcp_live_demo1234567890abcdef12345678 --backend
         "haize_mcp_live_YOUR_KEY_HERE"
       ],
       "env": {
-        "HAIZE_BACKEND_URL": "https://verdict-studio-backend.onrender.com"
+        "HAIZE_BACKEND_URL": "https://verdict-studio.onrender.com"
       }
     }
   }
@@ -254,11 +259,11 @@ verdict_studio/
 
 ---
 
-## Ecosystem & Links
+## Authors & Engineering Credits
 
-- **Official Haize Labs Verdict**: [`haizelabs/verdict`](https://github.com/haizelabs/verdict)
-- **Project Repository**: [`sohampawar1866/verdict-studio`](https://github.com/sohampawar1866/verdict-studio)
-- **Builder / Author**: [Soham Sanjay Pawar](https://github.com/sohampawar1866) | [LinkedIn](https://www.linkedin.com/in/sohampawar1866/) | [Devfolio](https://devfolio.co/@sohampawar1866)
+- **Lead Engineer & Architect:** [Soham Sanjay Pawar](https://github.com/sohampawar1866) | [LinkedIn](https://www.linkedin.com/in/sohampawar1866/) | [Devfolio](https://devfolio.co/@sohampawar1866)
+- **AI Pair-Programming Engine:** Google DeepMind Antigravity Advanced Agentic Coding Engine
+- **Upstream Framework:** Built natively for [Haize Labs](https://haizelabs.com) and [`haizelabs/verdict`](https://github.com/haizelabs/verdict)
 
 ---
 

@@ -15,8 +15,10 @@ Autonomous AI agents (e.g., **Claude Desktop, Devin, Cursor, and enterprise cust
 **Verdict Studio & Haize Sentinel** bridges offline evaluation and inline agent governance into a single open-source control plane:
 
 * 📊 **Visual DAG Studio:** A node-based canvas (`@xyflow/react`) to visually design, debug, and execute multi-agent debate evaluation graphs matching `haizelabs/verdict` v0.2.x primitives (`Unit`, `Layer`, `CategoricalJudgeUnit`, `CoTUnit`, `MaxPoolUnit`, `MapUnit`).
+* 🔑 **Client-Side BYOK & Interactive Simulation Fallback:** 100% optional API keys with zero blocking dialogs for demo simulation, plus seamless live model inference for OpenAI, Anthropic Claude, and custom base endpoints (OpenRouter, Groq, Ollama).
 * 🛡️ **Haize Sentinel (MCP Security Gateway):** A scoped MCP proxy that intercepts agent tool requests, enforces granular tool permissions (AST-level Read-Only SQL, blocked Bash, domain whitelists), and **triggers an inline test-time Verdict debate** on untrusted tool returns before the LLM ingests them.
 * ⚡ **Live Canvas Telemetry & Threat Stream:** When Claude Desktop or Devin executes a tool, the visual DAG canvas lights up in real time over WebSockets, displaying the inline safety debate and streaming execution audit logs.
+* 🌐 **Cloud-Native Full-Stack Deployment:** Static HTML export for **Cloudflare Pages** (`*.pages.dev`) and FastAPI container service for **Render** with dynamic environment base URLs.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -81,14 +83,14 @@ flowchart TB
         WebFetchMCP["Web Scraper Server"]
     end
 
-    subgraph VerdictStudioBackend ["Verdict Studio Core (FastAPI / Python 3.11)"]
+    subgraph VerdictStudioBackend ["Verdict Studio Core (FastAPI on Render)"]
         REST_API["Key & Policy REST API"]
         WSHub["Live Telemetry & WebSocket Hub"]
-        VerdictRunner["Verdict v0.2.x Pipeline Executor"]
-        DB[(SQLite / Prisma Store)]
+        VerdictRunner["Verdict v0.2.x Pipeline Executor (Topological Engine)"]
+        DB[(In-Memory & SQLite Datastores)]
     end
 
-    subgraph FrontendStudio ["Verdict Studio Frontend (Next.js 14)"]
+    subgraph FrontendStudio ["Verdict Studio Frontend (Next.js 14 on Cloudflare Pages)"]
         DAGCanvas["Visual DAG Builder (React Flow)"]
         KeyManager["Scoped Key & Permission Manager"]
         LiveDebateViewer["Token-by-Token Debate Stream"]
@@ -108,8 +110,8 @@ flowchart TB
     PolicyChecker -->|Audit Event| WSHub
     VerdictRunner -->|Token Stream| WSHub
     
-    WSHub <-->|WebSockets| FrontendStudio
-    REST_API <-->|REST HTTP| FrontendStudio
+    WSHub <-->|WebSockets (WSS)| FrontendStudio
+    REST_API <-->|REST HTTP (HTTPS)| FrontendStudio
     REST_API --> DB
 ```
 
@@ -129,6 +131,7 @@ flowchart TB
   - `AggregatorNode`: Majority vote (`MaxPoolUnit`), mean pool (`MeanPoolUnit`), or custom transform (`MapUnit`).
 - **Live Streaming Debate Viewer:** Split-pane console displaying sub-models debating token-by-token in real time over WebSockets with visual node glowing on active execution.
 - **1-Click Python Code Exporter:** Generates 100% syntactically valid `haizelabs/verdict` v0.2.x Python code with correct imports, `Unit` subclasses, `Layer(repeat=N)` groupings, and pipeline runners.
+- **Multi-Turn Dynamic Prompt Substitution:** Injects previous layer outputs into judge prompts (`{previous.prosecutor}`, `{previous.defense}`, `{previous.output}`).
 
 ### B. Haize Sentinel MCP Gateway (Security & Permission Control Plane)
 - **Cryptographic Key Management:** Create scoped keys (`haize_mcp_live_...`) stored securely with SHA-256 hashing.
@@ -145,69 +148,13 @@ flowchart TB
 
 ---
 
-## 4. Repository & Monorepo Structure
-
-```
-verdict-studio-mcp/
-├── frontend/                            # Next.js 14 App Router + React Flow
-│   ├── app/
-│   │   ├── layout.tsx                   # Global layout with navigation sidebar
-│   │   ├── page.tsx                     # Main executive dashboard
-│   │   ├── dag-studio/page.tsx          # Visual Multi-Agent DAG Builder
-│   │   ├── mcp-keys/page.tsx            # Scoped MCP Key & Security Manager
-│   │   └── audit-logs/page.tsx          # Live tool execution & threat matrix
-│   ├── components/
-│   │   ├── Canvas.tsx                   # React Flow DAG Canvas
-│   │   ├── nodes/                       # Custom Verdict visual nodes
-│   │   │   ├── InputNode.tsx
-│   │   │   ├── ProsecutorNode.tsx
-│   │   │   ├── DefenseNode.tsx
-│   │   │   ├── FactCheckerNode.tsx
-│   │   │   ├── ChiefJusticeNode.tsx
-│   │   │   ├── CoTNode.tsx
-│   │   │   └── AggregatorNode.tsx
-│   │   ├── NodeConfigDrawer.tsx         # Sidebar for node model & prompt editing
-│   │   ├── KeyModal.tsx                 # Scoped key creation modal
-│   │   ├── StreamingConsole.tsx         # Token-by-token live debate viewer
-│   │   ├── CodeExportModal.tsx          # 1-click Verdict Python exporter
-│   │   └── ConfigSnippetModal.tsx       # 1-click Claude Desktop config exporter
-│   ├── lib/
-│   │   ├── codeExporter.ts              # DAG JSON -> Native Verdict Python generator
-│   │   └── websocket.ts                 # Resilient WebSocket connection manager
-│   └── package.json
-│
-├── backend/                             # Python 3.11 + FastAPI Backend Core
-│   ├── app/
-│   │   ├── main.py                      # FastAPI REST endpoints & WebSocket hub
-│   │   ├── engine/
-│   │   │   ├── verdict_runner.py        # Compiles DAG JSON -> runs verdict.Pipeline
-│   │   │   └── live_streamer.py         # Streams token chunks to WebSockets
-│   │   ├── mcp_gateway/
-│   │   │   ├── policy_engine.py         # AST SQL validation & SSRF checks
-│   │   │   └── key_auth.py              # SHA-256 key hashing and verification
-│   │   └── models/                      # Pydantic schemas (Key, Policy, Log, DAG)
-│   └── requirements.txt
-│
-├── mcp-gateway/                         # TypeScript MCP Gateway Proxy
-│   ├── src/
-│   │   ├── index.ts                     # MCP Server stdio / SSE entry point
-│   │   ├── proxy.ts                     # Downstream MCP client router
-│   │   └── sentinel.ts                  # Intercepts tools/call & verifies permissions
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── .planning/                           # Structured GSD Lifecycle & Research Specs
-└── README.md
-```
-
----
-
-## 5. Master Verification Criteria
+## 4. Master Verification Criteria
 
 | Capability | Verification Procedure | Expected Result |
 | :--- | :--- | :--- |
 | **Visual DAG Composition** | Drag `InputNode` $\to$ `Layer([Prosecutor, Defense])` $\to$ `ChiefJustice` | Canvas connects valid handles and serializes graph state. |
-| **Live Debate Streaming** | Click "Run Debate" on canvas | Token-by-token debate streams in UI split-pane via WebSockets. |
+| **Live Debate Streaming** | Click "Run Debate Simulation" on canvas | Token-by-token debate streams in UI split-pane via WebSockets. |
+| **BYOK Live Inference** | Enter custom OpenAI/Anthropic/Groq key in Settings modal | Streams live LLM tokens over WebSockets; falls back to demo simulation if key absent/invalid. |
 | **1-Click Code Export** | Click "Export Python" $\to$ run code with `python test.py` | Native script runs successfully using `verdict` v0.2.7. |
 | **Scoped Key Creation** | Generate key with `db_query` Read-Only and `bash` Disabled | Hashed key record created; Claude Desktop snippet generated. |
 | **AST SQL Guardrail** | Agent executes `DROP TABLE users;` via MCP Gateway | Intercepted in <10ms; rejected with `BLOCKED (SQL Violation)`. |
@@ -216,10 +163,10 @@ verdict-studio-mcp/
 
 ---
 
-## 6. Founder Pitch & Demo Script
+## 5. Founder Pitch & Demo Script
 
 ### 45-Second Screen Recording Flow:
-1. **0:00 - 0:15:** Drag and drop a Prosecutor and Defense model on the DAG canvas, configure a Chief Justice node, and hit **Run Debate** to show live token-by-token streaming debate.
+1. **0:00 - 0:15:** Drag and drop a Prosecutor and Defense model on the DAG canvas, configure a Chief Justice node, and hit **Run Debate Simulation** to show live token-by-token streaming debate.
 2. **0:15 - 0:25:** Open the **Sentinel MCP Control Plane**, generate a scoped key for `Claude-Desktop-Support`, toggle on **Read-Only SQL** and **Verdict Debate on Tool Returns**, and copy the config snippet.
 3. **0:25 - 0:35:** Open Claude Desktop. Ask Claude to execute `DROP TABLE customers;` against a local SQLite database. Show the Haize Sentinel MCP Gateway immediately intercepting and rejecting the query with a red policy violation.
 4. **0:35 - 0:45:** Show the **Live Threat Feed** updating in real time with the blocked violation and token metrics.
@@ -230,7 +177,7 @@ verdict-studio-mcp/
 > *With autonomous agents rapidly adopting Anthropic's Model Context Protocol (MCP), production teams face a massive security gap: **how to govern agent tool permissions and protect against indirect prompt injections at runtime**.*
 > 
 > *To solve this, I built and open-sourced **Verdict Studio & Haize Sentinel**:*
-> * 📊 **Visual DAG Studio:** A drag-and-drop builder for composing `haizelabs/verdict` multi-agent debate pipelines with live token streaming and 1-click Python code export.
+> * 📊 **Visual DAG Studio:** A drag-and-drop builder for composing `haizelabs/verdict` multi-agent debate pipelines with live token streaming, BYOK inference, and 1-click Python code export.
 > * 🛡️ **Haize Sentinel MCP Gateway:** A scoped API key manager for Claude Desktop, Cursor, and Devin that enforces AST-level Read-Only SQL, bash quarantine, and **inline Verdict safety debates on tool returns** before agents ingest them.
 > * ⚡ **Live Threat Telemetry:** Real-time WebSocket observability stream tracking every agent tool invocation and policy violation.
 > 
